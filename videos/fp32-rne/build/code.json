@@ -1,0 +1,38 @@
+{
+ "source": "anchorfp",
+ "repo": "https://github.com/f0d471/Anchorfp.git",
+ "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+ "path": "fp/rtl/fp32_mul_pipe.v",
+ "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+ "lang": "Verilog",
+ "lines": [
+  {
+   "no": 131,
+   "text": "    // RNE 舍入"
+  },
+  {
+   "no": 132,
+   "text": "    wire guard_bit  = prod_n[22];          // 保护位"
+  },
+  {
+   "no": 133,
+   "text": "    wire sticky_bit = |prod_n[21:0];       // 粘滞位"
+  },
+  {
+   "no": 134,
+   "text": "    wire mant_lsb   = prod_n[23];          // 保留尾数最低位"
+  },
+  {
+   "no": 135,
+   "text": "    wire round_up   = guard_bit & (sticky_bit | mant_lsb); // 舍入进位"
+  },
+  {
+   "no": 136,
+   "text": ""
+  },
+  {
+   "no": 137,
+   "text": "    wire [24:0] mant_rnd = {1'b0, prod_n[46:23]} + {24'd0, round_up}; // 舍入后尾数"
+  }
+ ]
+}

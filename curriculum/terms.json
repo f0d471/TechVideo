@@ -1,0 +1,16 @@
+[
+ {"code": "wire", "en": "wire", "zh": "导线", "episode": "fp32-rne"},
+ {"code": "wire 名字 = 来源;", "en": "wire declaration", "zh": "导线、名字、等号、来源、分号：声明一根线并接到来源上", "episode": "fp32-rne"},
+ {"code": "= （wire 里）", "en": "continuous assignment", "zh": "连线：右边一变，左边立刻跟着变", "episode": "fp32-rne"},
+ {"code": "[22]", "en": "index 22", "zh": "第 22 位", "episode": "fp32-rne"},
+ {"code": "[21:0]", "en": "bits 21 down to 0", "zh": "第 21 到第 0 位", "episode": "fp32-rne"},
+ {"code": "| （写在最前）", "en": "reduction OR", "zh": "一排线全部“或”在一起", "episode": "fp32-rne"},
+ {"code": "| （写在中间）", "en": "OR", "zh": "或", "episode": "fp32-rne"},
+ {"code": "&", "en": "AND", "zh": "与", "episode": "fp32-rne"},
+ {"code": "guard_bit", "en": "guard bit", "zh": "保护位", "episode": "fp32-rne"},
+ {"code": "sticky_bit", "en": "sticky bit", "zh": "粘滞位", "episode": "fp32-rne"},
+ {"code": "prod_n", "en": "product, normalized", "zh": "规格化后的积", "episode": "fp32-rne"},
+ {"code": "mant", "en": "mantissa", "zh": "尾数", "episode": "fp32-rne"},
+ {"code": "lsb", "en": "least significant bit", "zh": "最低位（末位）", "episode": "fp32-rne"},
+ {"code": "round_up", "en": "round up", "zh": "向上舍：末位加一", "episode": "fp32-rne"}
+]

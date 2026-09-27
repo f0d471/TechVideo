@@ -1,0 +1,21 @@
+# 生成物与本机文件，见 AGENTS.md 的目录归属表
+node_modules/
+out/
+models/
+.cache/
+
+# 本机设置：Chrome 与 Python 库的位置、素材仓的本地克隆
+tools/env.local.json
+
+# 每集的生成物：manifest.json 与 code.json 入库（画面代码直接引用），其余由 vt 的命令重建
+videos/*/audio/
+videos/*/build/*
+!videos/*/build/manifest.json
+!videos/*/build/code.json
+
+# skill：上游没有声明许可证，不随本仓库分发；按 skills-lock.json 用 npx skills experimental_install 恢复
+.agents/skills/
+.claude/skills/
+
+__pycache__/
+*.pyc

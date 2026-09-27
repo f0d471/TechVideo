@@ -1,0 +1,9 @@
+# 统一 LF 换行：bash 脚本在 CRLF 下无法运行
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.wav binary
+*.mp3 binary

@@ -1,0 +1,32 @@
+{
+  "name": "techvideo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "计算机体系结构与数字电路的中文讲解视频及其生产工具",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "studio": "remotion studio",
+    "vt": "node tools/vt.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@remotion/bundler": "4.0.529",
+    "@remotion/cli": "4.0.529",
+    "@remotion/media": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "lxgw-wenkai-webfont": "1.7.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.529",
+    "roughjs": "4.6.6"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

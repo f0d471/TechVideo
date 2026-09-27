@@ -1,0 +1,13 @@
+{
+  "id": "__ID__",
+  "title": "__TITLE__",
+  "voice": "zh-CN-YunxiNeural",
+  "rate": "+0%",
+  "fps": 30,
+  "leadFrames": 4,
+  "gapFrames": 10,
+  "beats": [
+    {"id": "t00", "silent": 2.2},
+    {"id": "p01", "say": "这里写第一句旁白，字幕与朗读相同时只写 say。"}
+  ]
+}

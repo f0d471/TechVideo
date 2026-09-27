@@ -1,0 +1,8 @@
+{
+ "anchorfp": {
+  "repo": "https://github.com/f0d471/Anchorfp.git",
+  "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+  "license": "SHL-2.1 OR Apache-2.0",
+  "content": "FP32 标量浮点单元与超越函数单元的 Verilog 实现"
+ }
+}
