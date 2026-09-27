@@ -24,7 +24,7 @@ Node 侧工具（Remotion 渲染、抽帧、各项检查）在本机运行。配
 ## 二、从零搭环境
 
 1. Node 依赖：在仓库根目录执行 `npm ci`。Remotion 打包时只从项目自己的 `node_modules` 解析依赖，所以依赖必须装在仓库里。
-2. skill：`npx skills experimental_install` 按 `skills-lock.json` 把 Remotion 官方 skill 恢复到 `.agents/skills/`，再执行 `node tools/link_skills.mjs` 生成 `.claude/skills/` 的目录链接。
+2. skill：`npx skills experimental_install` 按 `skills-lock.json` 把 Remotion 官方 skill 恢复到 `.agents/skills/`，再执行 `node tools/link_skills.mjs` 生成 `.claude/skills/` 的目录链接。恢复取的是上游当前的版本，完成后如果 `skills-lock.json` 有变化，按第四节核对。
 3. bash 侧：Windows 上执行 `wsl -e bash -c "cd <仓库在 WSL 里的路径> && bash tools/setup_env.sh"`，其他系统在仓库根目录执行 `bash tools/setup_env.sh`。它装好两组 Python 库、下载语音识别模型并校验 sha256，已装好的部分会跳过。需要 `python3`、`python3-pip`、`ffmpeg`、`curl`、`iverilog`，缺哪个脚本会提示。
 4. 本机设置（可选）：需要时新建 `tools/env.local.json`，见第三节。
 5. 验证：`node tools/vt.mjs check fp32-rne` 四项全过；`node tools/vt.mjs code fp32-rne` 能抽出代码；`node tools/vt.mjs stills fp32-rne 0.5 p24` 能出图（需要先 `vt tts fp32-rne` 生成配音）。
@@ -55,7 +55,8 @@ Node 侧工具（Remotion 渲染、抽帧、各项检查）在本机运行。配
 - 真实文件在 `.agents/skills/`。这是 skills 命令行的通用位置，Codex、OpenCode 等 agent 从这里读取。
 - `.claude/skills/` 里每一项都是指向 `.agents/skills/` 的目录链接，供 Claude Code 自动发现。
 - 这两个目录都不入库：上游仓库没有声明许可证，不随本仓库再分发。来源与哈希记在 `skills-lock.json`，克隆后按第二节恢复。
-- 更新：`npx skills add remotion-dev/skills -s '*' -a claude-code -a codex -a opencode -y`，完成后对比 `skills-lock.json` 里哪些 skill 的哈希变了，通读变化的 `SKILL.md`，确认没有与本仓库规范冲突的新规则。
+- `skills-lock.json` 只记来源与哈希，不记上游的提交号，所以恢复与更新都会取到上游当前的版本，并改写哈希。Windows 上换行符不同也会让哈希变化。`skills-lock.json` 有变化时，逐个比对变化的 skill：只有换行符不同的，还原 `skills-lock.json`；内容真的变了的，通读变化的 `SKILL.md`，确认没有与本仓库规范冲突的新规则后再提交新的 `skills-lock.json`。
+- 更新：`npx skills add remotion-dev/skills -s '*' -a claude-code -a codex -a opencode -y`，完成后按上一条核对。
 - 不管某个 agent 是否支持自动发现 skill，`AGENTS.md` 都要求写 Remotion 代码前读 `.agents/skills/remotion-best-practices/SKILL.md`。
 
 ## 五、网络
