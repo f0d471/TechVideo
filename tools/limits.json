@@ -3,6 +3,6 @@
  "caption": {"widthPx": 1500, "fontPx": 40, "maxLines": 2, "em": {"cjk": 1, "ascii": 0.6, "space": 0.35}, "why": "字幕区宽 1500 像素、40 像素字号；字宽按偏大的估计算，宁可多断一行；docs/standards/narration.md 第一节"},
  "hold": {"min": 0.4, "max": 1.2, "why": "需要观众停下来看画面时的停留秒数；docs/standards/narration.md 第一节"},
  "speechRate": {"min": 4.8, "max": 5.3, "why": "字/秒，不计标点。4.59 在审片中判为偏慢，4.94 通过；docs/standards/narration.md 第五节"},
- "duration": {"min": 180, "max": 480, "why": "秒。一集一个概念，时长随概念走，超出区间时考虑拆集或并集；docs/standards/principle.md 第十节"},
+ "duration": {"min": 180, "max": 720, "why": "秒。一集回答一个问题，连贯的小概念可以合成一集；超出区间时考虑拆集或并集；docs/standards/principle.md 第十节"},
  "fontSize": {"min": 17, "max": 52, "title": 132, "why": "像素。小标注 17–22，正文 24–34，强调 36–52，片头标题 132；docs/standards/visual.md 第二节"}
 }

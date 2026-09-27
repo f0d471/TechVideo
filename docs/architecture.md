@@ -98,6 +98,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 
 - 状态变化处的轻提示音。
 - 公式逐项变形的组件（一个式子逐项变成另一个式子）。
+- 一集引用多段代码：`script.json` 的 `code` 字段与 `build/code.json` 目前只支持一段连续的代码。浮点乘法系列第 1、2 集各要引用两三段，开工前先把 `code` 扩展成多段、每段一个名字，`CodePanel` 按名字取段。
 - 一个代码面板里显示不相邻的几段代码。
 
 另外，样片 `videos/fp32-rne/scenes/` 里有几种只用过一次、还没提取成共享组件的画面：抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）、语法形状与同形记号卡（`Code.tsx` 的 `Shape`、`Trap`）。下一集要用时，按第四节的规则提取到 `src/components/`。

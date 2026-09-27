@@ -6,7 +6,7 @@
 
 ## S0 立项
 
-- 输入：`curriculum/` 里某个系列总表中的一行。一集只讲总表里写的那一个概念。
+- 输入：`curriculum/` 里某个系列总表中的一行，以及系列大纲开头的情景。一集只讲总表里写的那个主题。
 - 命令：`node tools/vt.mjs new <id> <标题>`，id 与标题照抄总表。id 用小写字母、数字和连字符。
 - 产出：`videos/<id>/`（从 `_template` 复制），`videos/registry.ts` 多一行，`videos/README.md` 多一行；系列总表里这一行的状态改为「S0 立项」。
 - 验收：`npx remotion studio` 里能看到这一集（此时只有空白片头）；`vt curriculum` 零错误。
