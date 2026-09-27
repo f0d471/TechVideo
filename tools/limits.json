@@ -4,5 +4,6 @@
  "hold": {"min": 0.4, "max": 1.2, "why": "需要观众停下来看画面时的停留秒数；docs/standards/narration.md 第一节"},
  "speechRate": {"min": 4.8, "max": 5.3, "why": "字/秒，不计标点。4.59 在审片中判为偏慢，4.94 通过；docs/standards/narration.md 第五节"},
  "duration": {"min": 180, "max": 720, "why": "秒。一集回答一个问题，连贯的小概念可以合成一集；超出区间时考虑拆集或并集；docs/standards/principle.md 第十节"},
- "fontSize": {"min": 17, "max": 52, "title": 132, "why": "像素。小标注 17–22，正文 24–34，强调 36–52，片头标题 132；docs/standards/visual.md 第二节"}
+ "fontSize": {"min": 17, "max": 52, "title": 132, "why": "像素。小标注 17–22，正文 24–34，强调 36–52，片头标题 132；docs/standards/visual.md 第二节"},
+ "codeLines": {"max": 9, "why": "一个代码面板最多放 9 行，9 行时面板下沿在 y=562，再多下方的翻译表和电路放不下；docs/standards/code.md 第四节"}
 }

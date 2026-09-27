@@ -31,7 +31,7 @@
 
 ## 代码范围
 
-- 素材仓（`curriculum/sources.json` 里的名字）、文件路径与行号区间，写进 `script.json` 的 `code` 字段后运行 `vt code`：`"code": {"source": "anchorfp", "path": "…", "from": 1, "to": 2}`。没有对应代码时写「无」，这一集只有原理段。
+- 素材仓（`curriculum/sources.json` 里的名字）、文件路径与行号区间，写进 `script.json` 的 `code` 数组后运行 `vt code`，一段一项、每段一个名字、最多 9 行：`"code": [{"name": "unpack", "source": "anchorfp", "path": "…", "from": 1, "to": 2}]`。没有对应代码时写「无」，这一集只有原理段。
 - 原理段怎样过渡到代码段：用哪条规则或哪张框图当桥。
 - 要翻译的代码词：按 `curriculum/terms.json` 与系列顺序，标出完整翻译还是只高亮。
 

@@ -32,7 +32,7 @@ const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
   new      <id> <标题>        从 videos/_template 建一集，并登记到 registry.ts 与 videos/README.md
   lint     <id>               检查脚本：禁用句式、say 里的数字与符号、多音字、句长、字幕换行、项目名
   table    <id>               生成脚本审阅表 build/script.md，并打印脚本指纹
-  code     <id>               按 script.json 的 code 字段从素材源码的固定提交逐字抽代码到 build/code.json
+  code     <id>               按 script.json 的 code 数组从素材源码的固定提交逐字抽代码到 build/code.json
   evidence <id>               在素材源码的固定提交上运行 evidence/run.sh，刷新原始日志
   tts      <id>               分句配音 + 时间轴 + 字幕；先核对 STATUS.md 里的审阅指纹，完成后检查语速与片长
   asr      <id>               回听校对，拼音层比对

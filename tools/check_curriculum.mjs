@@ -35,8 +35,11 @@ for (const d of fs.readdirSync(path.join(ROOT, 'videos'), {withFileTypes: true})
   if (!d.isDirectory() || d.name.startsWith('_')) continue;
   if (!order.has(d.name)) errors.push(`videos/${d.name} 不在任何系列的总表里`);
   const sp = path.join(ROOT, 'videos', d.name, 'script.json');
-  const src = fs.existsSync(sp) ? readJson(sp).code?.source : undefined;
-  if (src && !(src in readJson(path.join(CUR, 'sources.json')))) errors.push(`videos/${d.name}/script.json 的 code.source ${src} 不在 sources.json 里`);
+  const code = fs.existsSync(sp) ? readJson(sp).code : undefined;
+  if (code && !Array.isArray(code)) errors.push(`videos/${d.name}/script.json 的 code 要写成数组，一段一项`);
+  for (const c of [code ?? []].flat()) {
+    if (!(c.source in readJson(path.join(CUR, 'sources.json')))) errors.push(`videos/${d.name}/script.json 的代码段 ${c.name} 的 source ${c.source} 不在 sources.json 里`);
+  }
 }
 
 // 概念表

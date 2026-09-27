@@ -12,7 +12,7 @@ const SOURCES = readJson(path.join(ROOT, 'curriculum/sources.json'));
 
 // 视频讲通用知识，不讲某个项目：素材仓名与源文件名不进旁白和字幕
 const projectNames = [...Object.keys(SOURCES)];
-if (script.code) projectNames.push(path.basename(script.code.path), path.basename(script.code.path).replace(/\.[^.]+$/, ''));
+for (const c of [script.code ?? []].flat()) projectNames.push(path.basename(c.path), path.basename(c.path).replace(/\.[^.]+$/, ''));
 // 各集叫法统一：概念表里登记的别名给提醒
 const ALIASES = readJson(path.join(ROOT, 'curriculum/concepts.json')).flatMap((c) => (c.avoid ?? []).map((a) => [a, c.name]));
 

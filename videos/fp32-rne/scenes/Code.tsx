@@ -4,12 +4,12 @@ import {C} from '../../../src/core/theme';
 import {useT} from '../../../src/core/timeline';
 import {RArrow, RLine, RPath} from '../../../src/core/rough';
 import {Chip, Txt} from '../../../src/components/Prims';
-import {CODE, CodePanel, CodeSource} from '../../../src/components/CodePanel';
+import {CODE, CodePanel, codeSnippet} from '../../../src/components/CodePanel';
 import {TransTable} from '../../../src/components/TransTable';
 import {Src, Val, Wire, andPath, orPath} from '../../../src/components/Gates';
 import codeJson from '../build/code.json';
 
-const code = codeJson as CodeSource;
+const code = codeSnippet(codeJson, 'rne');
 
 // 代码面板：源文件第 131–137 行（按 code.json 的行号对位，画面上不显示），逐行讲解 132–135
 const Panel: React.FC = () => {

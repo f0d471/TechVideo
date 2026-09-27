@@ -32,7 +32,7 @@
 ## S3 脚本
 
 - 编写 `videos/<id>/script.json`。一个 beat 是一句旁白加一次画面变化；每个 beat 有 `say`（送给 TTS 的朗读文本）和可选的 `sub`（字幕，缺省与 `say` 相同），可加 `hold`（语音结束后额外停留的秒数）。片头等无旁白的 beat 写 `silent`（秒）。beat id 是段落字母加两位序号：`t00` 片头、`p01` 起原理段、`c01` 起代码段。
-- 有代码段时，在 `script.json` 的 `code` 字段写素材仓名、文件路径与行号区间，然后运行 `node tools/vt.mjs code <id>`。
+- 有代码段时，在 `script.json` 的 `code` 数组里一段写一项：名字、素材仓名、文件路径与行号区间，例如 `{"name": "unpack", "source": "anchorfp", "path": "fp/rtl/fp32_mul_pipe.v", "from": 39, "to": 47}`，然后运行 `node tools/vt.mjs code <id>`。画面代码用 `codeSnippet(codeJson, 'unpack')` 按名字取段。
 - 写法规则见 `docs/standards/narration.md`。写完运行：
   - `node tools/vt.mjs lint <id>`：必须零错误。提醒逐条处理：多音字听过读音后登记进 `tools/lexicon.json`，设问句和长句按规范改写或说明保留理由，别名改成标准叫法。
   - `node tools/vt.mjs table <id>`：生成 `build/script.md`，页码、字幕与朗读三栏，并打印脚本指纹。

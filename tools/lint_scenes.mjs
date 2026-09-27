@@ -12,7 +12,7 @@ const SOURCES = readJson(path.join(ROOT, 'curriculum/sources.json'));
 const script = loadScript(id);
 
 const projectNames = Object.keys(SOURCES);
-if (script.code) projectNames.push(path.basename(script.code.path).replace(/\.[^.]+$/, ''));
+for (const c of [script.code ?? []].flat()) projectNames.push(path.basename(c.path).replace(/\.[^.]+$/, ''));
 
 const ERRORS = [
   [/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/, '颜色字面量：颜色只用 src/core/theme.ts 的 C'],

@@ -6,7 +6,7 @@
   "fps": 30,
   "leadFrames": 4,
   "gapFrames": 10,
-  "code": {"source": "anchorfp", "path": "fp/rtl/fp32_mul_pipe.v", "from": 131, "to": 137},
+  "code": [{"name": "rne", "source": "anchorfp", "path": "fp/rtl/fp32_mul_pipe.v", "from": 131, "to": 137}],
   "beats": [
     {"id": "t00", "silent": 2.2},
     {"id": "p01", "say": "上一步，两个尾数相乘，得到了一个四十八位的积。", "sub": "上一步，两个尾数相乘，得到了一个 48 位的积。"},

@@ -10,7 +10,7 @@
 
 ```
 videos/<id>/
-  script.json      分镜脚本：配音参数、代码抽取范围、beat 列表（唯一真源）
+  script.json      分镜脚本：配音参数、代码段列表（code 数组，每段一个名字）、beat 列表（唯一真源）
   outline.md       大纲：观众起点、概念链、类比、要实跑的数、代码范围、角色色
   STATUS.md        状态：阶段勾选、验收记录、反馈记录、待办
   Video.tsx        本集入口：片头、段落标签、各段场景，用 defineVideo 导出
@@ -58,7 +58,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `Prims.tsx` | `Txt`、`Bracket`、`Chip` | 文字（`mono` 为等宽且关连字）、方括号标注、概念卡 |
 | `Frame.tsx` | `TitleCard`、`SegmentLabel` | 片头卡、左上角段落标签 |
 | `BitStrip.tsx` | `BitStrip`、`STRIP`、`cellX`、`cellCX` | 位条（默认 48 位），按位设置外观 |
-| `CodePanel.tsx` | `CodePanel`、`CODE`、`tokenize`、`codeCol`、`tokX` | 代码面板：逐字显示 `code.json`，右上角只标语言名；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
+| `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
 | `TransTable.tsx` | `TransTable` | 逐词翻译表：代码 → 英文 → 中文 |
 | `Gates.tsx` | `andPath`、`orPath`、`Wire`、`Val`、`Src` | 与门、或门、导线、信号值圆标、信号源格子 |
 
@@ -98,7 +98,5 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 
 - 状态变化处的轻提示音。
 - 公式逐项变形的组件（一个式子逐项变成另一个式子）。
-- 一集引用多段代码：`script.json` 的 `code` 字段与 `build/code.json` 目前只支持一段连续的代码。浮点乘法系列第 1、2 集各要引用两三段，开工前先把 `code` 扩展成多段、每段一个名字，`CodePanel` 按名字取段。
-- 一个代码面板里显示不相邻的几段代码。
 
 另外，样片 `videos/fp32-rne/scenes/` 里有几种只用过一次、还没提取成共享组件的画面：抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）、语法形状与同形记号卡（`Code.tsx` 的 `Shape`、`Trap`）。下一集要用时，按第四节的规则提取到 `src/components/`。
