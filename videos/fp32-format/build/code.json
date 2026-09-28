@@ -1,0 +1,84 @@
+{
+ "snippets": {
+  "unpack": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 39,
+     "text": "    wire        a_sign = a[31];      // a 符号位"
+    },
+    {
+     "no": 40,
+     "text": "    wire [7:0]  a_exp  = a[30:23];   // a 阶码"
+    },
+    {
+     "no": 41,
+     "text": "    wire [22:0] a_frac = a[22:0];    // a 小数位"
+    },
+    {
+     "no": 42,
+     "text": "    wire        b_sign = b[31];      // b 符号位"
+    },
+    {
+     "no": 43,
+     "text": "    wire [7:0]  b_exp  = b[30:23];   // b 阶码"
+    },
+    {
+     "no": 44,
+     "text": "    wire [22:0] b_frac = b[22:0];    // b 小数位"
+    },
+    {
+     "no": 45,
+     "text": ""
+    },
+    {
+     "no": 46,
+     "text": "    wire [23:0] a_mant = {1'b1, a_frac};   // a 隐藏位尾数"
+    },
+    {
+     "no": 47,
+     "text": "    wire [23:0] b_mant = {1'b1, b_frac};   // b 隐藏位尾数"
+    }
+   ]
+  },
+  "classify": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 51,
+     "text": "    wire a_is_nan  = (a_exp == 8'hFF) && (a_frac != 0);"
+    },
+    {
+     "no": 52,
+     "text": "    wire b_is_nan  = (b_exp == 8'hFF) && (b_frac != 0);"
+    },
+    {
+     "no": 53,
+     "text": "    wire a_is_inf  = (a_exp == 8'hFF) && (a_frac == 0);"
+    },
+    {
+     "no": 54,
+     "text": "    wire b_is_inf  = (b_exp == 8'hFF) && (b_frac == 0);"
+    },
+    {
+     "no": 55,
+     "text": "    wire a_is_zero = (a_exp == 8'd0);   // a 零或 denormal"
+    },
+    {
+     "no": 56,
+     "text": "    wire b_is_zero = (b_exp == 8'd0);   // b 零或 denormal"
+    }
+   ]
+  }
+ }
+}

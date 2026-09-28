@@ -1,0 +1,100 @@
+Icarus Verilog version 12.0 (stable) ()
+66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88  fp32_mul_pipe.v
+case=normal_pair a=3f800001 b=3fc00000
+ unpack_a sign=0 exp=127 exp_bits=01111111 frac=000001 frac_bits=00000000000000000000001 mant=800001
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=400000 frac_bits=10000000000000000000000 mant=c00000
+ flags a_nan=0 a_inf=0 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=0 zero=0 nan=0 ftz_out=0
+ result=3fc00002 expected=3fc00002 out_valid=1 PASS
+case=input_sub_a a=00000001 b=3f800000
+ unpack_a sign=0 exp=  0 exp_bits=00000000 frac=000001 frac_bits=00000000000000000000001 mant=800001
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=input_sub_b a=3f800000 b=00000001
+ unpack_a sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=  0 exp_bits=00000000 frac=000001 frac_bits=00000000000000000000001 mant=800001
+ flags a_nan=0 a_inf=0 a_zero=0 b_nan=0 b_inf=0 b_zero=1
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=negative_input_sub a=80000001 b=3f800000
+ unpack_a sign=1 exp=  0 exp_bits=00000000 frac=000001 frac_bits=00000000000000000000001 mant=800001
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=80000000 expected=80000000 out_valid=1 PASS
+case=max_input_sub a=007fffff b=3f800000
+ unpack_a sign=0 exp=  0 exp_bits=00000000 frac=7fffff frac_bits=11111111111111111111111 mant=ffffff
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=min_normal a=00800000 b=3f800000
+ unpack_a sign=0 exp=  1 exp_bits=00000001 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=0 zero=0 nan=0 ftz_out=0
+ result=00800000 expected=00800000 out_valid=1 PASS
+case=output_sub a=00800000 b=3f000000
+ unpack_a sign=0 exp=  1 exp_bits=00000001 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=126 exp_bits=01111110 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=0 zero=0 nan=0 ftz_out=1
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=scaled_sub a=00400000 b=7e800000
+ unpack_a sign=0 exp=  0 exp_bits=00000000 frac=400000 frac_bits=10000000000000000000000 mant=c00000
+ unpack_b sign=0 exp=253 exp_bits=11111101 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=0
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=positive_zero a=00000000 b=3f800000
+ unpack_a sign=0 exp=  0 exp_bits=00000000 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=00000000 expected=00000000 out_valid=1 PASS
+case=negative_zero a=80000000 b=3f800000
+ unpack_a sign=1 exp=  0 exp_bits=00000000 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=0 a_zero=1 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=1 nan=0 ftz_out=1
+ result=80000000 expected=80000000 out_valid=1 PASS
+case=positive_inf a=7f800000 b=3f800000
+ unpack_a sign=0 exp=255 exp_bits=11111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=1 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=0 nan=0 ftz_out=0
+ result=7f800000 expected=7f800000 out_valid=1 PASS
+case=negative_inf a=ff800000 b=3f800000
+ unpack_a sign=1 exp=255 exp_bits=11111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=1 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=0 nan=0 ftz_out=0
+ result=ff800000 expected=ff800000 out_valid=1 PASS
+case=nan_a a=7fc00000 b=3f800000
+ unpack_a sign=0 exp=255 exp_bits=11111111 frac=400000 frac_bits=10000000000000000000000 mant=c00000
+ unpack_b sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=1 a_inf=0 a_zero=0 b_nan=0 b_inf=0 b_zero=0
+ stage2 special=1 zero=0 nan=1 ftz_out=0
+ result=7fc00000 expected=7fc00000 out_valid=1 PASS
+case=nan_b a=3f800000 b=7fc00000
+ unpack_a sign=0 exp=127 exp_bits=01111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=255 exp_bits=11111111 frac=400000 frac_bits=10000000000000000000000 mant=c00000
+ flags a_nan=0 a_inf=0 a_zero=0 b_nan=1 b_inf=0 b_zero=0
+ stage2 special=1 zero=0 nan=1 ftz_out=0
+ result=7fc00000 expected=7fc00000 out_valid=1 PASS
+case=inf_times_zero a=7f800000 b=00000000
+ unpack_a sign=0 exp=255 exp_bits=11111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=  0 exp_bits=00000000 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ flags a_nan=0 a_inf=1 a_zero=0 b_nan=0 b_inf=0 b_zero=1
+ stage2 special=1 zero=0 nan=1 ftz_out=0
+ result=7fc00000 expected=7fc00000 out_valid=1 PASS
+case=inf_times_sub a=7f800000 b=00000001
+ unpack_a sign=0 exp=255 exp_bits=11111111 frac=000000 frac_bits=00000000000000000000000 mant=800000
+ unpack_b sign=0 exp=  0 exp_bits=00000000 frac=000001 frac_bits=00000000000000000000001 mant=800001
+ flags a_nan=0 a_inf=1 a_zero=0 b_nan=0 b_inf=0 b_zero=1
+ stage2 special=1 zero=0 nan=1 ftz_out=0
+ result=7fc00000 expected=7fc00000 out_valid=1 PASS
+PASS 16 cases; fields, classification, result and valid checked
+tb_format_cases.v:63: $finish called at 660000 (1ps)
