@@ -21,13 +21,13 @@
 
 1. 本文件。
 2. `docs/sop.md`。
-3. `docs/standards/` 下的四份规范：`principle.md`（原理课）、`code.md`（代码课）、`narration.md`（文案与朗读）、`visual.md`（视觉）。
+3. `docs/standards/` 下的五份规范：`principle.md`（原理课）、`code.md`（代码课）、`narration.md`（文案与朗读）、`visual.md`（视觉）、`review.md`（审稿与画面审查）。
 4. `curriculum/README.md` 与要做的那一集所在的系列大纲（`curriculum/NN-<系列>.md`）。
 5. `docs/decisions.md`。
 6. 要接手的那一集的 `videos/<id>/STATUS.md`，以及 `videos/README.md`。
 7. 写画面代码之前：`docs/architecture.md`，以及 `.agents/skills/remotion-best-practices/SKILL.md`（Remotion 官方的 API 手册，按它的指引再读对应的子文档；克隆后按 `docs/toolchain.md` 恢复）。
 
-参照成片是 `videos/fp32-rne`：它走完了全部流程，版面、节奏、代码段的讲法都以它为准。
+参照成片是 `videos/fp32-rne`：它走完了全部流程，版面、节奏、代码段的讲法都以它为准。动手前读它的 `script.json`（开场、例子、句子怎么写）和 `scenes/Code.tsx`（画面代码怎么写），写完拿自己的产出逐项对照。规范里标着「反例（fp32-format 首稿）」的条目，是首稿审查中查出的偏差，照着改法做。
 
 ## 目录与归属
 
@@ -74,11 +74,13 @@
 1. 视频讲通用知识，不讲某个项目。旁白、字幕、画面上不出现素材仓名、文件名和源文件行号；`vt lint` 与 `vt check` 会查。
 2. 画面上的每个数字都要有出处（仿真、实测、引用的文档或写明算式的算术），登记在这一集 `outline.md` 的数字清单里，实验与原始输出放在 `evidence/`。
 3. 代码逐字引用，只能由 `vt code` 从素材仓的固定提交抽取，不许改写。
-4. 脚本审过才配音：`vt lint` 零错误，提醒逐条处理，审阅表 `build/script.md` 审过后把脚本指纹记进 `STATUS.md`，`vt tts` 会核对。
+4. 脚本审过才配音：`vt lint` 零错误，提醒逐条处理；由没有参与写稿的上下文（子 agent 或新会话）按 `docs/standards/review.md` 的清单审稿，逐条写结论和页码证据，记进 `STATUS.md`，`vt tts` 会核对。写稿的上下文自己看一遍不算审稿。人工只在 S7 看成片，中途不看脚本（`docs/sop.md`「审阅方式」）。
 5. 改了 `src/core/` 或 `src/components/`，对所有视频跑 `vt regress`。
 6. 每完成一个阶段就更新这一集的 `STATUS.md`；阶段变化同步到 `videos/README.md` 和系列总表。
 7. 审片反馈里能写成规则的，同时落到三处：`docs/standards/` 的条文、`tools/` 的检查（`lint_script.mjs`、`lint_scenes.mjs`、`limits.json` 或 `lexicon.json`）、`docs/decisions.md` 的记录。
 8. 仓库里的文字不用 emoji，状态写成 `[ ]` 与 `[x]`；代码注释不用横线分隔；文档不写「用户确认」这类人称视角，只描述仓库里的文件与规则。
+9. 按系列大纲做：例子、理由、范围照系列大纲；要偏离时写进 `outline.md` 的「偏离系列大纲」并在交片说明里列出，不在脚本里自行改理由、加限定。
+10. 各层只放本层的东西：`docs/decisions.md` 只记已定的裁决和审片反馈，制作中自己的取舍写进这一集的 `outline.md`；`curriculum/concepts.json` 的定义写通用知识，不写某个实现的做法；`tools/` 是跨集的，不写某一集的内容。
 
 ## 规则怎么演进
 

@@ -35,7 +35,7 @@ const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
   code     <id>               按 script.json 的 code 数组从素材源码的固定提交逐字抽代码到 build/code.json
   evidence <id>               在素材源码的固定提交上运行 evidence/run.sh，刷新原始日志
   tts      <id>               分句配音 + 时间轴 + 字幕；先核对 STATUS.md 里的审阅指纹，完成后检查语速与片长
-  asr      <id>               回听校对，拼音层比对
+  asr      <id> [--review]    回听校对；--review 用技术词提示复核首轮低分句
   timing   <id>               静态检查画面代码：引用的 beat 都存在，每个动画在所在 beat 内结束
   check    <id>               lint + 画面代码检查 + timing + 课程登记检查，全部通过退出码为 0
   stills   <id> <比例> <beat|帧号>... | --all   抽帧到 out/<id>/check/，并拼四宫格
@@ -55,6 +55,29 @@ const passes = (c) => {
     return true;
   } catch {
     return false;
+  }
+};
+
+// 审稿记录：STATUS.md 里「### 审稿 <指纹>」一节，docs/standards/review.md 审稿清单的每一条
+// 都要有一行「| 编号 | 通过 | 证据 |」。缺一条、结论不是通过、证据为空，都不配音
+const checkReview = (status, fp) => {
+  const text = fs.readFileSync(path.join(ROOT, 'docs/standards/review.md'), 'utf8');
+  const ids = [...new Set([...text.matchAll(/^\|\s*(R\d+)\s*\|/gm)].map((m) => m[1]))];
+  const lines = status.split('\n');
+  const start = lines.findIndex((l) => new RegExp(`^###\\s+审稿\\s+\`?${fp}\`?\\s*$`).test(l));
+  if (start < 0) {
+    throw new Error(`STATUS.md 里没有当前脚本指纹 ${fp} 的审稿记录（「### 审稿 ${fp}」一节）。按 docs/standards/review.md 由独立的上下文审稿后再配音`);
+  }
+  const after = lines.slice(start + 1);
+  const stop = after.findIndex((l) => /^#{1,3}\s/.test(l));
+  const got = new Map();
+  for (const l of stop < 0 ? after : after.slice(0, stop)) {
+    const m = l.match(/^\|\s*(R\d+)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|/);
+    if (m) got.set(m[1], {verdict: m[2], evidence: m[3]});
+  }
+  const bad = ids.filter((i) => !got.has(i) || got.get(i).verdict !== '通过' || got.get(i).evidence.length < 4);
+  if (bad.length) {
+    throw new Error(`指纹 ${fp} 的审稿记录里 ${bad.join('、')} 缺失、未通过或没有证据。改完脚本重新审稿（docs/standards/review.md）`);
   }
 };
 
@@ -159,9 +182,9 @@ const commands = {
     requireVideo(id);
     const fp = scriptFingerprint(loadScript(id));
     const status = fs.readFileSync(path.join(videoDir(id), 'STATUS.md'), 'utf8');
-    if (!status.includes(fp)) {
-      throw new Error(`STATUS.md 的「脚本审阅」里没有当前脚本指纹 ${fp}。先 vt lint、vt table，审阅表审过后把指纹记进 STATUS.md 再配音`);
-    }
+    // 审片通过的版本（表格里同一行写着指纹和「审片通过」）直接放行，克隆后重新生成配音时用
+    const approved = status.split('\n').some((l) => l.startsWith('|') && l.includes(fp) && l.includes('审片通过'));
+    if (!approved) checkReview(status, fp);
     sh(`PYTHONPATH=${PY_TTS} python3 tools/build_audio.py ${id}`);
     const m = loadManifest(id);
     const spoken = m.beats.filter((b) => b.audioSec);
@@ -177,7 +200,11 @@ const commands = {
 
   async asr() {
     requireVideo(id);
-    sh(`PYTHONPATH=${PY_ASR} python3 tools/asr_check.py ${id} ${rest.join(' ')}`);
+    if (rest.length === 1 && rest[0] === '--review') {
+      sh(`PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=${PY_ASR} python3 tools/review_audio.py ${id}`);
+    } else {
+      sh(`PYTHONPATH=${PY_ASR} python3 tools/asr_check.py ${id} ${rest.join(' ')}`);
+    }
   },
 
   async timing() {

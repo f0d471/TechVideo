@@ -1,15 +1,16 @@
 [
  {"id": "binary-fraction", "name": "二进制小数", "def": "小数点右边第 k 位的分量是 2 的负 k 次方", "episode": "fp32-format", "deps": []},
  {"id": "fixed-point", "name": "定点数", "def": "小数点固定在某一位的数，最小一格的大小固定", "episode": "fp32-format", "deps": ["binary-fraction"]},
- {"id": "relative-error", "name": "相对误差", "def": "误差除以真值", "episode": "fp32-format", "deps": []},
+ {"id": "relative-error", "name": "相对误差", "def": "误差的绝对值除以真值的绝对值，表示偏差占原值的比例", "episode": "fp32-format", "deps": []},
  {"id": "sci-notation", "name": "科学计数法", "def": "一个有效数乘以底数的整数次方", "episode": "fp32-format", "deps": []},
- {"id": "floating-point", "name": "浮点数", "def": "有效位数固定，小数点的位置由阶码单独记下，各个量级上的相对误差差不多", "episode": "fp32-format", "deps": ["fixed-point", "sci-notation", "relative-error"]},
+ {"id": "floating-point", "name": "浮点数", "def": "有效位数固定，小数点的位置随量级改变，能覆盖很宽的数值范围", "episode": "fp32-format", "deps": ["fixed-point", "sci-notation", "relative-error"]},
 
  {"id": "sign-bit", "name": "符号位", "def": "最高位，0 为正，1 为负", "episode": "fp32-format", "deps": ["floating-point"]},
  {"id": "exponent-field", "name": "阶码", "def": "8 位字段，存的是指数加 127", "episode": "fp32-format", "deps": ["floating-point"], "avoid": ["指数位", "指数域", "阶数"]},
  {"id": "bias", "name": "偏置", "def": "单精度是 127，阶码减去它得到指数", "episode": "fp32-format", "deps": ["exponent-field"]},
  {"id": "exponent", "name": "指数", "def": "阶码减 127，表示乘以 2 的几次方", "episode": "fp32-format", "deps": ["bias"]},
  {"id": "normalized-form", "name": "规格化形式", "def": "写成 1.f 乘以 2 的整数次方，小数点前恰好是一个 1", "episode": "fp32-format", "deps": ["floating-point"]},
+ {"id": "normal-number", "name": "规格化数", "def": "阶码在 1 到 254 之间的数，按 1.f 乘以 2 的指数次方解读", "episode": "fp32-format", "deps": ["normalized-form", "exponent"], "avoid": ["普通数", "正规数", "规约数"]},
  {"id": "hidden-bit", "name": "隐藏位", "def": "规格化形式小数点前的那个 1，总是 1，所以不存", "episode": "fp32-format", "deps": ["normalized-form"]},
  {"id": "fraction-field", "name": "小数位", "def": "23 位字段，存 1.f 里小数点后面的 f", "episode": "fp32-format", "deps": ["hidden-bit"], "avoid": ["尾数位"]},
  {"id": "mantissa", "name": "尾数", "def": "隐藏位加小数位，共 24 位的 1.f", "episode": "fp32-format", "deps": ["hidden-bit", "fraction-field"]},
@@ -20,7 +21,7 @@
  {"id": "infinity", "name": "无穷", "def": "阶码全 1、小数位为 0", "episode": "fp32-format", "deps": ["exponent-field"]},
  {"id": "nan", "name": "NaN", "def": "阶码全 1、小数位不为 0，表示没有意义的结果，例如无穷乘 0", "episode": "fp32-format", "deps": ["infinity"]},
  {"id": "gradual-underflow", "name": "逐渐下溢", "def": "IEEE 754 的规定：比最小规格化数还小的数写成非规格数，精度逐位减少", "episode": "fp32-format", "deps": ["subnormal"]},
- {"id": "ftz", "name": "FTZ", "def": "flush to zero：非规格数一律当 0，输入当 0、结果写成 0；有意偏离标准，AI 加速器常用，省下处理非规格数的电路", "episode": "fp32-format", "deps": ["gradual-underflow", "signed-zero"]},
+ {"id": "ftz", "name": "FTZ", "def": "flush to zero：非规格数一律当 0，输入当 0、结果写成带符号的 0；有意偏离标准，丢掉极小的数，换来更小更快的电路。x86 把输入当 0 单独叫 DAZ", "episode": "fp32-format", "deps": ["gradual-underflow", "signed-zero"]},
 
  {"id": "mac", "name": "乘加", "def": "先乘再累加，矩阵乘的基本运算", "episode": "fp32-mul", "deps": []},
  {"id": "sign-xor", "name": "符号异或", "def": "积的符号是两个符号位的异或：同号得正，异号得负", "episode": "fp32-mul", "deps": ["sign-bit"]},

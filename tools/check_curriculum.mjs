@@ -51,6 +51,10 @@ for (const c of concepts) {
   if (byId.has(c.id)) errors.push(`concepts.json：id ${c.id} 重复`);
   if (names.has(c.name)) errors.push(`concepts.json：叫法「${c.name}」重复`);
   if (!order.has(c.episode)) errors.push(`concepts.json：${c.id} 的 episode ${c.episode} 不在任何系列的总表里`);
+  // 概念表记的是通用知识，各集共用；某个实现、某一集的具体做法写进那一集的 outline.md
+  const local = c.def?.match(/本实现|这个实现|该实现|本课|本集|这一集|RTL/);
+  if (local) errors.push(`concepts.json：${c.id} 的定义里有「${local[0]}」，定义写通用知识，具体实现的做法写进单集 outline.md`);
+  for (const a of c.avoid ?? []) if (names.has(a) || concepts.some((o) => o.name === a)) errors.push(`concepts.json：${c.id} 的别名「${a}」是另一个概念的标准叫法`);
   byId.set(c.id, c);
   names.add(c.name);
 }

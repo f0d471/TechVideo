@@ -37,9 +37,21 @@ const BANNED = [
   [/——|！/, '破折号或感叹号'],
 ];
 
+// 制作视角的用语：观众不知道素材仓、仿真和「实现」，旁白里说「这个乘法器」「这个电路」。
+// 这一集把其中某个词当概念讲时，先登记进 concepts.json，这里就不再报
+const CONCEPT_NAMES = readJson(path.join(ROOT, 'curriculum/concepts.json')).map((c) => c.name);
+const MAKING = [/RTL/i, /本实现|这个实现|该实现/, /实跑|跑出来/, /仿真/, /素材/, /本课|本集/].filter(
+  (re) => !CONCEPT_NAMES.some((n) => re.test(n)),
+);
+
+// 防御性限定：为了不说错而加的限定语，会把结论讲成「看情况」。准确性的边界写在 outline.md 的
+// 「论断边界」里约束措辞，不进旁白；真正重要的代价单独讲成一个 beat
+const HEDGES = /一般来说|一般而言|通常来说|未必|不一定|反倒|反而|是否合算|要用[^，。]{0,8}验证|因情况而异/;
+
 const errors = [];
 const warns = [];
 const seen = new Set();
+const poly = new Map(); // 多音字所在的词 → 出现的 beat
 
 const polyRules = lex.replace.map((r) => [new RegExp(r.pattern, 'g'), r.to]);
 const applyLex = (s) => polyRules.reduce((t, [re, to]) => t.replace(re, to), s);
@@ -67,6 +79,12 @@ for (const b of script.beats) {
     if (!text) continue;
     for (const n of projectNames) if (text.toLowerCase().includes(n.toLowerCase())) errors.push(`${at} ${field} 提到了素材项目或文件名 ${n}`);
     for (const [a, name] of ALIASES) if (text.includes(a)) warns.push(`${at} ${field} 用了「${a}」，标准叫法是「${name}」（curriculum/concepts.json）`);
+    for (const re of MAKING) {
+      const m = text.match(re);
+      if (m) errors.push(`${at} ${field} 有制作视角的用语「${m[0]}」，改成观众看得见的东西（这个乘法器、这个电路）：${text}`);
+    }
+    const h = text.match(HEDGES);
+    if (h) warns.push(`${at} ${field} 有防御性限定「${h[0]}」，确认它是这一集要讲的代价而不是免责（narration.md 第三节）：${text}`);
   }
   // 字幕：换行只能由脚本用 \n 写明，而且只放在标点后；每行不超宽，不超过两行
   const cap = b.sub ?? b.say;
@@ -96,11 +114,21 @@ for (const b of script.beats) {
   for (const ph of confirmed) {
     for (let i = tts.indexOf(ph); i >= 0; i = tts.indexOf(ph, i + 1)) for (let k = 0; k < ph.length; k++) covered[i + k] = true;
   }
-  const hits = [];
   [...tts].forEach((ch, i) => {
-    if (lex.polyphones.includes(ch) && !covered[i]) hits.push(tts.slice(Math.max(0, i - 2), i + 3));
+    if (!lex.polyphones.includes(ch) || covered[i]) return;
+    // 按多音字归并，记下它所在的上下文（前后各一字）和 beat
+    const ctx = tts.slice(Math.max(0, i - 1), i + 2).replace(/[，。：；、？！“”\s]/g, '');
+    if (!poly.has(ch)) poly.set(ch, new Map());
+    const byCtx = poly.get(ch);
+    if (!byCtx.has(ctx)) byCtx.set(ctx, []);
+    byCtx.get(ctx).push(b.id);
   });
-  if (hits.length) warns.push(`${at} 多音字未登记：${hits.join('、')}（听过读音后，把词语加进 tools/lexicon.json 的 confirmed 或 replace）`);
+}
+
+// 多音字提醒按字归并：几十条逐句提醒会被当成噪声整体跳过，归并后一个字一条，逐个上下文听过再登记
+for (const [ch, byCtx] of poly) {
+  const list = [...byCtx].map(([ctx, ids]) => `${ctx}(${ids.join(' ')})`).join('、');
+  warns.push(`多音字「${ch}」未登记，${byCtx.size} 种上下文：${list}。听过读音后，把词语加进 tools/lexicon.json 的 confirmed 或 replace`);
 }
 
 for (const e of errors) console.log(`错误 ${e}`);
