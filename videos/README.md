@@ -4,5 +4,5 @@
 
 | id | 标题 | 阶段 | 状态 |
 |---|---|---|---|
-| fp32-rne | 舍入（浮点乘法第 4 集，参照成片） | S8 发布（待上传） | [STATUS](fp32-rne/STATUS.md) |
-| fp32-format | IEEE 754 与 FTZ | S8 发布（待上传） | [STATUS](fp32-format/STATUS.md) |
+| fp32-rne | 舍入（第 4 集，新版已审片） | S8 发布（待上传） | [STATUS](fp32-rne/STATUS.md) |
+| fp32-format | IEEE 754 与 FTZ（现行样片） | 已发布 | [STATUS](fp32-format/STATUS.md) |

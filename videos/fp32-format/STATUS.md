@@ -14,7 +14,7 @@ S0–S2 手动勾选；S3–S6 由 `vt make` 勾选，S7 由 `vt accept` 勾选�
 - [x] S5 画面：`vt check` 通过；`vt layout` 报 4 帧越过右边距，见验收记录
 - [x] S6 出片：`vt make` 全部通过
 - [x] S7 审片：`vt accept`
-- [ ] S8 发布
+- [x] S8 发布：2026-09-29 15:09（北京时间），B 站 BV1YzaJ6FEzm
 
 ## 验收记录
 
@@ -24,6 +24,7 @@ S0–S2 手动勾选；S3–S6 由 `vt make` 勾选，S7 由 `vt accept` 勾选�
 - 2026-09-29 S4–S6：107 beat、21214 帧、707.1 秒，语速 5.14 字/秒；`vt check` 四项通过。`vt layout` 报 4 帧右侧文字越过 96 像素边距 14–16 像素（c12「与门：两边都是 1 才输出 1」，c15–c17「a_is_zero」），在审片通过之后才有这项检查，不回头改。
 - 2026-09-29 vt make：21214 帧、707.1 秒，-14.3 LUFS、峰值 -1.2 dBFS，成片 sha256 bf7e1372…5f27。
 - 2026-09-29 vt accept：审片通过，多音字 83 个上下文登记进 `tools/lexicon.json`，回归基准 214 帧（Chrome 154.0.8037.58）。
+- 2026-09-29 为新版 `fp32-rne` 抽取共用部件卡和小节标签后，`vt regress fp32-format`：214 帧与已发布样片基准逐字节相同。
 
 ## 交片说明
 
@@ -57,6 +58,8 @@ S0–S2 手动勾选；S3–S6 由 `vt make` 勾选，S7 由 `vt accept` 勾选�
 | 2026-09-28 | 加高级感：引用经典论文和图片，例如 FTZ 的工业界选择 | 9 处引用：Kaplan 2020、TPU v4 照片、A100 规格表、Horowitz 2014、Micikevicius 2018、FP8 论文首页、Kahan 访谈与 8087 裸片照片、Andrysco 2015、Google TPU 文档；图片只用 CC BY |
 | 2026-09-29 | 第三稿审片通过，没有问题 | `vt accept` |
 
-## 待办
+## 发布记录
 
-- [ ] S8：上传后记平台链接、日期与成片 sha256
+- 平台：[哔哩哔哩](https://www.bilibili.com/video/BV1YzaJ6FEzm/)
+- 发布：2026-09-29 15:09（北京时间）；标题「推理芯片怎么计算浮点数？FP32 与 IEEE 754」。
+- 对应本地成片 `out/fp32-format/fp32-format.mp4` 的 sha256：`bf7e137251890cee907a009d25c4e4969f5f2050b7cdbe6d60d23f6e714b5f27`。

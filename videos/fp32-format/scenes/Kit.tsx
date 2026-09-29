@@ -1,7 +1,6 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Img, staticFile} from 'remotion';
 import {C, F} from '../../../src/core/theme';
-import {ManifestCtx, useT} from '../../../src/core/timeline';
 import {RArrow, RLine, RRect} from '../../../src/core/rough';
 import {Txt} from '../../../src/components/Prims';
 
@@ -201,55 +200,6 @@ export const FormulaBar: React.FC<{
     <Formula x={BAR.formulaX} y={BAR.formulaY} size={BAR.size} anchor="end" lit={lit} under={under} />
   </g>
 );
-
-// 小节标签：左上角显示当前小节名，上面一行小字是所在的部分；小节第一句开始时换名并描一次下划线
-export type Part = {no: string; title: string; from: string};
-export const SectionTag: React.FC<{parts: Part[]; until?: string}> = ({parts, until}) => {
-  const M = useContext(ManifestCtx)!;
-  const {f, p} = useT();
-  const cur = [...M.beats].reverse().find((b) => b.section && f >= b.start);
-  if (!cur) return null;
-  const stop = until ? 1 - p(until, 0, 12) : 1;
-  const part = [...parts].reverse().find((pt) => M.beats.find((b) => b.id === pt.from)!.start <= cur.start);
-  const inO = p(cur.id, 0, 12);
-  return (
-    <g opacity={stop}>
-      {part && (
-        <Txt x={98} y={62} size={22} color={C.muted}>
-          {`${part.no} · ${part.title}`}
-        </Txt>
-      )}
-      <Txt x={98} y={104} size={32} color={C.ink} opacity={inO}>
-        {cur.section}
-      </Txt>
-      {/* 固定长度的短线，不按字宽估计，换小节时描一次 */}
-      <RLine x1={98} y1={118} x2={162} y2={118} stroke={C.clay} sw={4} roughness={0.5} draw={p(cur.id, 4, 18)} />
-    </g>
-  );
-};
-
-// 部件卡：一部分开始时停在画面中央，序号、标题和这一部分要回答的问题
-export const PartCard: React.FC<{beat: string; until: string; no: string; title: string; question: string}> = ({beat, until, no, title, question}) => {
-  const {span, p} = useT();
-  // 停到这一拍结束，下一拍开始时淡出
-  const o = span(beat, until, 8);
-  if (o <= 0) return null;
-  return (
-    <g opacity={o}>
-      <rect x={0} y={130} width={1920} height={790} fill={C.ground} />
-      <Txt x={960} y={430} anchor="middle" mono size={52} color={C.clayInk}>
-        {no}
-      </Txt>
-      <Txt x={960} y={530} anchor="middle" size={52}>
-        {title}
-      </Txt>
-      <RLine x1={800} y1={562} x2={1120} y2={562} stroke={C.clay} sw={3} roughness={0.6} draw={p(beat, 4, 16)} />
-      <Txt x={960} y={630} anchor="middle" size={32} color={C.ink2}>
-        {question}
-      </Txt>
-    </g>
-  );
-};
 
 // 盒子与端点：箭头端点一律从盒子的坐标算，保证指到边上
 export type Box = {x: number; y: number; w: number; h: number};

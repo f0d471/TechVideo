@@ -31,7 +31,7 @@ const ALIASES = CONCEPTS.flatMap((c) => (c.avoid ?? []).map((a) => [a, c.name]))
 const MAKING = [/RTL/, /核对/, /出处/, /依据/, /精确算术/, /固定版本/, /未经/, /示意/, /约数/, /这个实现|本实现/, /这个乘法器|本乘法器/, /\bTRM\b/, /§/].filter(
   (re) => !CONCEPT_NAMES.some((n) => re.test(n)),
 );
-// 「仿真」只提醒：参照成片用一行「仿真：输入 → 输出」展示电路算出的结果，这种用法保留；写成出处说明的不行
+// 「仿真」只提醒：旧版舍入画面用一行「仿真：输入 → 输出」展示电路算出的结果，这种用法保留；写成出处说明的不行
 const SIM = CONCEPT_NAMES.some((n) => n.includes('仿真')) ? null : /仿真/;
 // Unicode 上标：等宽字体只有其中几个字形，其余回退到别的字体，同一个指数里大小、间距不一
 const SUPERSCRIPT = /[¹²³⁰-ⁿᴬ-ᵪ]/;
@@ -65,10 +65,10 @@ for (const file of files) {
         if (m) errors.push(`${at} 画面文字里有出处或制作说明「${m[0]}」：出处写进 outline.md 的数字清单，画面只放讲解内容（visual.md 第四节）`);
       }
       for (const [a, name] of ALIASES) if (line.includes(a)) warns.push(`${at} 画面文字用了「${a}」，标准叫法是「${name}」（curriculum/concepts.json）`);
-      if (SIM?.test(line)) warns.push(`${at} 画面文字里有「仿真」：只用于展示电路算出的结果（参照成片「仿真：输入 → 输出」），不写成出处说明`);
+      if (SIM?.test(line)) warns.push(`${at} 画面文字里有「仿真」：只用于展示电路算出的结果（旧版舍入画面「仿真：输入 → 输出」），不写成出处说明`);
       if (SUPERSCRIPT.test(line)) warns.push(`${at} Unicode 上标字符：等宽字体里大小不一，指数用单独的小号文字写在右上（visual.md 第二节）`);
       if (/\bscale\(/.test(line)) warns.push(`${at} scale() 缩放：实际字号会小于这里检查到的字号，门和文字按原尺寸画（visual.md 第四节）`);
-      if (line.length > LIMITS.sceneLineChars.max) warns.push(`${at} 一行 ${line.length} 字符，超过 ${LIMITS.sceneLineChars.max}：按参照成片的写法分行，一个属性一行`);
+      if (line.length > LIMITS.sceneLineChars.max) warns.push(`${at} 一行 ${line.length} 字符，超过 ${LIMITS.sceneLineChars.max}：按现行样片的写法分行，一个属性一行`);
       for (const m of line.matchAll(/\b(?:size|fontSize)=\{(\d+(?:\.\d+)?)\}/g)) {
         const v = +m[1];
         if ((v < FS.min || v > FS.max) && v !== FS.title) warns.push(`${at} 字号 ${v}，规定 ${FS.min}–${FS.max}（片头标题 ${FS.title}）`);

@@ -29,7 +29,7 @@
 | S5 画面 | `docs/standards/visual.md`、`docs/architecture.md`、参照成片的 `scenes/Code.tsx`；Remotion 的 API 不熟时查 `.agents/skills/remotion-best-practices/SKILL.md`（克隆后按 `docs/toolchain.md` 恢复） |
 | S7 处理反馈 | `docs/decisions.md` 里相关的那一节 |
 
-参照成片是 `videos/fp32-rne`：它走完了全部流程，例子怎么选、句子怎么写、画面代码怎么写都以它为准。动手前读它的 `script.json` 和 `scenes/Code.tsx`，写完拿自己的产出逐项对照。它在 2026-09-28 定位调整之前完成，没有情景开场、小节、核心公式条，代码段也比现在的节奏慢；这几项以规范为准（`docs/decisions.md`「fp32-format 第二稿审片反馈」）。规范里标着「反例（fp32-format 首稿）」「反例（fp32-format 第二稿）」的条目，是审查与审片中查出的偏差，照着改法做。
+现行参照成片是已发布的 `videos/fp32-format`：情景开场、小节、核心公式条、原理推导和代码结构图都以它的第三稿为例。动手前按当前阶段读它的 `script.json`、`Video.tsx` 和对应的 `scenes/`，写完逐项对照。`videos/fp32-rne` 已按现行规范重做并审片通过，待上传；旧版的制作记录保存在本集 `STATUS.md`。规范中「反例（fp32-format 首稿／第二稿）」记录的是改版前的偏差，按条文里的改法处理。
 
 ## 目录与归属
 
@@ -41,7 +41,7 @@
 | `LICENSE`、`LICENSE-CONTENT.md` | 代码与内容的许可证 | 源 | 一般不动 |
 | `docs/sop.md`、`docs/standards/`、`docs/decisions.md` | 流程、规范、裁决 | 源 | 规则变化时，见下文「规则怎么演进」 |
 | `docs/architecture.md`、`docs/toolchain.md` | 工程结构、环境 | 源 | 共享层接口或环境变化时 |
-| `docs/images/` | README 用的图 | 源 | 参照成片有新版本时 |
+| `docs/images/` | README 用的图 | 源 | README 展示画面需要更新时 |
 | `curriculum/` | 系列大纲、概念表、代码词汇表、素材源码登记 | 源 | 见 `curriculum/README.md` |
 | `src/core/` | 所有视频共用的底座：配色字体、计时、手绘图元、视频外壳（页码与字幕） | 源 | 改完对所有视频跑 `regress` |
 | `src/components/` | 跨集复用的可视化组件 | 源 | 同上 |
@@ -51,7 +51,7 @@
 | `videos/_template/` | 新建一集时复制的模板 | 源 | 模板本身需要改进时 |
 | `videos/<id>/script.json`、`outline.md`、`STATUS.md`、`Video.tsx`、`scenes/`、`evidence/` | 这一集的源文件 | 源 | 只在做这一集时 |
 | `videos/<id>/assets/` | 引用的图片与论文页面（公有领域或 CC BY），作者与许可登记在 `evidence/references.md` | 外部，入库 | 只在做这一集时，按 `docs/standards/principle.md` 第十三节 |
-| `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 只由 `vt tts`、`vt code` 写。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
+| `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 由 `vt tts`、`vt code` 写；已有语音需要离线变速时，`retime_existing_audio.py` 可重算时间轴。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
 | `videos/<id>/audio/`、`build/` 里的其他文件 | 配音、字幕、校对结果、审阅表 | 生成 | 只由 `vt` 的命令写，不入库 |
 | `tools/` | 流程脚本，统一入口 `tools/vt.mjs`；`limits.json` 是各项数值界限；`lexicon.json` 是全局读法词典；`env.cjs` 读本机设置 | 源 | 流程变化或新增检查项时 |
 | `tools/env.local.json` | 本机路径：Chrome、Python 库、素材仓的本地克隆 | 本机 | 写法见 `docs/toolchain.md` |
@@ -91,7 +91,7 @@
 
 ## 常用命令
 
-所有命令在仓库根目录执行，入口是 `node tools/vt.mjs <命令> <视频 id>`：
+所有命令在仓库根目录执行，入口是 `node tools/vt.mjs <命令> <视频 id>`。下面以第 4 集 `fp32-rne` 为命令参数；现行样片仍是 `fp32-format`：
 
 ```
 node tools/vt.mjs new fp32-normalize 规格化     新建一集（id 与标题照抄系列总表）

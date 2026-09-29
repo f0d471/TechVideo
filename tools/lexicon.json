@@ -108,6 +108,10 @@
     {"phrase":"律冲成","basis":"fp32-format 审片通过，2026-09-29"},
     {"phrase":"有冲零","basis":"fp32-format 审片通过，2026-09-29"},
     {"phrase":"的冲零","basis":"fp32-format 审片通过，2026-09-29"},
-    {"phrase":"转换","basis":"fp32-format 审片通过，2026-09-29"}
+    {"phrase":"转换","basis":"fp32-format 审片通过，2026-09-29"},
+    {"phrase":"先调整","basis":"fp32-rne 审片通过，2026-09-30"},
+    {"phrase":"从调整","basis":"fp32-rne 审片通过，2026-09-30"},
+    {"phrase":"偏差可","basis":"fp32-rne 审片通过，2026-09-30"},
+    {"phrase":"三种情","basis":"fp32-rne 审片通过，2026-09-30"}
   ]
 }

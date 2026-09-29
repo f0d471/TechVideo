@@ -4,15 +4,19 @@
 
 一集回答一个问题。每集先讲原理，从高中数学出发把新概念一步步拆开；再看描述它的真实硬件代码，逐字引用，把代码当成结构图来读，画出它对应的电路。
 
-![原理段：舍入的判定树](docs/images/principle.jpg)
+现行样片：[第 1 集「推理芯片怎么计算浮点数？FP32 与 IEEE 754」](https://www.bilibili.com/video/BV1YzaJ6FEzm/)，源文件见 `videos/fp32-format/`。
 
-![代码段：四行 Verilog 与它们对应的电路](docs/images/code.jpg)
+下面两张图保留了旧版「舍入」的画面，供改版前后对照；新版已完成并待上传：
+
+![旧版原理段：舍入的判定树](docs/images/principle.jpg)
+
+![旧版代码段：四行 Verilog 与它们对应的电路](docs/images/code.jpg)
 
 ## 系列
 
 | 系列 | 内容 | 进度 |
 |---|---|---|
-| FP32 是怎么计算的 | 情景：AI 模型推理与为它设计的加速器芯片，软件和硬件的人都能听。第一部分沿一次乘法走完，从 IEEE 754 与 FTZ 讲到流水线，共 6 集 | 第 1 集「IEEE 754 与 FTZ」第三稿制作中，第 4 集「舍入」已完成，其余在规划中 |
+| FP32 是怎么计算的 | 情景：AI 模型推理与为它设计的加速器芯片，软件和硬件的人都能听。第一部分沿一次乘法走完，从 IEEE 754 与 FTZ 讲到流水线，共 6 集 | 第 1 集「IEEE 754 与 FTZ」已发布、是现行样片；第 4 集「舍入」新版已审片通过、待上传；其余在规划中 |
 
 各集的概念、前置关系与计划见 `curriculum/01-fp32-mul.md`。
 
@@ -33,12 +37,12 @@ npm ci
 npx skills experimental_install
 node tools/link_skills.mjs
 bash tools/setup_env.sh              # bash 侧：配音与回听校对的 Python 库、语音识别模型
-node tools/vt.mjs check fp32-rne     # 四项检查
-node tools/vt.mjs code fp32-rne      # 从素材仓抽代码
-node tools/vt.mjs tts fp32-rne       # 分句配音与时间轴
+node tools/vt.mjs check fp32-format  # 四项检查
+node tools/vt.mjs code fp32-format   # 从素材仓抽代码
+node tools/vt.mjs tts fp32-format    # 分句配音与时间轴
 npx remotion studio                  # 预览
-node tools/vt.mjs render fp32-rne    # 渲染
-node tools/vt.mjs master fp32-rne    # 响度归一化，出成片与字幕
+node tools/vt.mjs render fp32-format # 渲染
+node tools/vt.mjs master fp32-format # 响度归一化，出成片与字幕
 ```
 
 完整的环境说明见 `docs/toolchain.md`，一集从立项到发布的九个阶段见 `docs/sop.md`。

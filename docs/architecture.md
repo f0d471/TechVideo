@@ -57,7 +57,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | 文件 | 导出 | 用途 |
 |---|---|---|
 | `Prims.tsx` | `Txt`、`Bracket`、`Chip` | 文字（`mono` 为等宽且关连字）、方括号标注、概念卡 |
-| `Frame.tsx` | `TitleCard`、`SegmentLabel` | 片头卡、左上角段落标签 |
+| `Frame.tsx` | `TitleCard`、`SegmentLabel`、`SectionTag`、`PartCard`，类型 `Part` | 片头卡、左上角段落与小节标签、无旁白的部件卡 |
 | `BitStrip.tsx` | `BitStrip`、`STRIP`、`cellX`、`cellCX` | 位条（默认 48 位），按位设置外观 |
 | `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化，宽度可由 `w` 指定（默认占满左右留白之间，结构图放右侧时给窄）；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
 | `TransTable.tsx` | `TransTable` | 逐词翻译表：代码 → 英文 → 中文 |
@@ -88,6 +88,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `check_curriculum.mjs` | 课程登记检查（`vt curriculum`） |
 | `extract_code.mjs` | 逐字抽代码（`vt code`） |
 | `build_audio.py`、`asr_check.py` | 分句配音与时间轴、回听校对（在 bash 侧运行） |
+| `retime_existing_audio.py` | 对已经生成的分句 WAV 在本机调整速度并重算时间轴与字幕；不调用 TTS |
 | `review_audio.py` | vt asr 的 --review 模式，对 ASR 低分句做技术词提示复核；保留首轮结果，输出 build/asr_review.json，不替代人工听音 |
 | `stills.mjs` | 单帧渲染，抽帧、版面检查与回归共用 |
 | `layout.mjs` | 版面检查（`vt layout`）：带 `layoutProbe` 渲染检查帧，`VideoShell` 里的探针量出文字与图片外框，判越界、进字幕区与重叠，结果在 `out/<id>/layout/report.json` |
@@ -101,7 +102,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 
 - 状态变化处的轻提示音。
 - 公式逐项变形的组件（一个式子逐项变成另一个式子）。
-- 公式排版、核心公式条、小节标签、部件卡、引用卡、照片框、按坐标算端点的箭头。第一版在 `videos/fp32-format/scenes/Kit.tsx`（`MathText` 逐字符定位，指数用小号 `tspan`；`FormulaBar`、`SectionTag`、`PartCard`、`CiteCard`、`Photo`、`Arrow`、`Bars`），第二集用到时提取到 `src/components/`，提完对所有视频跑 `regress`。
+- 通用公式排版、核心公式条、引用卡、照片框、按坐标算端点的箭头。初版在 `videos/fp32-format/scenes/Kit.tsx`（`MathText` 逐字符定位，指数用小号 `tspan`；`FormulaBar`、`CiteCard`、`Photo`、`Arrow`、`Bars`）；小节标签与部件卡已提取到 `src/components/Frame.tsx`。其他组件跨集复用时再提取，提完对所有视频跑 `regress`。
 - 任意位宽的位串组件。`src/components/BitStrip.tsx` 按 48 位的积写死；`videos/fp32-format/scenes/Kit.tsx` 的 `Bits32` 是 32 位的另一份。下一集再用到位串时，把两者合成一个按位宽参数化的共享组件，提完对所有视频跑 `regress`。
 
-另外，样片 `videos/fp32-rne/scenes/` 里有几种只用过一次、还没提取成共享组件的画面：抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）、语法形状与同形记号卡（`Code.tsx` 的 `Shape`、`Trap`）。下一集要用时，按第四节的规则提取到 `src/components/`。
+`videos/fp32-rne/scenes/` 里的抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）目前只由这一集使用。跨集复用时按第四节的规则提取到 `src/components/`，随后对已有视频运行 `vt regress`。

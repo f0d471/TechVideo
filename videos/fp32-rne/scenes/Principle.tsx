@@ -7,6 +7,9 @@ import {Bracket, Chip, Txt} from '../../../src/components/Prims';
 
 // 例子：0x3F800001 × 0x3FC00000 规格化后的 48 位积（RTL 仿真输出，高位在前）
 export const PROD_N = '011000000000000000000000110000000000000000000000';
+export const PROD_N_EVEN = '011000000000000000000010010000000000000000000000';
+// 0x3F800001 × 0x3F800001：G=0 时舍去，见同一份 RTL 仿真日志
+export const PROD_N_G_ZERO = '010000000000000000000001000000000000000000000001';
 
 const Dot: React.FC<{x: number; y: number; r?: number; fill?: string; opacity?: number}> = ({
   x,
@@ -257,7 +260,9 @@ const Tree: React.FC = () => {
       {text}
     </Txt>
   );
-  const hot = (d: number) => p('p24', 20 + d, 14);
+  const hot = (d: number) => p('p24', 20 + d, 14) * (1 - p('p25', 0, 10));
+  const common = (d: number) => p('p24', 20 + d, 14);
+  const even = p('p25', 14, 14);
   const s2 = p('p20', 10, 10);
   return (
     <g opacity={vis}>
@@ -265,7 +270,7 @@ const Tree: React.FC = () => {
       <Edge x1={330} y1={560} x2={330} y2={680} label="0" lx={352} ly={628} draw={p('p17', 16, 14)} />
       {leaf(330, '不到一半 → 舍去', false, p('p17', 28, 12))}
 
-      <Edge x1={455} y1={520} x2={612} y2={520} label="1" lx={534} ly={506} draw={p('p18', 0, 14)} hot={hot(0)} />
+      <Edge x1={455} y1={520} x2={612} y2={520} label="1" lx={534} ly={506} draw={p('p18', 0, 14)} hot={common(0)} />
       <g opacity={1 - s2}>
         <Node cx={770} w={300} draw={p('p18', 10, 18)} text="后面有 1 吗？" />
       </g>
@@ -275,11 +280,11 @@ const Tree: React.FC = () => {
       <Edge x1={770} y1={560} x2={770} y2={680} label="1" lx={792} ly={628} draw={p('p19', 0, 14)} />
       {leaf(770, '超过一半 → 加一', true, p('p19', 12, 12))}
 
-      <Edge x1={925} y1={520} x2={1062} y2={520} label="0" lx={994} ly={506} draw={p('p21', 0, 14)} hot={hot(10)} />
+      <Edge x1={925} y1={520} x2={1062} y2={520} label="0" lx={994} ly={506} draw={p('p21', 0, 14)} hot={common(10)} />
       <Node cx={1222} w={310} draw={p('p21', 10, 18)} stroke={C.green} text={<>平局：末位 <tspan fill={C.greenInk}>L</tspan> = ?</>} />
       <Edge x1={1222} y1={560} x2={1222} y2={680} label="1" lx={1244} ly={628} draw={p('p22', 0, 14)} hot={hot(20)} />
       {leaf(1222, '奇数 → 加一', true, p('p22', 10, 12))}
-      <Edge x1={1382} y1={520} x2={1520} y2={520} label="0" lx={1451} ly={506} draw={p('p22', 24, 14)} />
+      <Edge x1={1382} y1={520} x2={1520} y2={520} label="0" lx={1451} ly={506} draw={p('p22', 24, 14)} hot={even} />
       {leaf(1536, '偶数 → 不动', false, p('p22', 34, 12), 531, 'start')}
 
       <Txt x={960} y={826} anchor="middle" size={40} opacity={p('p23', 30, 14)} rise={p('p23', 30, 14)}>
@@ -288,15 +293,25 @@ const Tree: React.FC = () => {
         <tspan fontFamily={F.mono} fill={C.blueInk}>S</tspan> 或{' '}
         <tspan fontFamily={F.mono} fill={C.greenInk}>L</tspan> )
       </Txt>
-      <Txt x={960} y={884} anchor="middle" size={36} opacity={p('p24', 50, 14)} rise={p('p24', 50, 14)}>
+      <Txt x={960} y={884} anchor="middle" size={36} opacity={p('p24', 50, 14) * (1 - p('p25', 0, 10))} rise={p('p24', 50, 14)}>
         ={' '}
         <tspan fontFamily={F.mono} fill={C.clayInk}>1</tspan> 与 ({' '}
         <tspan fontFamily={F.mono} fill={C.blueInk}>0</tspan> 或{' '}
         <tspan fontFamily={F.mono} fill={C.greenInk}>1</tspan> ) ={' '}
         <tspan fontFamily={F.mono} fill={C.clayInk} fontWeight={700}>1</tspan>
       </Txt>
-      <Txt x={1824} y={444} anchor="end" size={22} mono color={C.muted} opacity={p('p24', 64, 14)}>
-        仿真：3F800001 × 3FC00000 → 3FC00002
+      <Txt x={960} y={884} anchor="middle" size={36} opacity={p('p25', 34, 14)} rise={p('p25', 34, 14)}>
+        ={' '}
+        <tspan fontFamily={F.mono} fill={C.clayInk}>1</tspan> 与 ({' '}
+        <tspan fontFamily={F.mono} fill={C.blueInk}>0</tspan> 或{' '}
+        <tspan fontFamily={F.mono} fill={C.greenInk}>0</tspan> ) ={' '}
+        <tspan fontFamily={F.mono} fill={C.clayInk} fontWeight={700}>0</tspan>
+      </Txt>
+      <Txt x={960} y={444} anchor="middle" size={30} mono opacity={p('p24', 36, 14) * (1 - p('p25', 0, 10))}>
+        3F800001 × 3FC00000 → 3FC00002
+      </Txt>
+      <Txt x={960} y={444} anchor="middle" size={30} mono opacity={p('p25', 20, 14)}>
+        3F800003 × 3FC00000 → 3FC00004
       </Txt>
     </g>
   );
@@ -314,6 +329,7 @@ export const Principle: React.FC = () => {
   const gOn = p('p15', 0, 16);
   const sOn = p('p18', 10, 16);
   const lOn = p('p16', 10, 16);
+  const gZero = p('p17', 0, 10) * (1 - p('p18', 0, 10));
 
   const look = (bit: number) => {
     if (bit === 47) return {opacity: 1 - 0.65 * p('p02', 0, 14)};
@@ -341,14 +357,37 @@ export const Principle: React.FC = () => {
           <React.Fragment key={i}>{tint(i, C.blueTint, sOn)}</React.Fragment>
         ))}
       </g>
-      <BitStrip
-        bits={PROD_N}
-        draw={p('p01', 0, 44)}
-        look={look}
-        indices={[47, 46, 23, 22, 21, 0]}
-        indexOpacity={p('p01', 34, 14)}
-        opacity={stripOpacity}
-      />
+      <g opacity={(1 - p('p25', 0, 12)) * (1 - gZero)}>
+        <BitStrip
+          bits={PROD_N}
+          draw={p('p01', 0, 44)}
+          look={look}
+          indices={[47, 46, 23, 22, 21, 0]}
+          indexOpacity={p('p01', 34, 14)}
+          opacity={stripOpacity}
+        />
+      </g>
+      <g opacity={gZero}>
+        <BitStrip
+          bits={PROD_N_G_ZERO}
+          draw={1}
+          look={look}
+          indices={[47, 46, 23, 22, 21, 0]}
+          opacity={stripOpacity}
+        />
+      </g>
+      <g opacity={p('p25', 0, 12)}>
+        <BitStrip
+          bits={PROD_N_EVEN}
+          draw={1}
+          look={look}
+          indices={[47, 46, 23, 22, 21, 0]}
+          opacity={stripOpacity}
+        />
+      </g>
+      <Txt x={960} y={426} anchor="middle" size={28} color={C.ink2} opacity={gZero}>
+        换一组积：G = 0
+      </Txt>
 
       <g opacity={brackets}>
         <Bracket x1={cellX(46)} x2={cellX(23) + STRIP.cw} y={300} draw={p('p02', 4, 18)} />

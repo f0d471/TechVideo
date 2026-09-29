@@ -28,7 +28,7 @@
 `terms.json`：
 
 ```
-{"code": "wire", "en": "wire", "zh": "导线", "episode": "fp32-rne"}
+{"code": "wire", "en": "wire", "zh": "连线", "episode": "fp32-format"}
 ```
 
 `episode` 必须出现在某个系列的总表里；`deps` 里的概念必须由同一集或更靠前的集引入。
