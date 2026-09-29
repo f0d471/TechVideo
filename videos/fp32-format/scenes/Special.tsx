@@ -1,154 +1,199 @@
 import React from 'react';
-import { C } from '../../../src/core/theme';
-import { useT } from '../../../src/core/timeline';
-import { RLine, RArrow, RRect, REllipse } from '../../../src/core/rough';
-import { Txt, Bracket, Chip } from '../../../src/components/Prims';
-import { Bits32, Card, Caption, MathText, MathCaption } from './Elements';
+import {C} from '../../../src/core/theme';
+import {useT} from '../../../src/core/timeline';
+import {REllipse, RLine} from '../../../src/core/rough';
+import {Bracket, Txt} from '../../../src/components/Prims';
+import {Bits32, Box, CiteCard, Formula, MathText, Photo, termSpan} from './Kit';
 
-// p52–p53：阶码全零、尾数全零对应零。
-const Zero: React.FC = () => {
-  const { p, span } = useT();
-  const o = span('p52', 'p54', 14);
+// 03 特殊值 p62–p76：零、无穷与 NaN → 非规格数与逐渐下溢 → 逐渐下溢写进标准的来历
+
+const BITS_Y = 170;
+
+// p62–p65：公式写不出 0；编码表逐行出现，上方位串跟着换例子
+const Codes: React.FC = () => {
+  const {p, span} = useT();
+  const o = span('p57', 'p61', 14);
   if (o <= 0) return null;
-  const pair = p('p53', 0, 14);
-  return <g opacity={o}>
-    <Caption text="E = 0       f = 0" y={432} mono opacity={p('p52', 8, 14)} />
-    <g opacity={1 - pair}>
-      <RRect x={480} y={490} w={960} h={290} fill={C.paper} stroke={C.ink2} draw={p('p52', 8, 22)} />
-      <Txt x={960} y={606} anchor="middle" mono size={52}>00000000</Txt>
-      <Txt x={960} y={704} anchor="middle" mono size={52}>+0</Txt>
-    </g>
-    <g opacity={pair}>
-      <Card x={250} y={505} w={620} h={245} label="00000000" labelSize={44} mono draw={p('p53', 8, 22)} />
-      <Card x={1050} y={505} w={620} h={245} label="80000000" labelSize={44} mono draw={p('p53', 8, 22)} />
-      <Txt x={560} y={710} anchor="middle" mono size={44}>+0</Txt>
-      <Txt x={1360} y={710} anchor="middle" mono size={44}>−0</Txt>
-    </g>
-    <Caption text="只有符号位不同：正零与负零" y={825} opacity={p('p53', 8, 14)} />
-  </g>
-};
-// p54–p59：非规格数与规格化边界。
-const Subnormal: React.FC = () => {
-  const { p, span } = useT(); const o = span('p54', 'p60', 14); if (o <= 0) return null; const edge = p('p57', 0, 14); return <g opacity={o}>
-    <g opacity={1 - edge}>
-      <Caption text="E = 0       f ≠ 0" y={427} mono opacity={p('p54', 8, 14)} />
-      <Txt x={655} y={560} mono size={52} color={C.blueInk} opacity={p('p54', 8, 14)}>0.f</Txt>
-      <MathText text="× 2^(-126)" x={945} y={560} size={52} color={C.clayInk} opacity={p('p55', 8, 14)} />
-      <REllipse cx={672} cy={542} w={67} h={82} stroke={C.blue} draw={p('p54', 8, 22)} />
-      <Txt x={590} y={661} size={28} color={C.blueInk}>隐含首位为 0</Txt>
-      <Txt x={1030} y={661} size={28} color={C.clayInk} opacity={p('p55', 8, 14)}>幂固定用 −126</Txt>
-      <Chip x={650} y={760} w={620} opacity={p('p56', 8, 14)} draw={p('p56', 8, 22)}><Txt x={960} y={803} anchor="middle" size={32}>非规格数</Txt>
-      </Chip>
-    </g>
-    <g opacity={edge}>
-      <g opacity={1 - p('p58', 0, 12)}>
-        <RRect x={330} y={430} w={1260} h={370} fill={C.paper} stroke={C.ink2} draw={p('p57', 8, 22)} />
-        <Txt x={960} y={520} anchor="middle" size={44}>最小的正规格化数</Txt>
-        <Txt x={600} y={670} anchor="middle" mono size={46}>00800000</Txt>
-        <MathText text="1.0_2 × 2^(-126)" x={1270} y={670} anchor="middle" size={44} />
+  const hex = p('p60') > 0 ? '7FC00000' : p('p59') > 0 ? '7F800000' : p('p58', 40) > 0 ? '80000000' : '00000000';
+  const [fa, fb] = termSpan(960, 52, 'middle', 'F');
+  const rows = [
+    {at: 'p58', e: '全 0', f: '全 0', what: '+0 与 −0', ex: '00000000 · 80000000'},
+    {at: 'p59', e: '全 1', f: '全 0', what: '+∞ 与 −∞', ex: '7F800000 · FF800000'},
+    {at: 'p60', e: '全 1', f: '不是 0', what: 'NaN（例如 ∞ × 0）', ex: '7FC00000 等'},
+  ];
+  const col = [300, 560, 960, 1480];
+  return (
+    <g opacity={o}>
+      <Bits32 hex={hex} y={BITS_Y} hot={['E', 'F']} draw={p('p57', 0, 20)} />
+      <Txt x={1824} y={BITS_Y - 18} anchor="end" mono size={26} color={C.muted} opacity={p('p58', 0, 12)}>
+        {hex}
+      </Txt>
+      <g opacity={span('p57', 'p58', 12)}>
+        <Formula x={960} y={480} size={52} anchor="middle" lit={{S: 0, E: 0, F: 1}} under={{F: p('p57', 10, 16)}} />
+        <MathText text="1.F ≥ 1" x={(fa + fb) / 2} y={600} size={48} anchor="middle" color={C.blueInk} opacity={p('p57', 20, 12)} />
+        <Txt x={960} y={720} anchor="middle" size={40} opacity={p('p57', 40, 12)}>
+          0 写不出来 → 留出几组编码
+        </Txt>
       </g>
       <g opacity={p('p58', 0, 12)}>
-        <Txt x={220} y={415} size={28} color={C.muted}>越过规格化数的下边界</Txt>
-        {[
-          ['最小的正规格化数', '00800000', '1.0_2 × 2^(-126)', '2^(-126)', p('p57', 8, 14)],
-          ['再小一半', '00400000', '0.1_2 × 2^(-126)', '2^(-127)', p('p58', 8, 14)],
-          ['只剩末位的 1', '00000001', '2^(-23) × 2^(-126)', '2^(-149)', p('p59', 8, 14)],
-        ].map(([label, hex, form, value, alpha], i) => <g key={i} opacity={Number(alpha)}>
-          <Txt x={220} y={500 + i * 125} size={28}>{label}</Txt>
-          <Txt x={660} y={500 + i * 125} mono size={30}>{hex}</Txt>
-          <MathText text={String(form)} x={1060} y={500 + i * 125} size={28} />
-          <MathText text={String(value)} x={1630} y={500 + i * 125} size={36} anchor="middle" />
-          <RLine x1={200} y1={534 + i * 125} x2={1760} y2={534 + i * 125} stroke={C.rule} sw={1.6} />
-        </g>)}
+        {['阶码 E', '小数位 F', '表示', '编码'].map((h, i) => (
+          <Txt key={h} x={col[i]} y={380} anchor="middle" size={30} color={i === 0 ? C.clayInk : i === 1 ? C.blueInk : C.muted}>
+            {h}
+          </Txt>
+        ))}
+        <RLine x1={160} y1={404} x2={1760} y2={404} stroke={C.rule} sw={2} roughness={0.4} />
+        {rows.map((r, i) => (
+          <g key={r.at} opacity={p(r.at, 0, 12)}>
+            <Txt x={col[0]} y={490 + i * 130} anchor="middle" size={38} color={C.clayInk}>
+              {r.e}
+            </Txt>
+            <Txt x={col[1]} y={490 + i * 130} anchor="middle" size={38} color={C.blueInk}>
+              {r.f}
+            </Txt>
+            <Txt x={col[2]} y={490 + i * 130} anchor="middle" size={40}>
+              {r.what}
+            </Txt>
+            <Txt x={col[3]} y={490 + i * 130} anchor="middle" mono size={30} color={C.ink2}>
+              {r.ex}
+            </Txt>
+          </g>
+        ))}
       </g>
     </g>
-  </g>
+  );
 };
 
-// p60–p64：无穷、NaN 及无穷乘零。
-const NonFinite: React.FC = () => {
-  const { p, span } = useT(); const o = span('p60', 'p65', 14); if (o <= 0) return null; const nan = p('p62', 0, 14); return <g opacity={o}>
-    <Caption text="E = 255（8 位全 1）" y={424} mono opacity={p('p61', 8, 14) * (1 - nan) + p('p63', 8, 14) * nan} />
-    <g opacity={1 - nan}><Caption text="f = 0" y={508} mono opacity={p('p61', 8, 14)} />
-      <g opacity={p('p60', 8, 14) * (1 - p('p61', 0, 12))}>
-        <RRect x={430} y={555} w={1060} h={225} fill={C.paper} stroke={C.ink2} draw={p('p60', 8, 22)} />
-        <Txt x={960} y={652} anchor="middle" mono size={52}>E = 255 · f = 0</Txt>
-        <Txt x={960} y={730} anchor="middle" size={34}>有限数以外的编码</Txt>
-      </g>
-      <g opacity={p('p61', 8, 14)}>
-        <RRect x={270} y={560} w={620} h={255} fill={C.paper} stroke={C.ink2} draw={p('p61', 8, 22)} />
-        <RRect x={1030} y={560} w={620} h={255} fill={C.paper} stroke={C.ink2} draw={p('p61', 8, 22)} />
-        <Txt x={580} y={662} anchor="middle" mono size={52}>+∞</Txt>
-        <Txt x={1340} y={662} anchor="middle" mono size={52}>−∞</Txt>
-        <Txt x={580} y={748} anchor="middle" mono size={34}>7F800000</Txt>
-        <Txt x={1340} y={748} anchor="middle" mono size={34}>FF800000</Txt>
-      </g>
-    </g>
-    <g opacity={nan}><Caption text="f ≠ 0" y={505} mono opacity={p('p63', 8, 14)} />
-      <g opacity={1 - p('p63', 0, 12)}>
-        <RRect x={420} y={535} w={1080} h={280} fill={C.paper} stroke={C.ink2} draw={p('p62', 8, 22)} />
-        <Txt x={960} y={620} anchor="middle" mono size={44}>E = 255 · f ≠ 0</Txt>
-        <Txt x={960} y={700} anchor="middle" mono size={48}>∞ × 0 → ?</Txt>
-        <Txt x={960} y={770} anchor="middle" size={30}>留给无意义的数值结果</Txt>
-      </g>
-      <g opacity={p('p63', 8, 14)}>
-        <RRect x={400} y={550} w={1120} h={260} fill={C.paper} stroke={C.ink2} draw={p('p63', 8, 22)} />
-        <Txt x={960} y={647} anchor="middle" size={52}>NaN · 非数</Txt>
-        <Txt x={960} y={710} anchor="middle" mono size={36}>Not a Number</Txt>
-        <Txt x={960} y={772} anchor="middle" size={27}>7FC00000 是其中一种编码</Txt>
-      </g>
-      <Caption text="满足 E = 255 且 f ≠ 0 的多种编码" y={857} opacity={p('p64', 8, 14)} />
-    </g>
-  </g>
-};
-
-// p65–p67：非规格数填补靠近零的间隙。
-export const Gradual: React.FC = () => {
-  const { p, span } = useT(); const o = span('p65', 'p68', 14); if (o <= 0) return null; return <g opacity={o}>
-    <Txt x={98} y={161} size={30}>从最小规格化数，向 0 延伸</Txt>
-    <RLine x1={290} y1={350} x2={825} y2={350} stroke={C.ink2} draw={p('p65', 8, 24)} />
-    <RLine x1={1185} y1={350} x2={1670} y2={350} stroke={C.ink2} draw={p('p65', 8, 24)} />
-    <Txt x={1005} y={362} mono size={38} anchor="middle">…</Txt>
-    {[340, 485, 630, 775, 1355, 1500].map((x, i) => <RLine key={i} x1={x} y1={335} x2={x} y2={365} stroke={C.ink2} draw={p('p65', 8, 22)} />)}
-    <Txt x={340} y={414} mono size={28} anchor="middle">0</Txt>
-    <MathText text="2^(-149)" x={485} y={462} size={28} anchor="middle" />
-    <MathText text="2^(-148)" x={630} y={414} size={28} anchor="middle" />
-    <MathText text="2^(-126)" x={1500} y={414} size={28} anchor="middle" />
-    <Txt x={1190} y={460} size={24} color={C.muted}>非规格数</Txt>
-    <Bracket x1={340} x2={485} y={497} draw={p('p65', 8, 22)} />
-    <MathText text="2^(-149)" x={412} y={541} size={24} anchor="middle" />
-    <g opacity={p('p66', 8, 14)}>
-      <Txt x={400} y={644} mono size={36} color={C.blueInk}>0.10000000000000000000000</Txt>
-      <Txt x={400} y={721} mono size={36} color={C.blueInk}><tspan fill={C.faint}>0.0000000000000000000000</tspan>1</Txt>
-      <Txt x={1540} y={644} size={28}>可用 23 位</Txt>
-      <Txt x={1540} y={721} size={28}>只剩 1 位</Txt>
-    </g>
-    <Caption text="逐渐下溢 · 可用的有效位逐渐减少" y={817} opacity={p('p67', 8, 14)} />
-    <Txt x={960} y={870} anchor="middle" size={24} color={C.muted} opacity={p('p67', 16, 14)}>贴 0 太近的数，仍可能存成 0</Txt>
-  </g>
-};
-
-// p52–p67：特殊编码和逐渐下溢。
-export const Special: React.FC = () => {
-  const { p, span } = useT();
-  const o = span('p52', 'p65', 14);
+// p66–p70：从最小的规格化数往 0 走，非规格数 0.F × 2^(−126)
+const Subnormal: React.FC = () => {
+  const {p, span} = useT();
+  const o = span('p61', 'p66', 14);
   if (o <= 0) return null;
-  const hex = p('p62') > 0 ? '7FC00000'
-    : p('p60') > 0 ? '7F800000'
-      : p('p59') > 0 ? '00000001'
-        : p('p58') > 0 ? '00400000'
-          : p('p57') > 0 ? '00800000'
-            : p('p54') > 0 ? '00400000'
-              : p('p53') > 0 ? '80000000' : '00000000';
-  return <g opacity={o}>
-    <Txt x={98} y={156} size={30}>特殊编码 · 先看阶码</Txt>
-    <Txt x={1820} y={156} mono anchor="end" size={28} color={C.muted}>{hex}</Txt>
-    <Bits32 hex={hex} labels={false} draw={p('p52', 8, 24)} />
-    <Txt x={98} y={337} size={27} color={C.greenInk}>符号位 s</Txt>
-    <Txt x={365} y={337} size={27} anchor="middle" color={C.clayInk}>阶码 E</Txt>
-    <Txt x={1230} y={337} size={27} anchor="middle" color={C.blueInk}>小数位 f</Txt>
-    <Zero />
-    <Subnormal />
-    <NonFinite />
-  </g>
+  const hex = p('p64', 30) > 0 ? '00000001' : p('p62') > 0 ? '00400000' : '00800000';
+  const axisY = 470;
+  const x0 = 260; // 0
+  const xMin = 1500; // 2^(−126)
+  const subs = [0.5, 0.25, 0.125, 0.0625];
+  return (
+    <g opacity={o}>
+      <Bits32 hex={hex} y={BITS_Y} hot={p('p62') > 0 ? ['E', 'F'] : undefined} draw={p('p61', 0, 20)} />
+      <Txt x={1824} y={BITS_Y - 18} anchor="end" mono size={26} color={C.muted}>
+        {hex}
+      </Txt>
+      <RLine x1={x0} y1={axisY} x2={1760} y2={axisY} stroke={C.ink2} sw={2.4} roughness={0.5} draw={p('p61', 6, 20)} />
+      <RLine x1={x0} y1={axisY - 20} x2={x0} y2={axisY + 20} stroke={C.ink} sw={3} roughness={0.5} draw={p('p61', 10, 12)} />
+      <Txt x={x0} y={axisY + 64} anchor="middle" mono size={32} opacity={p('p61', 10, 12)}>
+        0
+      </Txt>
+      <RLine x1={xMin} y1={axisY - 26} x2={xMin} y2={axisY + 26} stroke={C.clay} sw={3.4} roughness={0.5} draw={p('p61', 16, 12)} />
+      <MathText text="2^(−126) ≈ 10^(−38)" x={xMin} y={axisY + 70} size={34} anchor="middle" color={C.clayInk} opacity={p('p61', 20, 12)} />
+      <Txt x={1640} y={axisY - 40} anchor="middle" size={28} color={C.ink2} opacity={p('p61', 24, 12)}>
+        规格化数
+      </Txt>
+      <g opacity={p('p62', 0, 12)}>
+        {subs.map((s, i) => (
+          <RLine
+            key={s}
+            x1={x0 + (xMin - x0) * s}
+            y1={axisY - 14}
+            x2={x0 + (xMin - x0) * s}
+            y2={axisY + 14}
+            stroke={C.blue}
+            sw={2.4}
+            roughness={0.5}
+            draw={p('p62', 4 + i * 5, 10)}
+          />
+        ))}
+        <Bracket x1={x0 + 8} x2={xMin - 8} y={axisY - 44} dir="down" stroke={C.blue} draw={p('p62', 20, 16)} />
+        <Txt x={(x0 + xMin) / 2} y={axisY - 66} anchor="middle" size={30} color={C.blueInk}>
+          E 全 0 · F 不是 0
+        </Txt>
+      </g>
+      <g opacity={p('p63', 0, 12)}>
+        <MathText text="0.F × 2^(−126)" x={960} y={700} size={52} anchor="middle" color={C.blueInk} />
+        <Txt x={960} y={780} anchor="middle" size={36} opacity={p('p63', 24, 12)}>
+          非规格数 · 隐藏位当成 0
+        </Txt>
+      </g>
+      <g opacity={p('p64', 0, 12)}>
+        <MathText text="0.1000…0 → 0.0100…0 → … → 0.0000…1 = 2^(−149)" x={960} y={868} size={34} anchor="middle" color={C.blueInk} />
+      </g>
+      <g opacity={p('p65', 4, 14)}>
+        <RLine x1={x0} y1={axisY + 4} x2={xMin} y2={axisY + 4} stroke={C.blue} sw={5} roughness={0.4} draw={p('p65', 4, 22)} />
+        <Txt x={(x0 + xMin) / 2} y={axisY + 70} anchor="middle" size={34} color={C.blueInk}>
+          逐渐下溢
+        </Txt>
+      </g>
+    </g>
+  );
+};
+
+// p71–p76：来历。左边 8087 裸片照片，右边时间线
+const History: React.FC = () => {
+  const {p, span} = useT();
+  const o = span('p66', 'k04', 14);
+  if (o <= 0) return null;
+  const photo: Box = {x: 150, y: 190, w: 560, h: 432};
+  // 一个 beat 一个事件；p68 一句话有两件事，分两个圆点先后出现
+  const events = [
+    {at: 'p66', d: 30, year: '1976', text: 'Intel 请 Kahan 为 8087 定运算规则'},
+    {at: 'p67', d: 0, year: '1977 起', text: 'Kahan、Coonen、Stone 起草标准：有逐渐下溢'},
+    {at: 'p68', d: 0, year: '', text: 'DEC 的 VAX：太小的数直接当成 0'},
+    {at: 'p68', d: 40, year: '', text: 'DEC 工程师：照草案做，快不过 VAX'},
+    {at: 'p69', d: 0, year: '1981', text: 'DEC 请来的专家：逐渐下溢是对的'},
+  ];
+  const tx = 860;
+  return (
+    <g opacity={o}>
+      <Photo src="fp32-format/assets/intel-8087-die.jpg" b={photo} credit="Intel 8087 裸片 · Pauli Rautakorpi · CC BY 3.0" opacity={p('p66', 20, 14)} draw={p('p66', 20, 20)} />
+      <Txt x={tx} y={210} size={34} opacity={p('p66', 0, 14)}>
+        这段过渡是争出来的
+      </Txt>
+      <RLine x1={tx} y1={250} x2={tx} y2={790} stroke={C.rule} sw={3} roughness={0.4} draw={p('p66', 24, 20)} />
+      {events.map((ev, i) => {
+        const y = 300 + i * 100;
+        return (
+          <g key={i} opacity={p(ev.at, ev.d, 12)}>
+            <REllipse cx={tx} cy={y - 10} w={18} h={18} stroke={C.clay} fill={C.clay} />
+            {ev.year && (
+              <Txt x={tx + 30} y={y - 30} size={24} mono color={C.clayInk}>
+                {ev.year}
+              </Txt>
+            )}
+            <Txt x={tx + 30} y={y + 10} size={30}>
+              {ev.text}
+            </Txt>
+          </g>
+        );
+      })}
+      <g opacity={p('p69', 40, 14)}>
+        <REllipse cx={tx} cy={800} w={22} h={22} stroke={C.clay} fill={C.clay} />
+        <Txt x={tx + 30} y={790} size={24} mono color={C.clayInk}>
+          1985
+        </Txt>
+        <Txt x={tx + 30} y={830} size={32} color={C.clayInk}>
+          写进 IEEE 754 标准
+        </Txt>
+      </g>
+      <CiteCard
+        b={{x: 150, y: 700, w: 620, h: 150}}
+        year="1998"
+        who="Severance"
+        venue="IEEE Computer"
+        title="Kahan 访谈：IEEE 754 的由来"
+        draw={p('p67', 0, 20)}
+      />
+    </g>
+  );
+};
+
+export const SpecialPart: React.FC = () => {
+  const {p} = useT();
+  if (p('p57', 0, 1) <= 0) return null;
+  return (
+    <g>
+      <Codes />
+      <Subnormal />
+      <History />
+    </g>
+  );
 };

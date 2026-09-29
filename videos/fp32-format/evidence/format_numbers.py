@@ -83,4 +83,30 @@ for a,b,expected in [(0x3f800001,0x3fc00000,0x3fc00002),(1,0x3f800000,1),
     actual = encode(x)
     assert actual == expected, (a,b,actual,expected)
     print(f'{a:08X} * {b:08X} exact={x} IEEE={actual:08X}')
+
+# 第三稿开场与引用卡里的算术；原文数字见 references.md
+params = 7 * 10 ** 9
+flops_per_token = 2 * params            # Kaplan 等 2020 式 2.2 的主项
+macs_per_token = flops_per_token // 2   # 一次乘加 = 一次乘法 + 一次加法
+assert macs_per_token == params
+print(f'scenario params={params} forward_flops_per_token~2N={flops_per_token} macs_per_token={macs_per_token}')
+horowitz_pj = {'int8_mult': Q('0.2'), 'fp16_mult': Q('1.1'), 'fp32_mult': Q('3.7'), 'int32_mult': Q('3.1')}
+ratio = horowitz_pj['fp32_mult'] / horowitz_pj['int8_mult']
+assert 10 < ratio < 20
+print(f'horowitz_45nm fp32_mult/int8_mult={float(ratio)} (十几倍)')
+cycles_normal, cycles_subnormal_min = 4, 200
+print(f'andrysco_core_i7_sse mult normal={cycles_normal} subnormal>{cycles_subnormal_min} ratio>{cycles_subnormal_min // cycles_normal}')
+min_normal = pow2(-126)
+assert Q(1, 10 ** 38) < min_normal < Q(2, 10 ** 38)
+print(f'min_normal 2^-126={float(min_normal):.6e} (约 10^-38)')
+rel = {t: abs(decode(encode(Q(t))) - Q(t)) / Q(t) for t in ['0.000001', '0.001', '1000000']}
+assert all(r < Q(1, 10 ** 7) for r in rel.values())
+print('FP32 relative errors ' + ' '.join(f'{t}={float(r):.3g}' for t, r in rel.items()) + ' all < 1e-7 (都不到千万分之一)')
+tpu_v4_mults = 2 * 4 * 128 * 128  # 两个 TensorCore，各 4 个 128x128 的 MXU
+print(f'tpu_v4 2 cores x 4 MXU x 128x128 = {tpu_v4_mults}')
+assert Q(1, 2 * 65536) > Q('0.000001')
+print('0.000001 < half step 2^-17 (连半格都不到)')
+widths = {'FP32': (1, 8, 23), 'BF16': (1, 8, 7), 'FP16': (1, 5, 10), 'FP8 E5M2': (1, 5, 2), 'FP8 E4M3': (1, 4, 3)}
+for name, (s, e, f) in widths.items():
+    print(f'format {name} sign={s} exponent={e} fraction={f} total={s + e + f}')
 print('PASS arithmetic assertions and independent struct cross-checks')

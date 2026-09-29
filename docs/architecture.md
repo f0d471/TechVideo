@@ -16,6 +16,7 @@ videos/<id>/
   Video.tsx        本集入口：片头、段落标签、各段场景，用 defineVideo 导出
   scenes/          本集的画面代码，一段一个文件
   evidence/        画面数字的出处：实验文件、run.sh、原始日志
+  assets/          引用的图片与论文页面（公有领域或 CC BY），许可登记在 evidence/references.md
   audio/           生成，不入库：一句一个 wav，cache.json 记录文本哈希
   build/           生成：manifest.json 与 code.json 入库；captions.srt、asr_check.json、script.md 不入库
 ```
@@ -41,7 +42,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `theme.ts` | `C`、`F`、`W`、`H` | 配色、字体、画面尺寸 |
 | `timeline.ts` | `useT()`、`ManifestCtx`、类型 `Beat`、`Manifest` | 按 beat 计时 |
 | `rough.tsx` | `RRect`、`RLine`、`RPath`、`REllipse`、`RArrow` | 手绘图元，`draw` 控制描线进度 |
-| `VideoShell.tsx` | `defineVideo`、`VideoShell`、类型 `VideoDef` | 一集的外壳：计时上下文、字体预载、底色、画布、左下角页码、字幕（按 `sub` 里的 `\n` 换行，不自动折行）、分句配音 |
+| `VideoShell.tsx` | `defineVideo`、`VideoShell`、类型 `VideoDef` | 一集的外壳：计时上下文、字体预载、底色、画布、左下角页码、字幕（按 `sub` 里的 `\n` 换行，不自动折行）、分句配音；`inputProps.layoutProbe` 为真时挂载版面探针（只给 `vt layout` 用，正常渲染不挂载） |
 
 `useT()` 返回：
 
@@ -58,7 +59,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `Prims.tsx` | `Txt`、`Bracket`、`Chip` | 文字（`mono` 为等宽且关连字）、方括号标注、概念卡 |
 | `Frame.tsx` | `TitleCard`、`SegmentLabel` | 片头卡、左上角段落标签 |
 | `BitStrip.tsx` | `BitStrip`、`STRIP`、`cellX`、`cellCX` | 位条（默认 48 位），按位设置外观 |
-| `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
+| `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化，宽度可由 `w` 指定（默认占满左右留白之间，结构图放右侧时给窄）；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
 | `TransTable.tsx` | `TransTable` | 逐词翻译表：代码 → 英文 → 中文 |
 | `Gates.tsx` | `andPath`、`orPath`、`Wire`、`Val`、`Src` | 与门、或门、导线、信号值圆标、信号源格子 |
 
@@ -81,14 +82,15 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `common.mjs` | 路径、页码、脚本指纹、抽帧取哪一帧、在 bash 里执行命令（Windows 上转给 WSL，其他系统直接用本机 bash） |
 | `env.cjs` | 本机设置：环境变量 > `tools/env.local.json` > 默认值；`remotion.config.ts` 也读它 |
 | `sources.mjs` | 素材源码：按 `curriculum/sources.json` 的固定提交读文件、解出快照目录 |
-| `limits.json` | 各项数值界限：句长、字幕宽度、停留、语速、片长、字号 |
+| `limits.json` | 各项数值界限：句长、字幕宽度、停留、语速、片长、字号、版面 |
 | `lint_script.mjs` | 脚本检查（`vt lint`） |
 | `lint_scenes.mjs` | 画面代码检查（`vt check` 的一项） |
 | `check_curriculum.mjs` | 课程登记检查（`vt curriculum`） |
 | `extract_code.mjs` | 逐字抽代码（`vt code`） |
 | `build_audio.py`、`asr_check.py` | 分句配音与时间轴、回听校对（在 bash 侧运行） |
 | `review_audio.py` | vt asr 的 --review 模式，对 ASR 低分句做技术词提示复核；保留首轮结果，输出 build/asr_review.json，不替代人工听音 |
-| `stills.mjs` | 单帧渲染，抽帧与回归共用 |
+| `stills.mjs` | 单帧渲染，抽帧、版面检查与回归共用 |
+| `layout.mjs` | 版面检查（`vt layout`）：带 `layoutProbe` 渲染检查帧，`VideoShell` 里的探针量出文字与图片外框，判越界、进字幕区与重叠，结果在 `out/<id>/layout/report.json` |
 | `master.sh` | 响度归一化与成片检查 |
 | `setup_env.sh` | bash 侧的 Python 库与语音识别模型 |
 | `link_skills.mjs` | 重建 `.claude/skills/` 的目录链接 |
@@ -99,7 +101,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 
 - 状态变化处的轻提示音。
 - 公式逐项变形的组件（一个式子逐项变成另一个式子）。
-- 指数上标组件（底数与指数分两段排版，见 `docs/standards/visual.md` 第二节）。第一个需要写 2 的几次方的集先在自己的 `scenes/` 里实现，第二集用到时提取。
-- 任意位宽的位串组件。`src/components/BitStrip.tsx` 按 48 位的积写死；`videos/fp32-format/scenes/Elements.tsx` 的 `Bits32` 是 32 位的另一份。下一集再用到位串时，把两者合成一个按位宽参数化的共享组件，提完对所有视频跑 `regress`。
+- 公式排版、核心公式条、小节标签、部件卡、引用卡、照片框、按坐标算端点的箭头。第一版在 `videos/fp32-format/scenes/Kit.tsx`（`MathText` 逐字符定位，指数用小号 `tspan`；`FormulaBar`、`SectionTag`、`PartCard`、`CiteCard`、`Photo`、`Arrow`、`Bars`），第二集用到时提取到 `src/components/`，提完对所有视频跑 `regress`。
+- 任意位宽的位串组件。`src/components/BitStrip.tsx` 按 48 位的积写死；`videos/fp32-format/scenes/Kit.tsx` 的 `Bits32` 是 32 位的另一份。下一集再用到位串时，把两者合成一个按位宽参数化的共享组件，提完对所有视频跑 `regress`。
 
 另外，样片 `videos/fp32-rne/scenes/` 里有几种只用过一次、还没提取成共享组件的画面：抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）、语法形状与同形记号卡（`Code.tsx` 的 `Shape`、`Trap`）。下一集要用时，按第四节的规则提取到 `src/components/`。

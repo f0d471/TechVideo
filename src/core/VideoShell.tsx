@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {AbsoluteFill, Sequence, continueRender, delayRender, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Sequence, continueRender, delayRender, getInputProps, staticFile, useCurrentFrame} from 'remotion';
 import {Audio} from '@remotion/media';
 import 'lxgw-wenkai-webfont/lxgwwenkai-regular.css';
 import '@fontsource/jetbrains-mono/400.css';
@@ -66,7 +66,7 @@ const PageNumber: React.FC = () => {
     if (b.audio) n++;
     if (f >= b.start && f < b.start + b.frames) {
       return b.audio ? (
-        <text x={96} y={1040} fontFamily={F.mono} fontSize={20} fill={C.muted} style={{fontVariantLigatures: 'none'}}>
+        <text data-shell x={96} y={1040} fontFamily={F.mono} fontSize={20} fill={C.muted} style={{fontVariantLigatures: 'none'}}>
           {n}
         </text>
       ) : null;
@@ -75,16 +75,48 @@ const PageNumber: React.FC = () => {
   return null;
 };
 
+// 版面探针：只在 vt layout 渲染时挂载（inputProps.layoutProbe），正常渲染不挂载，画面不变。
+// 字体就绪后量出画布里每个可见的文字与图片的外框，用 console.log 交给 tools/layout.mjs 判断越界与重叠
+const LayoutProbe: React.FC = () => {
+  const f = useCurrentFrame();
+  useEffect(() => {
+    const handle = delayRender(`layout ${f}`);
+    document.fonts.ready.then(() =>
+      requestAnimationFrame(() => {
+        const root = document.querySelector('svg[data-canvas]');
+        const items: {kind: string; text: string; x: number; y: number; w: number; h: number; opacity: number}[] = [];
+        root?.querySelectorAll('text, foreignObject').forEach((el) => {
+          if (el.closest('[data-shell]')) return;
+          // 不透明度沿祖先相乘，淡出到几乎看不见的不算
+          let opacity = 1;
+          for (let e: Element | null = el; e && e !== root; e = e.parentElement) {
+            const cs = getComputedStyle(e);
+            opacity = cs.display === 'none' || cs.visibility === 'hidden' ? 0 : opacity * parseFloat(cs.opacity);
+          }
+          const r = el.getBoundingClientRect();
+          if (opacity < 0.05 || r.width < 1 || r.height < 1) return;
+          const text = (el.textContent ?? '').trim().slice(0, 40);
+          items.push({kind: el.tagName === 'text' ? 'text' : 'image', text, x: r.x, y: r.y, w: r.width, h: r.height, opacity});
+        });
+        console.log(`[layout] ${JSON.stringify({frame: f, items})}`);
+        continueRender(handle);
+      }),
+    );
+  }, [f]);
+  return null;
+};
+
 // 一集视频的外壳：计时上下文、字体、底色、1920×1080 画布、页码、字幕与分句配音
 export const VideoShell: React.FC<{manifest: Manifest; children: React.ReactNode}> = ({manifest, children}) => (
   <ManifestCtx.Provider value={manifest}>
     <FontGate>
       <AbsoluteFill style={{backgroundColor: C.ground}}>
-        <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+        <svg data-canvas width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
           {children}
           <PageNumber />
         </svg>
         <Captions />
+        {getInputProps().layoutProbe ? <LayoutProbe /> : null}
         {manifest.beats
           .filter((b) => b.audio)
           .map((b) => (

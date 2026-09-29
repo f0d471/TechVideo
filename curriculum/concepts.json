@@ -1,10 +1,18 @@
 [
+ {"id": "mac", "name": "乘加", "def": "先乘两个数，再把积加到一个总和上；神经网络的计算拆开来几乎全是它", "episode": "fp32-format", "deps": []},
+ {"id": "model-parameter", "name": "参数", "def": "模型里训练出来的数，个数决定了模型的规模", "episode": "fp32-format", "deps": []},
+ {"id": "inference", "name": "推理", "def": "用训练好的模型，根据输入算出输出，例如语言模型逐个写出词", "episode": "fp32-format", "deps": ["mac", "model-parameter"]},
+ {"id": "number-format", "name": "数值格式", "def": "一个数用几位存、每一位怎么解读的约定，例如 INT8、FP16、BF16、FP32", "episode": "fp32-format", "deps": []},
+ {"id": "mixed-precision", "name": "混合精度", "def": "乘法用位数少的格式，累加的结果和参数的主副本留在 FP32", "episode": "fp32-format", "deps": ["number-format", "mac"]},
+ {"id": "clock-cycle", "name": "拍", "def": "芯片按时钟一步一步地工作，一步叫一拍，也就是一个时钟周期", "episode": "fp32-format", "deps": []},
+ {"id": "hdl", "name": "硬件描述语言", "def": "描述电路里有哪些部件、怎么连线的语言，例如 Verilog；描述的部件同时存在，和书写顺序无关", "episode": "fp32-format", "deps": []},
+ {"id": "comparator", "name": "比较器", "def": "比较两组线上的值，相等（或不相等）时输出 1", "episode": "fp32-format", "deps": ["hdl"]},
+ {"id": "and-gate", "name": "与门", "def": "所有输入都是 1 时才输出 1", "episode": "fp32-format", "deps": ["hdl"]},
  {"id": "binary-fraction", "name": "二进制小数", "def": "小数点右边第 k 位的分量是 2 的负 k 次方", "episode": "fp32-format", "deps": []},
  {"id": "fixed-point", "name": "定点数", "def": "小数点固定在某一位的数，最小一格的大小固定", "episode": "fp32-format", "deps": ["binary-fraction"]},
  {"id": "relative-error", "name": "相对误差", "def": "误差的绝对值除以真值的绝对值，表示偏差占原值的比例", "episode": "fp32-format", "deps": []},
  {"id": "sci-notation", "name": "科学计数法", "def": "一个有效数乘以底数的整数次方", "episode": "fp32-format", "deps": []},
  {"id": "floating-point", "name": "浮点数", "def": "有效位数固定，小数点的位置随量级改变，能覆盖很宽的数值范围", "episode": "fp32-format", "deps": ["fixed-point", "sci-notation", "relative-error"]},
-
  {"id": "sign-bit", "name": "符号位", "def": "最高位，0 为正，1 为负", "episode": "fp32-format", "deps": ["floating-point"]},
  {"id": "exponent-field", "name": "阶码", "def": "8 位字段，存的是指数加 127", "episode": "fp32-format", "deps": ["floating-point"], "avoid": ["指数位", "指数域", "阶数"]},
  {"id": "bias", "name": "偏置", "def": "单精度是 127，阶码减去它得到指数", "episode": "fp32-format", "deps": ["exponent-field"]},
@@ -15,22 +23,17 @@
  {"id": "fraction-field", "name": "小数位", "def": "23 位字段，存 1.f 里小数点后面的 f", "episode": "fp32-format", "deps": ["hidden-bit"], "avoid": ["尾数位"]},
  {"id": "mantissa", "name": "尾数", "def": "隐藏位加小数位，共 24 位的 1.f", "episode": "fp32-format", "deps": ["hidden-bit", "fraction-field"]},
  {"id": "lsb", "name": "末位", "def": "尾数的最低位，单精度里它的分量是 2 的负 23 次方乘以 2 的指数次方", "episode": "fp32-format", "deps": ["mantissa"]},
-
  {"id": "signed-zero", "name": "正零与负零", "def": "阶码与小数位全为 0，只有符号位不同", "episode": "fp32-format", "deps": ["exponent-field", "fraction-field"]},
  {"id": "subnormal", "name": "非规格数", "def": "阶码全 0、小数位不为 0 的数，值为 0.f 乘以 2 的负 126 次方", "episode": "fp32-format", "deps": ["signed-zero", "hidden-bit"], "avoid": ["非正规数", "次正规数", "反规格化数"]},
  {"id": "infinity", "name": "无穷", "def": "阶码全 1、小数位为 0", "episode": "fp32-format", "deps": ["exponent-field"]},
  {"id": "nan", "name": "NaN", "def": "阶码全 1、小数位不为 0，表示没有意义的结果，例如无穷乘 0", "episode": "fp32-format", "deps": ["infinity"]},
  {"id": "gradual-underflow", "name": "逐渐下溢", "def": "IEEE 754 的规定：比最小规格化数还小的数写成非规格数，精度逐位减少", "episode": "fp32-format", "deps": ["subnormal"]},
  {"id": "ftz", "name": "FTZ", "def": "flush to zero：非规格数一律当 0，输入当 0、结果写成带符号的 0；有意偏离标准，丢掉极小的数，换来更小更快的电路。x86 把输入当 0 单独叫 DAZ", "episode": "fp32-format", "deps": ["gradual-underflow", "signed-zero"]},
-
- {"id": "mac", "name": "乘加", "def": "先乘再累加，矩阵乘的基本运算", "episode": "fp32-mul", "deps": []},
  {"id": "sign-xor", "name": "符号异或", "def": "积的符号是两个符号位的异或：同号得正，异号得负", "episode": "fp32-mul", "deps": ["sign-bit"]},
  {"id": "exponent-sum", "name": "阶码和", "def": "两个阶码相加再减一个 127，用 10 位带符号数存，留出越界的余地", "episode": "fp32-mul", "deps": ["bias"]},
  {"id": "mantissa-product", "name": "尾数积", "def": "两个 24 位尾数相乘得到的 48 位积，落在 1 到 4 之间", "episode": "fp32-mul", "deps": ["mantissa"]},
-
  {"id": "normalize", "name": "规格化", "def": "把积调回规格化形式：积在 2 到 4 之间时右移一位、阶码加一", "episode": "fp32-normalize", "deps": ["mantissa-product", "normalized-form", "exponent-sum"], "avoid": ["标准化", "归一化"]},
  {"id": "shifted-out-bit", "name": "掉出的位", "def": "右移时移出去的最低位，并进新的最低位，不能直接丢", "episode": "fp32-normalize", "deps": ["normalize"]},
-
  {"id": "rounding", "name": "舍入", "def": "在相邻的两个可表示的数里挑一个", "episode": "fp32-rne", "deps": ["mantissa-product", "normalize"]},
  {"id": "truncation", "name": "截断", "def": "永远选小的那一格，结果总是偏小", "episode": "fp32-rne", "deps": ["rounding"]},
  {"id": "round-nearest", "name": "就近", "def": "选离真值近的那一格", "episode": "fp32-rne", "deps": ["rounding"]},
@@ -39,11 +42,9 @@
  {"id": "guard-bit", "name": "保护位", "def": "被扔掉的第一位，分量是末位的一半", "episode": "fp32-rne", "deps": ["rounding", "lsb"]},
  {"id": "sticky-bit", "name": "粘滞位", "def": "保护位后面所有位的或，只要有一个 1 就是 1", "episode": "fp32-rne", "deps": ["guard-bit", "shifted-out-bit"], "avoid": ["粘着位", "粘连位"]},
  {"id": "round-up", "name": "末位加一", "def": "保护位是 1，并且粘滞位与末位至少有一个是 1", "episode": "fp32-rne", "deps": ["guard-bit", "sticky-bit", "rne"]},
-
  {"id": "mantissa-carry", "name": "尾数进位", "def": "舍入加一后尾数变成 10.000…，再右移一位、阶码加一", "episode": "fp32-boundary", "deps": ["round-up", "normalize"]},
  {"id": "overflow", "name": "上溢", "def": "最终阶码达到 255，结果写成正负无穷", "episode": "fp32-boundary", "deps": ["exponent-sum", "infinity"]},
  {"id": "underflow", "name": "下溢", "def": "最终阶码小于等于 0，结果比最小的规格化数还小；按 FTZ 写成正负零", "episode": "fp32-boundary", "deps": ["exponent-sum", "ftz"]},
-
  {"id": "register", "name": "寄存器", "def": "时钟沿到来时把输入存下来，直到下一个时钟沿", "episode": "fp32-pipeline", "deps": []},
  {"id": "comb-delay", "name": "组合逻辑延迟", "def": "信号穿过一串门电路需要的时间", "episode": "fp32-pipeline", "deps": []},
  {"id": "critical-path", "name": "关键路径", "def": "两排寄存器之间最慢的那条路，它决定时钟能多快", "episode": "fp32-pipeline", "deps": ["register", "comb-delay"]},

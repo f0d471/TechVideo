@@ -17,17 +17,19 @@
 
 冲突时以规范为准；`decisions.md` 只解释来由，不单独作为依据。`docs/architecture.md` 第八节列出尚未实现的能力，不在那张表之外假定有别的现成功能。
 
-## 开工前按顺序读
+## 按阶段读
 
-1. 本文件。
-2. `docs/sop.md`。
-3. `docs/standards/` 下的五份规范：`principle.md`（原理课）、`code.md`（代码课）、`narration.md`（文案与朗读）、`visual.md`（视觉）、`review.md`（审稿与画面审查）。
-4. `curriculum/README.md` 与要做的那一集所在的系列大纲（`curriculum/NN-<系列>.md`）。
-5. `docs/decisions.md`。
-6. 要接手的那一集的 `videos/<id>/STATUS.md`，以及 `videos/README.md`。
-7. 写画面代码之前：`docs/architecture.md`，以及 `.agents/skills/remotion-best-practices/SKILL.md`（Remotion 官方的 API 手册，按它的指引再读对应的子文档；克隆后按 `docs/toolchain.md` 恢复）。
+只读当前阶段要用的文件，不要一开始把全部规范读一遍。
 
-参照成片是 `videos/fp32-rne`：它走完了全部流程，版面、节奏、代码段的讲法都以它为准。动手前读它的 `script.json`（开场、例子、句子怎么写）和 `scenes/Code.tsx`（画面代码怎么写），写完拿自己的产出逐项对照。规范里标着「反例（fp32-format 首稿）」的条目，是首稿审查中查出的偏差，照着改法做。
+| 什么时候 | 读 |
+|---|---|
+| 每次接手 | 本文件、`docs/sop.md`、这一集的 `videos/<id>/STATUS.md` |
+| S1–S2 大纲与取数 | `docs/standards/principle.md`、`curriculum/README.md`、系列大纲（`curriculum/NN-<系列>.md`）里这一集的条目 |
+| S3 脚本 | `docs/standards/narration.md`；有代码段时加 `docs/standards/code.md`；参照成片的 `script.json` |
+| S5 画面 | `docs/standards/visual.md`、`docs/architecture.md`、参照成片的 `scenes/Code.tsx`；Remotion 的 API 不熟时查 `.agents/skills/remotion-best-practices/SKILL.md`（克隆后按 `docs/toolchain.md` 恢复） |
+| S7 处理反馈 | `docs/decisions.md` 里相关的那一节 |
+
+参照成片是 `videos/fp32-rne`：它走完了全部流程，例子怎么选、句子怎么写、画面代码怎么写都以它为准。动手前读它的 `script.json` 和 `scenes/Code.tsx`，写完拿自己的产出逐项对照。它在 2026-09-28 定位调整之前完成，没有情景开场、小节、核心公式条，代码段也比现在的节奏慢；这几项以规范为准（`docs/decisions.md`「fp32-format 第二稿审片反馈」）。规范里标着「反例（fp32-format 首稿）」「反例（fp32-format 第二稿）」的条目，是审查与审片中查出的偏差，照着改法做。
 
 ## 目录与归属
 
@@ -48,6 +50,7 @@
 | `videos/README.md` | 已立项视频的索引与当前阶段 | 源 | 任何一集阶段变化时 |
 | `videos/_template/` | 新建一集时复制的模板 | 源 | 模板本身需要改进时 |
 | `videos/<id>/script.json`、`outline.md`、`STATUS.md`、`Video.tsx`、`scenes/`、`evidence/` | 这一集的源文件 | 源 | 只在做这一集时 |
+| `videos/<id>/assets/` | 引用的图片与论文页面（公有领域或 CC BY），作者与许可登记在 `evidence/references.md` | 外部，入库 | 只在做这一集时，按 `docs/standards/principle.md` 第十三节 |
 | `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 只由 `vt tts`、`vt code` 写。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
 | `videos/<id>/audio/`、`build/` 里的其他文件 | 配音、字幕、校对结果、审阅表 | 生成 | 只由 `vt` 的命令写，不入库 |
 | `tools/` | 流程脚本，统一入口 `tools/vt.mjs`；`limits.json` 是各项数值界限；`lexicon.json` 是全局读法词典；`env.cjs` 读本机设置 | 源 | 流程变化或新增检查项时 |
@@ -71,13 +74,13 @@
 
 ## 铁律
 
-1. 视频讲通用知识，不讲某个项目。旁白、字幕、画面上不出现素材仓名、文件名和源文件行号；`vt lint` 与 `vt check` 会查。
+1. 视频讲通用知识，不讲某个项目。旁白、字幕、画面上不出现素材仓名、文件名和源文件行号，也不拿「这个乘法器」当主语，知识点放在系列的情景里讲；`vt lint` 与 `vt check` 会查。
 2. 画面上的每个数字都要有出处（仿真、实测、引用的文档或写明算式的算术），登记在这一集 `outline.md` 的数字清单里，实验与原始输出放在 `evidence/`。
 3. 代码逐字引用，只能由 `vt code` 从素材仓的固定提交抽取，不许改写。
-4. 脚本审过才配音：`vt lint` 零错误，提醒逐条处理；由没有参与写稿的上下文（子 agent 或新会话）按 `docs/standards/review.md` 的清单审稿，逐条写结论和页码证据，记进 `STATUS.md`，`vt tts` 会核对。写稿的上下文自己看一遍不算审稿。人工只在 S7 看成片，中途不看脚本（`docs/sop.md`「审阅方式」）。
+4. 质量靠命令把关，不另开上下文审稿或审画面：`vt lint` 零错误才配音，`vt make` 里的检查全过才出片。人工只在 S7 看成片，中途不看脚本（`docs/sop.md`「审阅方式」）。机器查不了的几条由写的人自查，不写审查记录。
 5. 改了 `src/core/` 或 `src/components/`，对所有视频跑 `vt regress`。
-6. 每完成一个阶段就更新这一集的 `STATUS.md`；阶段变化同步到 `videos/README.md` 和系列总表。
-7. 审片反馈里能写成规则的，同时落到三处：`docs/standards/` 的条文、`tools/` 的检查（`lint_script.mjs`、`lint_scenes.mjs`、`limits.json` 或 `lexicon.json`）、`docs/decisions.md` 的记录。
+6. S0–S2 完成时更新这一集的 `STATUS.md`，并同步到 `videos/README.md` 和系列总表；S3 之后的阶段由 `vt make`、`vt accept` 自动记录，不手写长段的验收记录。
+7. 审片反馈里能写成规则的，同时落到三处：`docs/standards/` 的条文、`tools/` 的检查（`lint_script.mjs`、`lint_scenes.mjs`、`layout.mjs`、`limits.json` 或 `lexicon.json`）、`docs/decisions.md` 的记录。能写成检查的，不写成人工审查的清单。
 8. 仓库里的文字不用 emoji，状态写成 `[ ]` 与 `[x]`；代码注释不用横线分隔；文档不写「用户确认」这类人称视角，只描述仓库里的文件与规则。
 9. 按系列大纲做：例子、理由、范围照系列大纲；要偏离时写进 `outline.md` 的「偏离系列大纲」并在交片说明里列出，不在脚本里自行改理由、加限定。
 10. 各层只放本层的东西：`docs/decisions.md` 只记已定的裁决和审片反馈，制作中自己的取舍写进这一集的 `outline.md`；`curriculum/concepts.json` 的定义写通用知识，不写某个实现的做法；`tools/` 是跨集的，不写某一集的内容。
@@ -93,18 +96,19 @@
 ```
 node tools/vt.mjs new fp32-normalize 规格化     新建一集（id 与标题照抄系列总表）
 node tools/vt.mjs lint fp32-rne                 检查脚本
-node tools/vt.mjs table fp32-rne                生成脚本审阅表，打印脚本指纹
+node tools/vt.mjs table fp32-rne                生成脚本通读表（可选），打印脚本指纹
 node tools/vt.mjs code fp32-rne                 从素材仓的固定提交逐字抽代码
 node tools/vt.mjs evidence fp32-rne             在固定提交上跑出处实验，刷新原始日志
-node tools/vt.mjs tts fp32-rne                  分句配音与时间轴，核对审阅指纹，检查语速与片长
-node tools/vt.mjs asr fp32-rne                  回听校对
+node tools/vt.mjs tts fp32-rne                  分句配音与时间轴，检查语速与片长
 node tools/vt.mjs check fp32-rne                脚本、画面代码、时序、课程登记四项检查
-node tools/vt.mjs stills fp32-rne 0.5 --all     每个 beat 抽一帧（带字幕）并拼四宫格
+node tools/vt.mjs layout fp32-rne               版面检查：越界、进字幕区、文字重叠，只列有问题的帧
+node tools/vt.mjs stills fp32-rne 0.5 p07 p08   抽几帧（带字幕）看效果
+node tools/vt.mjs make fp32-rne                 出片一条龙：配音、检查、版面、渲染、母版、交片说明
+node tools/vt.mjs make fp32-rne --from master   渲染之后的步骤失败时接着跑
+node tools/vt.mjs accept fp32-rne               审片通过：记指纹、登记多音字、记回归基准
 node tools/vt.mjs page fp32-rne 23              页码对应的 beat 与时间
-node tools/vt.mjs baseline fp32-rne             记录回归基准
-node tools/vt.mjs regress fp32-rne              回归比对
-node tools/vt.mjs render fp32-rne               整片渲染
-node tools/vt.mjs master fp32-rne               响度归一化并出成片与字幕
+node tools/vt.mjs regress fp32-rne              回归比对（改了共享层时）
+node tools/vt.mjs asr fp32-rne                  回听校对（可选）
 node tools/vt.mjs curriculum                    课程登记检查
 npx remotion studio                             打开 Remotion 预览界面
 npm run typecheck                               类型检查

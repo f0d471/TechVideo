@@ -1,17 +1,17 @@
 # 标准流程
 
-一集视频分九个阶段。每个阶段都写明输入、命令、产出和验收条件；验收没过不进入下一阶段。阶段完成后在这一集的 `STATUS.md` 勾选，并同步 `videos/README.md` 的阶段列与系列总表的状态列。
+一集视频分九个阶段。每个阶段都写明输入、命令、产出和验收条件；验收没过不进入下一阶段。S0–S2 完成后手动在这一集的 `STATUS.md` 勾选，并同步 `videos/README.md` 的阶段列与系列总表的状态列；S3–S7 由 `vt make` 与 `vt accept` 勾选和同步。
 
-阶段之间的依赖：大纲决定要取哪些数，数定了才能写脚本，脚本审过才能配音，配音定了时间轴，时间轴定了才能做画面。后一阶段发现前一阶段的问题时，回到前一阶段改，再往后重跑。
+一集的做法：写大纲、取数、写脚本（`vt lint`）→ `vt tts` 得到时间轴 → 写画面（`vt check`、`vt layout`）→ `vt make` 出片 → 审片 → `vt accept`。
+
+阶段之间的依赖：大纲决定要取哪些数，数定了才能写脚本，脚本 `lint` 过了才能配音，配音定了时间轴，时间轴定了才能做画面。后一阶段发现前一阶段的问题时，回到前一阶段改，再往后重跑。
 
 ## 审阅方式
 
-人工只在 S7 看成片，中途不看大纲、脚本和画面。S0–S6 由制作方一次做完，质量由两道审查把关，做法见 `docs/standards/review.md`：
+人工只在 S7 看成片，中途不看大纲、脚本和画面。S0–S6 由制作方一次做完，不另开上下文审稿或审画面：能机器判断的规则都在命令里（`vt lint`、`vt check`、`vt layout`、成片检查），判断不了的由写的人按本文件 S3、S5 的几条自查一遍，不写审查记录。出片用 `vt make` 一条命令跑完，审片通过用 `vt accept` 登记。
 
-- S3 审稿：配音之前，由没有参与写稿的上下文（子 agent 或新会话）按审稿清单 R1–R10 逐条审，每条写结论和页码证据，记进 `STATUS.md`。`vt tts` 核对当前脚本指纹的审稿记录，缺一条不配音。
-- S5 画面审查：出片之前，同样由独立的上下文按 `visual.md` 的自查清单看四宫格。
-- 写稿的上下文自己看一遍不算审查。
-- 大纲偏离了系列大纲（换例子、换理由、加计划外的内容），在 `outline.md` 的「偏离系列大纲」一节写明原因，出片后写进「交片说明」。能照系列大纲做的，不偏离。
+- 发现一类问题反复出现，把它写成检查项（`AGENTS.md` 铁律第 7 条），不加人工审查的环节。
+- 大纲偏离了系列大纲（换例子、换理由、加计划外的内容），在 `outline.md` 的「偏离系列大纲」一节写明原因，`vt make` 会把每条的第一句写进「交片说明」。能照系列大纲做的，不偏离。
 
 ## S0 立项
 
@@ -46,37 +46,38 @@
 - 编写 `videos/<id>/script.json`。一个 beat 是一句旁白加一次画面变化；每个 beat 有 `say`（送给 TTS 的朗读文本）和可选的 `sub`（字幕，缺省与 `say` 相同），可加 `hold`（语音结束后额外停留的秒数）。片头等无旁白的 beat 写 `silent`（秒）。beat id 是段落字母加两位序号：`t00` 片头、`p01` 起原理段、`c01` 起代码段。
 - 有代码段时，在 `script.json` 的 `code` 数组里一段写一项：名字、素材仓名、文件路径与行号区间，例如 `{"name": "unpack", "source": "anchorfp", "path": "fp/rtl/fp32_mul_pipe.v", "from": 39, "to": 47}`，然后运行 `node tools/vt.mjs code <id>`。画面代码用 `codeSnippet(codeJson, 'unpack')` 按名字取段。
 - 写法规则见 `docs/standards/narration.md`。写完运行：
-  - `node tools/vt.mjs lint <id>`：必须零错误。提醒逐条处理：多音字听过读音后登记进 `tools/lexicon.json`，设问句和长句按规范改写或说明保留理由，别名改成标准叫法。
-  - `node tools/vt.mjs table <id>`：生成 `build/script.md`，页码、字幕与朗读三栏，并打印脚本指纹。
-- 审稿：按 `docs/standards/review.md` 第二节，由独立的上下文审 `build/script.md`，记录按第三节的格式写进 `STATUS.md` 的「脚本审稿」。有一条是「修改」，改脚本、重新 `table`、重新审稿。
-- 验收：`lint` 零错误，提醒逐条有结论；当前脚本指纹有完整的审稿记录，R1–R10 全部通过。脚本改动（换行除外）会改变指纹，要重新审稿。
+  - `node tools/vt.mjs lint <id>`：必须零错误。提醒里的设问句、长句、别名、防御性限定按规范改掉；多音字不用处理，审片时听，`vt accept` 统一登记。
+  - `node tools/vt.mjs table <id>`（可选）：生成 `build/script.md`，页码、字幕与朗读三栏，通读时用。
+- 写完自查一遍，这几条机器查不了，不写记录：
+  - 前三句说出这一集要回答的问题；每个小节第一句从上一节的问题接过来。
+  - 没有先用后讲的概念，术语用 `concepts.json` 的标准叫法。
+  - 只看例子得出的结论和旁白一致，没有构造出来的巧合；理由照系列大纲。
+  - 只读朗读一栏从头到尾，相邻两句能补出因果或转折。
+  - 画面上的数都在 `outline.md` 的数字清单里；引用的说法不超出 `evidence/references.md` 的摘录。
+- 验收：`lint` 零错误。
 
 ## S4 配音与时间轴
 
-- 命令：`node tools/vt.mjs tts <id>`，然后 `node tools/vt.mjs asr <id>`。
-- `tts` 先核对 `STATUS.md` 里有当前脚本指纹，没有就拒绝配音；完成后检查语速和片长是否在 `tools/limits.json` 的区间内，超出时退出码为 1。
-- 产出：`audio/*.wav`（一句一个）、`build/manifest.json`（每个 beat 的起止帧）、`build/captions.srt`、`build/asr_check.json`。
-- 回听校对：`asr` 把配音转回文字，在拼音层逐句比对，相似度低于 0.95 的句子会被标出。逐条判断是识别端听错（同音字、英文单词拼写）还是配音读错；读错的改 `lexicon.json` 或 `say`，再重跑 `tts`（只会重合成改过的句子）。
-- 已知盲区：多音字读错通常查不出来，因为识别模型会按上下文写出正确的字。多音字靠 S3 的 `lint` 提醒和 S7 的审片把关。
-- 验收：`tts` 退出码为 0；标出的句子都有结论并记进 `STATUS.md`。不能听音频的制作方，不写「已确认」，也不往 `lexicon.json` 的 `confirmed` 里加词；没登记读音的多音字所在页写进「交片说明」，审片时顺带听。
+- 命令：`node tools/vt.mjs tts <id>`。`lint` 有错误时不配音；完成后检查语速和片长是否在 `tools/limits.json` 的区间内，超出时退出码为 1。
+- 产出：`audio/*.wav`（一句一个，按文本缓存，改一句只重合成一句）、`build/manifest.json`（每个 beat 的起止帧）、`build/captions.srt`。
+- 回听校对 `vt asr` 不在默认流程里：它查不出多音字（识别模型会按上下文写出正确的字），逐句判断又费时。审片时听出读错的，改 `lexicon.json` 的 `replace` 或 `say`，重跑 `vt make`。
+- 验收：`tts` 退出码为 0。
 
 ## S5 画面
 
 - 编写 `videos/<id>/Video.tsx` 与 `scenes/*.tsx`。先查 `docs/architecture.md` 的组件表，能用现成组件的不另写；画面进度全部由 beat 驱动（`useT()` 的 `p`、`span`）；视觉规则见 `docs/standards/visual.md`。代码写法照参照成片的 `scenes/Code.tsx`：一个属性一行，每个场景开头注释写它对应哪几个 beat，一行不超过 `limits.json` 的 `sceneLineChars`。
 - 预览：`npx remotion studio`。
 - 检查：`npm run typecheck` 零错误（Remotion 打包时不查类型，拼错的属性名只会在这里暴露）；`node tools/vt.mjs check <id>` 四项全过（脚本、画面代码、时序、课程登记），画面代码的提醒逐条处理。改过脚本、时间轴变了之后重跑。
-- 抽帧自查：`node tools/vt.mjs stills <id> 0.5 --all`。有旁白的 beat 取语音刚结束的那一帧，字幕仍在画面上；逐张看 `out/<id>/check/sheet-*.png`，按 `visual.md` 的自查清单检查。发现问题修完再抽一次。需要看细节时用比例 1 单独抽某一帧。
-- 画面审查：自查改完后，由独立的上下文按 `docs/standards/review.md` 第四节再看一遍四宫格，记录写进 `STATUS.md` 的「画面审查」。
-- 画面定下来之后：`node tools/vt.mjs baseline <id>`，记录回归基准。
-- 验收：类型检查与 `check` 零错误，自查清单与画面审查全部通过，发现并修掉的问题记进 `STATUS.md`。
+- 版面检查：`node tools/vt.mjs layout <id> [beat...]`。在浏览器里量出每个 beat 检查帧（语音刚结束、字幕仍在）的文字与图片外框，报越过左右边距、进入字幕区、文字互相重叠；只列有问题的帧和对应的 PNG（`out/<id>/layout/`），只看这几张。界限在 `limits.json` 的 `layout`。
+- 抽帧：写一个场景时用 `node tools/vt.mjs stills <id> 0.5 <beat>...` 抽这个场景的几帧看效果，按 `visual.md` 第六节里机器查不了的几条（对齐、疏密、推进、公式条）看一眼。不做整集逐张的审查。
+- 验收：类型检查、`check`、`layout` 零错误。回归基准在审片通过时由 `vt accept` 记录。
 
 ## S6 出片
 
-- 命令：`node tools/vt.mjs render <id>`，然后 `node tools/vt.mjs master <id>`。
-- 产出：`out/<id>/raw.mp4`（渲染原片）、`out/<id>/<id>.mp4`（成片）、`out/<id>/<id>.srt`（外挂字幕）、`out/<id>/probe.txt`（检查结果）。
-- `master` 做两遍 loudnorm，把响度归一到 −14 LUFS，画面流原样拷贝，然后检查成片。
-- 验收：`probe.txt` 里画面帧数与时间轴一致（容器时长会因 AAC 尾部填充略长，不作判据）、片头无旁白段静音、响度在 −14 ± 1 LUFS、峰值不高于 −1 dBFS。
-- 交片：在 `STATUS.md` 写「交片说明」（`review.md` 第五节），连同成片一起交付，进入 S7。
+- 命令：`node tools/vt.mjs make <id>`。依次跑配音（没改的句子走缓存）、类型检查、`check`、`layout`、渲染、母版、成片检查，任何一步失败就停下，只打印这一步的输出末尾，完整输出在 `out/<id>/make.log`。渲染之后的步骤失败时，改完用 `--from master` 接着跑，不重新渲染（步骤名：tts、typecheck、check、layout、render、master）。
+- 产出：`out/<id>/raw.mp4`（渲染原片）、`out/<id>/<id>.mp4`（成片）、`out/<id>/<id>.srt`（外挂字幕）、`out/<id>/probe.txt`（检查结果）。`master` 做两遍 loudnorm，把响度归一到 −14 LUFS，画面流原样拷贝。
+- 成片检查：画面帧数与时间轴一致（容器时长会因 AAC 尾部填充略长，不作判据）、响度在 −14 ± 1 LUFS、峰值不高于 −1 dBFS。
+- 全部通过后，`make` 自动写 `STATUS.md` 的「交片说明」（片长、偏离系列大纲的条目、没登记读音的多音字及页码）和一行验收记录，勾选 S3–S6，阶段改为「S7 待审片」。交付时给成片和这几行。
 
 ## S7 审片与反馈
 
@@ -84,7 +85,7 @@
 - 反馈逐条记入 `STATUS.md` 的「反馈记录」，每条写明处理结果。
 - 能推广到以后各集的反馈，按 `AGENTS.md` 铁律第 7 条落到规范、工具和裁决记录三处。
 - 修改后回到受影响的最早阶段往后重跑；只改了画面时，跑 `regress` 确认只有预期的帧变了，然后重做 `baseline`。
-- 审片通过后：这一版的脚本指纹记进 `STATUS.md` 的「审片通过」表；这一集 `vt lint` 提醒过的多音字词语，随成片听过，登记进 `lexicon.json` 的 `confirmed`，依据写「<id> 审片通过」，以后各集不再提醒。
+- 审片通过后：`node tools/vt.mjs accept <id>`。它把脚本指纹记进 `STATUS.md` 的「审片通过」表，把这一集 `vt lint` 提醒过的多音字上下文登记进 `lexicon.json` 的 `confirmed`（依据写「<id> 审片通过」，以后各集不再提醒），记录回归基准，勾选 S7，阶段改为「S8 发布（待上传）」。
 
 ## S8 发布
 

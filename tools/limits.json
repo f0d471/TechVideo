@@ -6,5 +6,8 @@
  "duration": {"min": 180, "max": 720, "why": "秒。一集回答一个问题，连贯的小概念可以合成一集；超出区间时考虑拆集或并集；docs/standards/principle.md 第十节"},
  "fontSize": {"min": 17, "max": 52, "title": 132, "why": "像素。小标注 17–22，正文 24–34，强调 36–52，片头标题 132；docs/standards/visual.md 第二节"},
  "codeLines": {"max": 9, "why": "一个代码面板最多放 9 行，9 行时面板下沿在 y=562，再多下方的翻译表和电路放不下；docs/standards/code.md 第四节"},
- "sceneLineChars": {"max": 180, "why": "画面代码一行的字符数。参照成片最长 177；压成一行的 JSX 没法审，也没法逐 beat 对照；docs/architecture.md 第五节"}
+ "codeBeatsPerLine": {"max": 1.5, "why": "代码段平均每行代码的 beat 数。fp32-format 第二稿 15 行 39 个 beat（2.6）在审片中判为太慢；简单的行合成一两句；docs/standards/code.md 第二节"},
+ "sectionHold": {"min": 0.8, "why": "秒。小节第一句的前一句至少停这么久，观众才听得出换了一段；docs/standards/principle.md 第三节之二"},
+ "layout": {"side": 96, "captionTop": 920, "tolerancePx": 2, "overlap": 0.3, "minOpacity": 0.3, "why": "vt layout 的界限：左右边距 96 像素、y > 920 是字幕区（visual.md 第四节）；两段文字的外框相交面积超过较小者的 overlap 算重叠；不透明度低于 minOpacity 的暗色背景层不参加重叠判断"},
+ "sceneLineChars":{"max": 180, "why": "画面代码一行的字符数。参照成片最长 177；压成一行的 JSX 没法审，也没法逐 beat 对照；docs/architecture.md 第五节"}
 }

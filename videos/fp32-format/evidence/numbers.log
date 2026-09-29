@@ -39,4 +39,16 @@ exact multiplication; IEEE column applies nearest ties even, preserving subnorma
 00800000 * 3F000000 exact=1/170141183460469231731687303715884105728 IEEE=00400000
 80000001 * 3F800000 exact=-1/713623846352979940529142984724747568191373312 IEEE=80000001
 00400000 * 7E800000 exact=1/2 IEEE=3F000000
+scenario params=7000000000 forward_flops_per_token~2N=14000000000 macs_per_token=7000000000
+horowitz_45nm fp32_mult/int8_mult=18.5 (十几倍)
+andrysco_core_i7_sse mult normal=4 subnormal>200 ratio>50
+min_normal 2^-126=1.175494e-38 (约 10^-38)
+FP32 relative errors 0.000001=2.52e-09 0.001=4.75e-08 1000000=0 all < 1e-7 (都不到千万分之一)
+tpu_v4 2 cores x 4 MXU x 128x128 = 131072
+0.000001 < half step 2^-17 (连半格都不到)
+format FP32 sign=1 exponent=8 fraction=23 total=32
+format BF16 sign=1 exponent=8 fraction=7 total=16
+format FP16 sign=1 exponent=5 fraction=10 total=16
+format FP8 E5M2 sign=1 exponent=5 fraction=2 total=8
+format FP8 E4M3 sign=1 exponent=4 fraction=3 total=8
 PASS arithmetic assertions and independent struct cross-checks

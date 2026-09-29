@@ -68,13 +68,14 @@ export const CodePanel: React.FC<{
   rowY?: (no: number) => number; // 行基线，调换行序时由调用方给出
   bands: Band[]; // 当前讲解行的底色，按数组顺序绘制
   underlines: Underline[];
-}> = ({code, vis, frameDraw, lineIn, rowY = defaultRowY(code), bands, underlines}) => {
+  w?: number; // 面板宽度，默认占满左右留白之间；结构图放在右侧时给窄一些
+}> = ({code, vis, frameDraw, lineIn, rowY = defaultRowY(code), bands, underlines, w = 1728}) => {
   const band = (b: Band, key: number) =>
-    b.o > 0 ? <rect key={key} x={112} y={rowY(b.no) - 28} width={1696} height={CODE.lh} rx={6} fill={C.band} opacity={b.o} /> : null;
+    b.o > 0 ? <rect key={key} x={112} y={rowY(b.no) - 28} width={w - 32} height={CODE.lh} rx={6} fill={C.band} opacity={b.o} /> : null;
   return (
     <g opacity={vis}>
-      <RRect x={96} y={CODE.top} w={1728} h={panelHeight(code.lines.length)} stroke={C.ink2} fill={C.paper} sw={2} draw={frameDraw} />
-      <Txt x={1800} y={156} anchor="end" size={20} mono color={C.muted}>
+      <RRect x={96} y={CODE.top} w={w} h={panelHeight(code.lines.length)} stroke={C.ink2} fill={C.paper} sw={2} draw={frameDraw} />
+      <Txt x={96 + w - 24} y={156} anchor="end" size={20} mono color={C.muted}>
         {code.lang}
       </Txt>
       {bands.map(band)}

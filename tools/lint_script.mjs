@@ -1,9 +1,11 @@
 // 脚本检查：把 docs/standards/narration.md 里能机器判断的规则落成检查项，数值界限取自 tools/limits.json
-// 用法：node tools/lint_script.mjs <视频 id>；有「错误」时退出码为 1，「提醒」需要逐条看过
+// 用法：node tools/lint_script.mjs <视频 id> [--poly-json]；有「错误」时退出码为 1，「提醒」需要逐条看过。
+// --poly-json 只输出未登记的多音字 {字: {上下文: [beat]}}，供 vt make 写交片说明、vt accept 登记读音
 import path from 'node:path';
 import {ROOT, loadScript, readJson, requireVideo} from './common.mjs';
 
 const id = process.argv[2];
+const polyJson = process.argv.includes('--poly-json');
 requireVideo(id);
 const script = loadScript(id);
 const lex = readJson(path.join(ROOT, 'tools/lexicon.json'));
@@ -35,12 +37,15 @@ const BANNED = [
   [/关键在于|核心在于|秘密在于|奥秘/, '「关键在于」拔高'],
   [/让我们|我们来看|你会发现|不难发现|没错|答案是/, '口播套话'],
   [/——|！/, '破折号或感叹号'],
+  // 衔接靠需求本身，说破了就不算衔接（principle.md 第三节之二）
+  [/第一性原理|为什么要学|接下来我们(来)?学|下面我们来学/, '说破衔接的字样'],
 ];
 
-// 制作视角的用语：观众不知道素材仓、仿真和「实现」，旁白里说「这个乘法器」「这个电路」。
+// 制作视角的用语：观众不知道素材仓、仿真和「实现」，也不知道「这个乘法器」是哪一个。
+// 做法的主语用情景里的推理芯片、AI 加速器（principle.md 第十一节）。
 // 这一集把其中某个词当概念讲时，先登记进 concepts.json，这里就不再报
 const CONCEPT_NAMES = readJson(path.join(ROOT, 'curriculum/concepts.json')).map((c) => c.name);
-const MAKING = [/RTL/i, /本实现|这个实现|该实现/, /实跑|跑出来/, /仿真/, /素材/, /本课|本集/].filter(
+const MAKING = [/RTL/i, /本实现|这个实现|该实现/, /实跑|跑出来/, /仿真/, /素材/, /本课|本集/, /这个乘法器|该乘法器|本乘法器/].filter(
   (re) => !CONCEPT_NAMES.some((n) => re.test(n)),
 );
 
@@ -81,7 +86,7 @@ for (const b of script.beats) {
     for (const [a, name] of ALIASES) if (text.includes(a)) warns.push(`${at} ${field} 用了「${a}」，标准叫法是「${name}」（curriculum/concepts.json）`);
     for (const re of MAKING) {
       const m = text.match(re);
-      if (m) errors.push(`${at} ${field} 有制作视角的用语「${m[0]}」，改成观众看得见的东西（这个乘法器、这个电路）：${text}`);
+      if (m) errors.push(`${at} ${field} 有制作视角的用语「${m[0]}」，改成观众看得见的东西，主语用情景里的推理芯片或做法本身：${text}`);
     }
     const h = text.match(HEDGES);
     if (h) warns.push(`${at} ${field} 有防御性限定「${h[0]}」，确认它是这一集要讲的代价而不是免责（narration.md 第三节）：${text}`);
@@ -125,10 +130,34 @@ for (const b of script.beats) {
   });
 }
 
+// 小节之间要有停顿：小节第一句（带 section 字段）的前一句加 hold，让观众听出换了一段
+script.beats.forEach((b, i) => {
+  if (!b.section || i === 0) return;
+  const prev = script.beats[i - 1];
+  if (prev.silent !== undefined) return;
+  if ((prev.hold ?? 0) < LIMITS.sectionHold.min) {
+    warns.push(`${b.id} 是小节「${b.section}」的第一句，前一句 ${prev.id} 的 hold 不到 ${LIMITS.sectionHold.min} 秒，小节之间要停顿（principle.md 第三节之二）`);
+  }
+});
+
+// 代码段的节奏：简单的行合成一两句讲，平均每行代码不超过 codeBeatsPerLine 个 beat
+const codeLines = [script.code ?? []].flat().reduce((n, c) => n + (c.to - c.from + 1), 0);
+const codeBeats = script.beats.filter((b) => b.say && b.id.startsWith('c')).length;
+if (codeLines && codeBeats / codeLines > LIMITS.codeBeatsPerLine.max) {
+  warns.push(`代码段 ${codeBeats} 个 beat 讲 ${codeLines} 行代码，每行 ${(codeBeats / codeLines).toFixed(2)} 个，超过 ${LIMITS.codeBeatsPerLine.max}：简单的行合成一两句（code.md 第一、二节）`);
+}
+
+if (polyJson) {
+  console.log(JSON.stringify(Object.fromEntries([...poly].map(([ch, byCtx]) => [ch, Object.fromEntries(byCtx)]))));
+  process.exit(0);
+}
+
 // 多音字提醒按字归并：几十条逐句提醒会被当成噪声整体跳过，归并后一个字一条，逐个上下文听过再登记
+// 上下文只列前 6 种，全部列表由 vt make 写进交片说明，审片通过后 vt accept 统一登记
 for (const [ch, byCtx] of poly) {
-  const list = [...byCtx].map(([ctx, ids]) => `${ctx}(${ids.join(' ')})`).join('、');
-  warns.push(`多音字「${ch}」未登记，${byCtx.size} 种上下文：${list}。听过读音后，把词语加进 tools/lexicon.json 的 confirmed 或 replace`);
+  const list = [...byCtx].slice(0, 6).map(([ctx, ids]) => `${ctx}(${ids.join(' ')})`).join('、');
+  const more = byCtx.size > 6 ? ` 等 ${byCtx.size} 种` : '';
+  warns.push(`多音字「${ch}」未登记：${list}${more}。不用处理，审片时听`);
 }
 
 for (const e of errors) console.log(`错误 ${e}`);

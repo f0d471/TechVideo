@@ -9,6 +9,7 @@ export type Beat = {
   audioFrom?: number;
   audioFrames?: number;
   sub?: string;
+  section?: string; // 小节第一句带小节名，画面的小节标签按它切换
 };
 
 export type Manifest = {id: string; fps: number; totalFrames: number; beats: Beat[]};

@@ -31,10 +31,10 @@ const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
 
   new      <id> <标题>        从 videos/_template 建一集，并登记到 registry.ts 与 videos/README.md
   lint     <id>               检查脚本：禁用句式、say 里的数字与符号、多音字、句长、字幕换行、项目名
-  table    <id>               生成脚本审阅表 build/script.md，并打印脚本指纹
+  table    <id>               生成脚本通读表 build/script.md（可选），并打印脚本指纹
   code     <id>               按 script.json 的 code 数组从素材源码的固定提交逐字抽代码到 build/code.json
   evidence <id>               在素材源码的固定提交上运行 evidence/run.sh，刷新原始日志
-  tts      <id>               分句配音 + 时间轴 + 字幕；先核对 STATUS.md 里的审阅指纹，完成后检查语速与片长
+  tts      <id>               分句配音 + 时间轴 + 字幕；lint 有错误不配音，完成后检查语速与片长
   asr      <id> [--review]    回听校对；--review 用技术词提示复核首轮低分句
   timing   <id>               静态检查画面代码：引用的 beat 都存在，每个动画在所在 beat 内结束
   check    <id>               lint + 画面代码检查 + timing + 课程登记检查，全部通过退出码为 0
@@ -42,8 +42,11 @@ const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
   page     <id> <页码>...     页码对应的 beat 与时间
   baseline <id>               记录回归基准：每个 beat 两帧的哈希
   regress  <id>               重新渲染回归帧，与基准比对
+  layout   <id> [beat...]     版面检查：量出每个 beat 检查帧里文字与图片的外框，报越界与重叠
   render   <id>               整片渲染到 out/<id>/raw.mp4
   master   <id>               响度归一化到 -14 LUFS，出 out/<id>/<id>.mp4 与 .srt，并写 probe.txt
+  make     <id> [--from 步骤] 出片一条龙：tts、typecheck、check、layout、render、master、成片检查，写交片说明
+  accept   <id>               审片通过：记指纹、登记多音字读音、重做回归基准、阶段改为待发布
   curriculum                  检查 curriculum/ 的系列总表、概念表、词汇表与素材登记
 `;
 
@@ -58,26 +61,52 @@ const passes = (c) => {
   }
 };
 
-// 审稿记录：STATUS.md 里「### 审稿 <指纹>」一节，docs/standards/review.md 审稿清单的每一条
-// 都要有一行「| 编号 | 通过 | 证据 |」。缺一条、结论不是通过、证据为空，都不配音
-const checkReview = (status, fp) => {
-  const text = fs.readFileSync(path.join(ROOT, 'docs/standards/review.md'), 'utf8');
-  const ids = [...new Set([...text.matchAll(/^\|\s*(R\d+)\s*\|/gm)].map((m) => m[1]))];
-  const lines = status.split('\n');
-  const start = lines.findIndex((l) => new RegExp(`^###\\s+审稿\\s+\`?${fp}\`?\\s*$`).test(l));
-  if (start < 0) {
-    throw new Error(`STATUS.md 里没有当前脚本指纹 ${fp} 的审稿记录（「### 审稿 ${fp}」一节）。按 docs/standards/review.md 由独立的上下文审稿后再配音`);
-  }
-  const after = lines.slice(start + 1);
-  const stop = after.findIndex((l) => /^#{1,3}\s/.test(l));
-  const got = new Map();
-  for (const l of stop < 0 ? after : after.slice(0, stop)) {
-    const m = l.match(/^\|\s*(R\d+)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|/);
-    if (m) got.set(m[1], {verdict: m[2], evidence: m[3]});
-  }
-  const bad = ids.filter((i) => !got.has(i) || got.get(i).verdict !== '通过' || got.get(i).evidence.length < 4);
-  if (bad.length) {
-    throw new Error(`指纹 ${fp} 的审稿记录里 ${bad.join('、')} 缺失、未通过或没有证据。改完脚本重新审稿（docs/standards/review.md）`);
+const today = () => new Date().toLocaleDateString('sv-SE');
+const statusPath = (vid) => path.join(videoDir(vid), 'STATUS.md');
+
+// 未登记读音的多音字：{字: {上下文: [beat]}}
+const polyphones = (vid) => JSON.parse(execSync(`node tools/lint_script.mjs ${vid} --poly-json`, {cwd: ROOT}).toString());
+
+// STATUS.md 的阶段勾选：把「- [ ] S4」这样的行勾上
+const tick = (vid, ...stages) => {
+  let s = fs.readFileSync(statusPath(vid), 'utf8');
+  for (const st of stages) s = s.replace(new RegExp(`^- \\[ \\] ${st}\\b`, 'm'), `- [x] ${st}`);
+  fs.writeFileSync(statusPath(vid), s);
+};
+
+// 替换 STATUS.md 里「## 标题」一节的正文（到下一个「## 」为止）
+const setSection = (vid, title, body) => {
+  const s = fs.readFileSync(statusPath(vid), 'utf8');
+  const re = new RegExp(`(^## ${title}\\n)[\\s\\S]*?(?=^## |(?![\\s\\S]))`, 'm');
+  if (!re.test(s)) throw new Error(`STATUS.md 里没有「## ${title}」一节`);
+  fs.writeFileSync(statusPath(vid), s.replace(re, `$1\n${body.trim()}\n\n`));
+};
+
+// 在 STATUS.md 的「## 标题」一节末尾追加一行（表格就追加在表格后面）
+const appendToSection = (vid, title, line) => {
+  const lines = fs.readFileSync(statusPath(vid), 'utf8').split('\n');
+  const start = lines.findIndex((l) => l === `## ${title}`);
+  if (start < 0) throw new Error(`STATUS.md 里没有「## ${title}」一节`);
+  let end = lines.findIndex((l, i) => i > start && l.startsWith('## '));
+  if (end < 0) end = lines.length;
+  while (end > start + 1 && lines[end - 1].trim() === '') end--;
+  lines.splice(end, 0, line);
+  fs.writeFileSync(statusPath(vid), lines.join('\n'));
+};
+
+// 阶段同步到 videos/README.md 的「阶段」列与系列总表的「状态」列
+const setStage = (vid, stage) => {
+  const idx = path.join(ROOT, 'videos/README.md');
+  fs.writeFileSync(
+    idx,
+    fs.readFileSync(idx, 'utf8').replace(new RegExp(`^(\\| ${vid} \\|[^|]*\\|)[^|]*\\|`, 'm'), `$1 ${stage} |`),
+  );
+  const cur = path.join(ROOT, 'curriculum');
+  for (const f of fs.readdirSync(cur).filter((n) => /^\d+-.*\.md$/.test(n))) {
+    const p = path.join(cur, f);
+    const s = fs.readFileSync(p, 'utf8');
+    const t = s.replace(new RegExp(`^(\\|[^\\n]*\\| \`${vid}\` \\|[^\\n]*\\|)[^|\\n]*\\|$`, 'm'), `$1 ${stage} |`);
+    if (t !== s) fs.writeFileSync(p, t);
   }
 };
 
@@ -151,11 +180,14 @@ const commands = {
     const s = loadScript(id);
     const pages = pageOf(s.beats);
     const esc = (t) => t.replace(/\|/g, '\\|').replace(/\n/g, ' / ');
-    const rows = s.beats
-      .filter((b) => b.say)
-      .map((b) => `| ${pages[b.id]} | ${b.id} | ${esc(b.sub ?? b.say)} | ${b.sub ? esc(b.say) : '同左'} |`);
+    // 小节第一句前插一行小节名，通读时能看出结构（principle.md 第三节之二）
+    const rows = s.beats.flatMap((b) => {
+      const head = b.section ? [`|  |  | **【小节】${esc(b.section)}** |  |`] : [];
+      if (!b.say) return head;
+      return [...head, `| ${pages[b.id]} | ${b.id} | ${esc(b.sub ?? b.say)} | ${b.sub ? esc(b.say) : '同左'} |`];
+    });
     const fp = scriptFingerprint(s);
-    const md = `# ${s.title} 脚本审阅表\n\n脚本指纹 \`${fp}\`。配音参数：${s.voice}，速率 ${s.rate}。共 ${rows.length} 句，字幕里的 / 是换行位置。\n\n| 页 | beat | 字幕（sub） | 朗读（say） |\n|---|---|---|---|\n${rows.join('\n')}\n`;
+    const md = `# ${s.title} 脚本审阅表\n\n脚本指纹 \`${fp}\`。配音参数：${s.voice}，速率 ${s.rate}。共 ${s.beats.filter((b) => b.say).length} 句，字幕里的 / 是换行位置。\n\n| 页 | beat | 字幕（sub） | 朗读（say） |\n|---|---|---|---|\n${rows.join('\n')}\n`;
     fs.mkdirSync(buildDir(id), {recursive: true});
     fs.writeFileSync(path.join(buildDir(id), 'script.md'), md);
     console.log(`videos/${id}/build/script.md，脚本指纹 ${fp}`);
@@ -180,11 +212,8 @@ const commands = {
 
   async tts() {
     requireVideo(id);
-    const fp = scriptFingerprint(loadScript(id));
-    const status = fs.readFileSync(path.join(videoDir(id), 'STATUS.md'), 'utf8');
-    // 审片通过的版本（表格里同一行写着指纹和「审片通过」）直接放行，克隆后重新生成配音时用
-    const approved = status.split('\n').some((l) => l.startsWith('|') && l.includes(fp) && l.includes('审片通过'));
-    if (!approved) checkReview(status, fp);
+    // 脚本有错误就不配音；提醒不拦（多音字等审片时听）
+    if (!passes(`node tools/lint_script.mjs ${id}`)) throw new Error('vt lint 有错误，改完再配音');
     sh(`PYTHONPATH=${PY_TTS} python3 tools/build_audio.py ${id}`);
     const m = loadManifest(id);
     const spoken = m.beats.filter((b) => b.audioSec);
@@ -311,6 +340,114 @@ const commands = {
   async master() {
     requireVideo(id);
     sh(`bash tools/master.sh ${id}`);
+  },
+
+  async layout() {
+    requireVideo(id);
+    if (!passes(`node tools/layout.mjs ${id} ${rest.join(' ')}`)) process.exit(1);
+  },
+
+  // 出片一条龙：脚本检查 → 配音（按文本缓存，没改的句子不重合成）→ 类型检查与四项检查 → 版面检查
+  // → 渲染 → 母版 → 成片检查 → 交片说明。每步的完整输出进 out/<id>/make.log，终端一步一行
+  async make() {
+    requireVideo(id);
+    fs.mkdirSync(outDir(id), {recursive: true});
+    const log = path.join(outDir(id), 'make.log');
+    fs.writeFileSync(log, '');
+    const step = (name, c) => {
+      const t0 = Date.now();
+      fs.appendFileSync(log, `\n===== ${name}：${c}\n`);
+      const from = fs.statSync(log).size;
+      const fd = fs.openSync(log, 'a');
+      try {
+        execSync(c, {cwd: ROOT, stdio: ['ignore', fd, fd]});
+      } catch {
+        fs.closeSync(fd);
+        // 只打印失败这一步自己的输出末尾
+        const tail = fs.readFileSync(log).subarray(from).toString().split('\n').slice(-30).join('\n');
+        console.log(`[ ] ${name}\n${tail}\n完整输出：out/${id}/make.log`);
+        process.exit(1);
+      }
+      fs.closeSync(fd);
+      console.log(`[x] ${name}（${Math.round((Date.now() - t0) / 1000)} 秒）`);
+    };
+    // --from <步骤> 从中间接着跑，例如渲染完母版失败时 --from master，不重新渲染
+    const steps = [
+      ['tts', '配音与时间轴', `node tools/vt.mjs tts ${id}`],
+      ['typecheck', '类型检查', 'npm run typecheck'],
+      ['check', '四项检查', `node tools/vt.mjs check ${id}`],
+      ['layout', '版面检查', `node tools/layout.mjs ${id}`],
+      ['render', '渲染', `node tools/vt.mjs render ${id}`],
+      ['master', '母版', `node tools/vt.mjs master ${id}`],
+    ];
+    const from = rest[0] === '--from' ? steps.findIndex(([k]) => k === rest[1]) : 0;
+    if (from < 0) throw new Error(`--from 后面写步骤名：${steps.map(([k]) => k).join('、')}`);
+    for (const [, name, c] of steps.slice(from)) step(name, c);
+
+    // 成片检查：帧数与时间轴一致、响度 −14 ± 1 LUFS、峰值不高于 −1 dBFS
+    const probe = fs.readFileSync(path.join(outDir(id), 'probe.txt'), 'utf8');
+    const lufs = parseFloat(probe.match(/I:\s*(-?[\d.]+)\s*LUFS/)?.[1]);
+    const peak = parseFloat(probe.match(/Peak:\s*(-?[\d.]+)\s*dBFS/)?.[1]);
+    const sha = probe.match(/sha256\s+(\w+)/)?.[1] ?? '';
+    const bad = [];
+    if (!/时间轴 \d+ 帧，一致/.test(probe)) bad.push('画面帧数与时间轴不一致');
+    if (!(Math.abs(lufs + 14) <= 1)) bad.push(`响度 ${lufs} LUFS，不在 −14 ± 1`);
+    if (!(peak <= -1)) bad.push(`峰值 ${peak} dBFS，高于 −1`);
+    if (bad.length) {
+      console.log(`[ ] 成片检查：${bad.join('；')}（out/${id}/probe.txt）`);
+      process.exit(1);
+    }
+    console.log('[x] 成片检查');
+
+    // 交片说明：片长、偏离系列大纲的条目、没登记读音的多音字
+    const m = loadManifest(id);
+    const sec = m.totalFrames / m.fps;
+    const len = `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
+    const outline = fs.readFileSync(path.join(videoDir(id), 'outline.md'), 'utf8');
+    const dev = (outline.match(/^## 偏离系列大纲\n([\s\S]*?)(?=^## )/m)?.[1] ?? '')
+      .split('\n')
+      .filter((l) => l.startsWith('- ') && !/^- (无|其余)/.test(l))
+      .map((l) => `  ${l.split(/[：。]/)[0]}`);
+    const pages = pageOf(m.beats);
+    const poly = Object.entries(polyphones(id)).map(([ch, byCtx]) => {
+      const ps = [...new Set(Object.values(byCtx).flat().map((b) => pages[b]))].sort((a, b) => a - b);
+      return `${ch}（第 ${ps.slice(0, 6).join('、')}${ps.length > 6 ? ` 等 ${ps.length}` : ''} 页）`;
+    });
+    setSection(
+      id,
+      '交片说明',
+      [
+        `- 片长 ${len}（${m.totalFrames} 帧），${Object.keys(pages).length} 句旁白。`,
+        dev.length ? `- 偏离系列大纲（详见 outline.md）：\n${dev.join('\n')}` : '- 偏离系列大纲：无。',
+        poly.length ? `- 没登记读音的多音字，审片时顺带听：${poly.join('、')}。` : '- 多音字都已登记读音。',
+      ].join('\n'),
+    );
+    appendToSection(id, '验收记录', `- ${today()} vt make：${m.totalFrames} 帧、${sec.toFixed(1)} 秒，${lufs} LUFS、峰值 ${peak} dBFS，成片 sha256 ${sha.slice(0, 8)}…${sha.slice(-4)}。`);
+    tick(id, 'S3', 'S4', 'S5', 'S6');
+    setStage(id, 'S7 待审片');
+    console.log(`成片 out/${id}/${id}.mp4，片长 ${len}；交片说明已写进 videos/${id}/STATUS.md`);
+  },
+
+  // 审片通过：记下脚本指纹，把这一集提醒过的多音字登记为已确认读音，重做回归基准，阶段改为待发布
+  async accept() {
+    requireVideo(id);
+    const fp = scriptFingerprint(loadScript(id));
+    const status = fs.readFileSync(statusPath(id), 'utf8');
+    if (!status.split('\n').some((l) => l.startsWith('|') && l.includes(fp) && l.includes('审片通过'))) {
+      appendToSection(id, '审片通过', `| ${today()} | ${fp} | 审片通过 |`);
+    }
+    const lexPath = path.join(ROOT, 'tools/lexicon.json');
+    const lex = readJson(lexPath);
+    const have = new Set(lex.confirmed.map((c) => c.phrase));
+    const add = [...new Set(Object.values(polyphones(id)).flatMap((byCtx) => Object.keys(byCtx)))].filter((p) => !have.has(p));
+    for (const phrase of add) lex.confirmed.push({phrase, basis: `${id} 审片通过，${today()}`});
+    // confirmed 一条一行，几十条词语也好翻
+    const rows = lex.confirmed.map((c) => `    ${JSON.stringify(c)}`).join(',\n');
+    fs.writeFileSync(lexPath, JSON.stringify({...lex, confirmed: '@'}, null, 2).replace('"@"', `[\n${rows}\n  ]`) + '\n');
+    tick(id, 'S7');
+    setStage(id, 'S8 发布（待上传）');
+    console.log(`审片通过：指纹 ${fp}；多音字登记 ${add.length} 个词语；正在重做回归基准`);
+    await commands.baseline();
   },
 
   async curriculum() {

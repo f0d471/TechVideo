@@ -88,9 +88,11 @@ def main():
     beats, t, srt, keep = [], 0, [], set()
     for b in script["beats"]:
         bid = b["id"]
+        # 小节名随 beat 带进时间轴，画面的小节标签按它切换
+        extra = {"section": b["section"]} if "section" in b else {}
         if "silent" in b:
             frames = round(b["silent"] * fps)
-            beats.append({"id": bid, "start": t, "frames": frames})
+            beats.append({"id": bid, "start": t, "frames": frames, **extra})
             t += frames
             continue
         say = b["say"]
@@ -113,7 +115,7 @@ def main():
         beats.append({"id": bid, "start": t, "frames": frames,
                       "audio": f"{vid}/audio/{bid}.wav", "audioFrom": lead,
                       "audioFrames": audio_frames, "audioSec": round(sec, 3),
-                      "sub": sub, "say": say, "tts": tts})
+                      "sub": sub, "say": say, "tts": tts, **extra})
         a0 = (t + lead) / fps
         srt.append(f"{len(srt) + 1}\n{srt_time(a0)} --> {srt_time(a0 + sec)}\n{sub}\n")
         t += frames

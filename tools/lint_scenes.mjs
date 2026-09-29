@@ -28,7 +28,7 @@ const CONCEPTS = readJson(path.join(ROOT, 'curriculum/concepts.json'));
 const CONCEPT_NAMES = CONCEPTS.map((c) => c.name);
 // 画面文字与旁白用同一套叫法：概念表里登记的别名给提醒
 const ALIASES = CONCEPTS.flatMap((c) => (c.avoid ?? []).map((a) => [a, c.name]));
-const MAKING = [/RTL/, /核对/, /出处/, /依据/, /精确算术/, /固定版本/, /未经/, /示意/, /约数/, /这个实现|本实现/, /\bTRM\b/, /§/].filter(
+const MAKING = [/RTL/, /核对/, /出处/, /依据/, /精确算术/, /固定版本/, /未经/, /示意/, /约数/, /这个实现|本实现/, /这个乘法器|本乘法器/, /\bTRM\b/, /§/].filter(
   (re) => !CONCEPT_NAMES.some((n) => re.test(n)),
 );
 // 「仿真」只提醒：参照成片用一行「仿真：输入 → 输出」展示电路算出的结果，这种用法保留；写成出处说明的不行
