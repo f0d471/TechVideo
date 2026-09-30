@@ -1,0 +1,76 @@
+{
+ "snippets": {
+  "normalize-head": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 117,
+     "text": "    reg signed [9:0] exp_n_s;   // 规格化阶码"
+    },
+    {
+     "no": 118,
+     "text": "    reg [47:0] prod_n;          // 规格化尾数积"
+    },
+    {
+     "no": 119,
+     "text": ""
+    },
+    {
+     "no": 120,
+     "text": "    always @(*) begin"
+    }
+   ]
+  },
+  "normalize-switch": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 121,
+     "text": "        if (product_r[47]) begin"
+    },
+    {
+     "no": 122,
+     "text": "            exp_n_s = exp_r + 10'sd1;"
+    },
+    {
+     "no": 123,
+     "text": "            prod_n  = product_r >> 1;"
+    },
+    {
+     "no": 124,
+     "text": "            prod_n[0] = product_r[1] | product_r[0];   // 低位粘着，右移丢掉的 bit0 并回"
+    },
+    {
+     "no": 125,
+     "text": "        end else begin"
+    },
+    {
+     "no": 126,
+     "text": "            exp_n_s = exp_r;"
+    },
+    {
+     "no": 127,
+     "text": "            prod_n  = product_r;"
+    },
+    {
+     "no": 128,
+     "text": "        end"
+    },
+    {
+     "no": 129,
+     "text": "    end"
+    }
+   ]
+  }
+ }
+}

@@ -37,7 +37,7 @@ const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
   tts      <id>               分句配音 + 时间轴 + 字幕；lint 有错误不配音，完成后检查语速与片长
   asr      <id> [--review]    回听校对；--review 用技术词提示复核首轮低分句
   timing   <id>               静态检查画面代码：引用的 beat 都存在，每个动画在所在 beat 内结束
-  check    <id>               lint + 画面代码检查 + timing + 课程登记检查，全部通过退出码为 0
+  check    <id>               lint + 画面代码检查 + timing + 课程登记 + 系列大纲对照，全部通过退出码为 0
   stills   <id> <比例> <beat|帧号>... | --all   抽帧到 out/<id>/check/，并拼四宫格
   page     <id> <页码>...     页码对应的 beat 与时间
   baseline <id>               记录回归基准：每个 beat 两帧的哈希
@@ -248,6 +248,7 @@ const commands = {
       ['画面代码', passes(`node tools/lint_scenes.mjs ${id}`)],
       ['timing', timing(id)],
       ['课程登记', passes('node tools/check_curriculum.mjs')],
+      ['大纲对照', passes(`node tools/check_outline.mjs ${id}`)],
     ];
     console.log(results.map(([n, ok]) => `${n} ${ok ? '[x]' : '[ ]'}`).join('  '));
     if (results.some(([, ok]) => !ok)) process.exit(1);
@@ -347,7 +348,7 @@ const commands = {
     if (!passes(`node tools/layout.mjs ${id} ${rest.join(' ')}`)) process.exit(1);
   },
 
-  // 出片一条龙：脚本检查 → 配音（按文本缓存，没改的句子不重合成）→ 类型检查与四项检查 → 版面检查
+  // 出片一条龙：脚本检查 → 配音（按文本缓存，没改的句子不重合成）→ 类型检查与五项检查 → 版面检查
   // → 渲染 → 母版 → 成片检查 → 交片说明。每步的完整输出进 out/<id>/make.log，终端一步一行
   async make() {
     requireVideo(id);
@@ -375,7 +376,7 @@ const commands = {
     const steps = [
       ['tts', '配音与时间轴', `node tools/vt.mjs tts ${id}`],
       ['typecheck', '类型检查', 'npm run typecheck'],
-      ['check', '四项检查', `node tools/vt.mjs check ${id}`],
+      ['check', '五项检查', `node tools/vt.mjs check ${id}`],
       ['layout', '版面检查', `node tools/layout.mjs ${id}`],
       ['render', '渲染', `node tools/vt.mjs render ${id}`],
       ['master', '母版', `node tools/vt.mjs master ${id}`],
@@ -409,6 +410,9 @@ const commands = {
       .filter((l) => l.startsWith('- ') && !/^- (无|其余)/.test(l))
       .map((l) => `  ${l.split(/[：。]/)[0]}`);
     const pages = pageOf(m.beats);
+    const script = loadScript(id);
+    const spoken = m.beats.filter((b) => b.audioSec);
+    const cps = spoken.reduce((a, b) => a + b.say.replace(/[，。：；、？！“”\s]/g, '').length / b.audioSec, 0) / spoken.length;
     const poly = Object.entries(polyphones(id)).map(([ch, byCtx]) => {
       const ps = [...new Set(Object.values(byCtx).flat().map((b) => pages[b]))].sort((a, b) => a - b);
       return `${ch}（第 ${ps.slice(0, 6).join('、')}${ps.length > 6 ? ` 等 ${ps.length}` : ''} 页）`;
@@ -418,6 +422,7 @@ const commands = {
       '交片说明',
       [
         `- 片长 ${len}（${m.totalFrames} 帧），${Object.keys(pages).length} 句旁白。`,
+        `- 配音：${script.voice}，速率 ${script.rate}，平均 ${cps.toFixed(2)} 字/秒。`,
         dev.length ? `- 偏离系列大纲（详见 outline.md）：\n${dev.join('\n')}` : '- 偏离系列大纲：无。',
         poly.length ? `- 没登记读音的多音字，审片时顺带听：${poly.join('、')}。` : '- 多音字都已登记读音。',
       ].join('\n'),

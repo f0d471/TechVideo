@@ -59,6 +59,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `Prims.tsx` | `Txt`、`Bracket`、`Chip` | 文字（`mono` 为等宽且关连字）、方括号标注、概念卡 |
 | `Frame.tsx` | `TitleCard`、`SegmentLabel`、`SectionTag`、`PartCard`，类型 `Part` | 片头卡、左上角段落与小节标签、无旁白的部件卡 |
 | `BitStrip.tsx` | `BitStrip`、`STRIP`、`cellX`、`cellCX` | 位条（默认 48 位），按位设置外观 |
+| `Powers.tsx` | `Powers` | 带指数的一行式子（`−3 × 10²`），指数小一号写在右上，不用 Unicode 上标 |
 | `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化，宽度可由 `w` 指定（默认占满左右留白之间，结构图放右侧时给窄）；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
 | `TransTable.tsx` | `TransTable` | 逐词翻译表：代码 → 英文 → 中文 |
 | `Gates.tsx` | `andPath`、`orPath`、`Wire`、`Val`、`Src` | 与门、或门、导线、信号值圆标、信号源格子 |
@@ -86,9 +87,9 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `lint_script.mjs` | 脚本检查（`vt lint`） |
 | `lint_scenes.mjs` | 画面代码检查（`vt check` 的一项） |
 | `check_curriculum.mjs` | 课程登记检查（`vt curriculum`） |
+| `check_outline.mjs` | 系列大纲对照：概念链每一环对到 beat 或写成偏离（`vt check` 的一项）；`--items` 打印对照表第一列 |
 | `extract_code.mjs` | 逐字抽代码（`vt code`） |
 | `build_audio.py`、`asr_check.py` | 分句配音与时间轴、回听校对（在 bash 侧运行） |
-| `retime_existing_audio.py` | 对已经生成的分句 WAV 在本机调整速度并重算时间轴与字幕；不调用 TTS |
 | `review_audio.py` | vt asr 的 --review 模式，对 ASR 低分句做技术词提示复核；保留首轮结果，输出 build/asr_review.json，不替代人工听音 |
 | `stills.mjs` | 单帧渲染，抽帧、版面检查与回归共用 |
 | `layout.mjs` | 版面检查（`vt layout`）：带 `layoutProbe` 渲染检查帧，`VideoShell` 里的探针量出文字与图片外框，判越界、进字幕区与重叠，结果在 `out/<id>/layout/report.json` |

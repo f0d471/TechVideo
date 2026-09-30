@@ -27,7 +27,7 @@ Node 侧工具（Remotion 渲染、抽帧、各项检查）在本机运行。配
 2. skill：`npx skills experimental_install` 按 `skills-lock.json` 把 Remotion 官方 skill 恢复到 `.agents/skills/`，再执行 `node tools/link_skills.mjs` 生成 `.claude/skills/` 的目录链接。恢复取的是上游当前的版本，完成后如果 `skills-lock.json` 有变化，按第四节核对。
 3. bash 侧：Windows 上执行 `wsl -e bash -c "cd <仓库在 WSL 里的路径> && bash tools/setup_env.sh"`，其他系统在仓库根目录执行 `bash tools/setup_env.sh`。它装好两组 Python 库、下载语音识别模型并校验 sha256，已装好的部分会跳过。需要 `python3`、`python3-pip`、`ffmpeg`、`curl`、`iverilog`，缺哪个脚本会提示。
 4. 本机设置（可选）：需要时新建 `tools/env.local.json`，见第三节。
-5. 验证：`node tools/vt.mjs check fp32-format` 四项全过；`node tools/vt.mjs code fp32-format` 能抽出代码；`node tools/vt.mjs stills fp32-format 0.5 p24` 能出图（需要先 `vt tts fp32-format` 生成配音）。
+5. 验证：`node tools/vt.mjs check fp32-format` 五项全过；`node tools/vt.mjs code fp32-format` 能抽出代码；`node tools/vt.mjs stills fp32-format 0.5 p24` 能出图（需要先 `vt tts fp32-format` 生成配音）。
 
 ## 三、本机设置
 

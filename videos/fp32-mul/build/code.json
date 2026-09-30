@@ -1,0 +1,58 @@
+{
+ "snippets": {
+  "sign": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 48,
+     "text": "    wire result_sign = a_sign ^ b_sign;    // 乘积符号"
+    }
+   ]
+  },
+  "special": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 59,
+     "text": "    wire inf_zero_conflict = (a_is_inf | b_is_inf) && (a_is_zero | b_is_zero); // Inf × 0"
+    },
+    {
+     "no": 60,
+     "text": "    wire is_nan_full = is_nan | inf_zero_conflict;                             // qNaN 结果"
+    }
+   ]
+  },
+  "product-exp": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 65,
+     "text": "    wire [47:0] product_s0 = a_mant * b_mant;   // 尾数积"
+    },
+    {
+     "no": 66,
+     "text": "    wire signed [9:0] exp_sum_s0 = $signed({2'b0, a_exp})"
+    },
+    {
+     "no": 67,
+     "text": "                                    + $signed({2'b0, b_exp}) - 10'sd127; // 带符号阶码和"
+    }
+   ]
+  }
+ }
+}

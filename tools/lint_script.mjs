@@ -2,7 +2,7 @@
 // 用法：node tools/lint_script.mjs <视频 id> [--poly-json]；有「错误」时退出码为 1，「提醒」需要逐条看过。
 // --poly-json 只输出未登记的多音字 {字: {上下文: [beat]}}，供 vt make 写交片说明、vt accept 登记读音
 import path from 'node:path';
-import {ROOT, loadScript, readJson, requireVideo} from './common.mjs';
+import {ROOT, conceptsIn, loadScript, readJson, requireVideo, seriesOrder} from './common.mjs';
 
 const id = process.argv[2];
 const polyJson = process.argv.includes('--poly-json');
@@ -15,8 +15,21 @@ const SOURCES = readJson(path.join(ROOT, 'curriculum/sources.json'));
 // 视频讲通用知识，不讲某个项目：素材仓名与源文件名不进旁白和字幕
 const projectNames = [...Object.keys(SOURCES)];
 for (const c of [script.code ?? []].flat()) projectNames.push(path.basename(c.path), path.basename(c.path).replace(/\.[^.]+$/, ''));
-// 各集叫法统一：概念表里登记的别名给提醒
-const ALIASES = readJson(path.join(ROOT, 'curriculum/concepts.json')).flatMap((c) => (c.avoid ?? []).map((a) => [a, c.name]));
+// 各集叫法统一：用了概念表里登记的别名报错，同一个东西只有一个名字
+const CONCEPTS = readJson(path.join(ROOT, 'curriculum/concepts.json'));
+const ALIASES = CONCEPTS.flatMap((c) => (c.avoid ?? []).map((a) => [a, c.name]));
+
+// 先用后讲：后面几集才讲的概念，只能带着预告的字样出现（「下一集」「还没」），不能当已知的东西用
+const ORDER = seriesOrder();
+const LATER = new Set(CONCEPTS.filter((c) => ORDER.get(c.episode) > ORDER.get(id)).map((c) => c.name));
+const FORWARD = /下一集|下集|后面|以后|第[一二三四五六七八九十]集|第\s*\d+\s*集|留给|留到|还没|还不|尚未/;
+
+// 旁白讲道理，颜色留给画面：念出「绿色的符号线」「陶土色的阶码线」，观众听到的是画面说明书
+const COLORS = /绿色|陶土|蓝色|红色|橙色|灰色|黄色|紫色/;
+
+// 字幕里带下标 ₂ 的二进制数，朗读要逐位念：10.01₂ 念「一零点零一」，写成「十点零一」耳朵听到的是十进制
+const BINARY = /(?<![0-9A-Za-z.])([01]+(?:\.[01]+)?)₂/g;
+const readBits = (s) => [...s].map((ch) => ({0: '零', 1: '一', '.': '点'})[ch]).join('');
 
 // 字幕宽度估计：汉字与全角标点 1 em，其余可见字符 0.6 em，空格 0.35 em；字宽按偏大的算
 const {caption: CAP} = LIMITS;
@@ -45,17 +58,24 @@ const BANNED = [
 // 做法的主语用情景里的推理芯片、AI 加速器（principle.md 第十一节）。
 // 这一集把其中某个词当概念讲时，先登记进 concepts.json，这里就不再报
 const CONCEPT_NAMES = readJson(path.join(ROOT, 'curriculum/concepts.json')).map((c) => c.name);
-const MAKING = [/RTL/i, /本实现|这个实现|该实现/, /实跑|跑出来/, /仿真/, /素材/, /本课|本集/, /这个乘法器|该乘法器|本乘法器/].filter(
+// 「主例」「对照例」是大纲里的编号，观众听不出指哪一组；直接说出例子（「一点五乘一点五」「上一集那组数」）
+const MAKING = [/RTL/i, /本实现|这个实现|该实现/, /实跑|跑出来/, /仿真/, /素材/, /本课|本集/, /这个乘法器|该乘法器|本乘法器/, /主例|对照例/].filter(
   (re) => !CONCEPT_NAMES.some((n) => re.test(n)),
 );
 
 // 防御性限定：为了不说错而加的限定语，会把结论讲成「看情况」。准确性的边界写在 outline.md 的
 // 「论断边界」里约束措辞，不进旁白；真正重要的代价单独讲成一个 beat
-const HEDGES = /一般来说|一般而言|通常来说|未必|不一定|反倒|反而|是否合算|要用[^，。]{0,8}验证|因情况而异/;
+// 「不用于」「不代表」这类先否定再说明的句子，多半是论断边界漏进了旁白
+const HEDGES = /一般来说|一般而言|通常来说|未必|不一定|反倒|反而|是否合算|要用[^，。]{0,8}验证|因情况而异|不用于|不代表/;
 
 const errors = [];
 const warns = [];
 const seen = new Set();
+
+// 同一个系列用同一个音色；换音色是整个系列的决定，改 limits.json，不在某一集里悄悄换
+if (script.voice !== LIMITS.voice.name) {
+  errors.push(`script.json 的 voice 是 ${script.voice}，系列统一用 ${LIMITS.voice.name}（tools/limits.json 的 voice）`);
+}
 const poly = new Map(); // 多音字所在的词 → 出现的 beat
 
 const polyRules = lex.replace.map((r) => [new RegExp(r.pattern, 'g'), r.to]);
@@ -83,7 +103,12 @@ for (const b of script.beats) {
   for (const [field, text] of [['say', b.say], ['sub', b.sub]]) {
     if (!text) continue;
     for (const n of projectNames) if (text.toLowerCase().includes(n.toLowerCase())) errors.push(`${at} ${field} 提到了素材项目或文件名 ${n}`);
-    for (const [a, name] of ALIASES) if (text.includes(a)) warns.push(`${at} ${field} 用了「${a}」，标准叫法是「${name}」（curriculum/concepts.json）`);
+    for (const [a, name] of ALIASES) if (text.includes(a)) errors.push(`${at} ${field} 用了「${a}」，标准叫法是「${name}」（curriculum/concepts.json）`);
+    for (const c of conceptsIn(text, CONCEPTS)) {
+      if (LATER.has(c.name) && !FORWARD.test(text)) {
+        errors.push(`${at} ${field} 用了第 ${ORDER.get(c.episode) + 1} 集（${c.episode}）才讲的概念「${c.name}」：观众还不知道它，换成已讲过的说法，或写明是预告（下一集、还没……）：${text}`);
+      }
+    }
     for (const re of MAKING) {
       const m = text.match(re);
       if (m) errors.push(`${at} ${field} 有制作视角的用语「${m[0]}」，改成观众看得见的东西，主语用情景里的推理芯片或做法本身：${text}`);
@@ -110,6 +135,12 @@ for (const b of script.beats) {
   if (/[0-9]/.test(b.say)) errors.push(`${at} say 里有阿拉伯数字，改成汉字读法：${b.say}`);
   const sym = b.say.match(/[\[\]{}|&<>=_;^~*/\\#$%@+]/g);
   if (sym) errors.push(`${at} say 里有符号 ${[...new Set(sym)].join(' ')}，写成读法：${b.say}`);
+  const color = b.say.match(COLORS);
+  if (color) errors.push(`${at} say 念了颜色「${color[0]}」：旁白说它是什么、为什么，颜色只在画面上：${b.say}`);
+  for (const [, bits] of (b.sub ?? '').matchAll(BINARY)) {
+    const read = readBits(bits);
+    if (!b.say.includes(read)) errors.push(`${at} 字幕写的是二进制 ${bits}₂，say 要逐位念「${read}」，不按十进制读：${b.say}`);
+  }
   if (/？/.test(b.say)) warns.push(`${at} 设问句，确认不是自问自答的套路：${b.say}`);
   const len = b.say.replace(/[，。：；、？！“”\s]/g, '').length;
   if (len > LIMITS.sentenceChars.max) warns.push(`${at} 一句 ${len} 字，超过 ${LIMITS.sentenceChars.max} 字，考虑拆成两个 beat`);

@@ -1,0 +1,18 @@
+Icarus Verilog version 12.0 (stable) ()
+66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88  fp32_mul_pipe.v
+main a=3f800001 b=3fc00000 ma=800001 mb=c00000 sign=0 exp_sum=127 product=600000c00000 bits=011000000000000000000000110000000000000000000000
+  -> p=3fc00002 out_valid=1
+negative a=bf800000 b=3fc00000 ma=800000 mb=c00000 sign=1 exp_sum=127 product=600000000000 bits=011000000000000000000000000000000000000000000000
+  -> p=bfc00000 out_valid=1
+high_product a=3fc00000 b=3fc00000 ma=c00000 mb=c00000 sign=0 exp_sum=127 product=900000000000 bits=100100000000000000000000000000000000000000000000
+  -> p=40100000 out_valid=1
+low_exponent a=00800000 b=00800000 ma=800000 mb=800000 sign=0 exp_sum=-125 product=400000000000 bits=010000000000000000000000000000000000000000000000
+  -> p=00000000 out_valid=1
+high_exponent a=7f7fffff b=7f7fffff ma=ffffff mb=ffffff sign=0 exp_sum=381 product=fffffe000001 bits=111111111111111111111110000000000000000000000001
+  -> p=7f800000 out_valid=1
+inf_times_zero a=7f800000 b=00000000 nan_input=0 inf_zero_conflict=1 is_nan_full=1
+  -> p=7fc00000 out_valid=1
+nan_input a=7fc00000 b=3fc00000 nan_input=1 inf_zero_conflict=0 is_nan_full=1
+  -> p=7fc00000 out_valid=1
+all 7 cases passed
+tb_mul_cases.v:104: $finish called at 230000 (1ps)

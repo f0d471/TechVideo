@@ -31,6 +31,7 @@
   - 代码范围：素材仓名、文件路径与行号区间，原理段怎样过渡到代码段；要翻译的代码词，按 `curriculum/terms.json` 标出完整翻译还是只高亮。没有对应代码的集写「无」。
   - 角色色。
   - 开场：前三句怎样从情景里的需求引出这一集的问题。
+  - 系列大纲对照：系列大纲里这一集的概念链（和类比）每一环写一行，第一列照抄原文（`node tools/check_outline.mjs <id> --items` 打印），第二列写落在哪几个 beat；没做的一环写「偏离：原因」，并写进下一项。S3 写完脚本后把 beat 号填上，`vt check` 逐环核对。
   - 偏离系列大纲：例子、理由、范围与系列大纲不同的地方，逐条写明原因；没有偏离写「无」。
   - 论断边界：为了不说错需要知道的限制。它只约束措辞（不说出错的话），不变成旁白里的限定语和画面上的小字，见 `docs/standards/narration.md` 第三节。
 - 验收：链上没有「先用后讲」的概念；数字清单里的每个数都能说出由什么得到；旁白和画面要用的术语都在 `concepts.json` 里或属于观众起点；`vt curriculum` 零错误。
@@ -46,19 +47,21 @@
 - 编写 `videos/<id>/script.json`。一个 beat 是一句旁白加一次画面变化；每个 beat 有 `say`（送给 TTS 的朗读文本）和可选的 `sub`（字幕，缺省与 `say` 相同），可加 `hold`（语音结束后额外停留的秒数）。片头等无旁白的 beat 写 `silent`（秒）。beat id 是段落字母加两位序号：`t00` 片头、`p01` 起原理段、`c01` 起代码段。
 - 有代码段时，在 `script.json` 的 `code` 数组里一段写一项：名字、素材仓名、文件路径与行号区间，例如 `{"name": "unpack", "source": "anchorfp", "path": "fp/rtl/fp32_mul_pipe.v", "from": 39, "to": 47}`，然后运行 `node tools/vt.mjs code <id>`。画面代码用 `codeSnippet(codeJson, 'unpack')` 按名字取段。
 - 写法规则见 `docs/standards/narration.md`。写完运行：
-  - `node tools/vt.mjs lint <id>`：必须零错误。提醒里的设问句、长句、别名、防御性限定按规范改掉；多音字不用处理，审片时听，`vt accept` 统一登记。
+  - `node tools/vt.mjs lint <id>`：必须零错误。提醒里的设问句、长句、防御性限定按规范改掉；多音字不用处理，审片时听，`vt accept` 统一登记。
   - `node tools/vt.mjs table <id>`（可选）：生成 `build/script.md`，页码、字幕与朗读三栏，通读时用。
 - 写完自查一遍，这几条机器查不了，不写记录：
   - 前三句说出这一集要回答的问题；每个小节第一句从上一节的问题接过来。
-  - 没有先用后讲的概念，术语用 `concepts.json` 的标准叫法。
+  - 新概念在第一次用到之前讲过；后面几集才讲的概念、登记过的别名、「主例」这类制作用语由 `lint` 报错，同一集里的先用后讲靠自查。
   - 只看例子得出的结论和旁白一致，没有构造出来的巧合；理由照系列大纲。
   - 只读朗读一栏从头到尾，相邻两句能补出因果或转折。
+  - 每个结论带着它的理由：为什么相加、为什么是四十八位、为什么看最高位。画面上的十六进制数，旁白要把它换算到结论用到的那一位（「九是一零零一，最高位是一」），不让观众自己换算。
   - 画面上的数都在 `outline.md` 的数字清单里；引用的说法不超出 `evidence/references.md` 的摘录。
 - 验收：`lint` 零错误。
 
 ## S4 配音与时间轴
 
 - 命令：`node tools/vt.mjs tts <id>`。`lint` 有错误时不配音；完成后检查语速和片长是否在 `tools/limits.json` 的区间内，超出时退出码为 1。
+- 配音用 edge-tts 在线合成，整集旁白文本会发给在线服务。旁白本来就随成片公开发布，仓库也是公开的，这一步是既定做法，不换成离线配音；音色固定在 `limits.json` 的 `voice`，`lint` 查。
 - 产出：`audio/*.wav`（一句一个，按文本缓存，改一句只重合成一句）、`build/manifest.json`（每个 beat 的起止帧）、`build/captions.srt`。
 - 回听校对 `vt asr` 不在默认流程里：它查不出多音字（识别模型会按上下文写出正确的字），逐句判断又费时。审片时听出读错的，改 `lexicon.json` 的 `replace` 或 `say`，重跑 `vt make`。
 - 验收：`tts` 退出码为 0。
@@ -67,7 +70,7 @@
 
 - 编写 `videos/<id>/Video.tsx` 与 `scenes/*.tsx`。先查 `docs/architecture.md` 的组件表，能用现成组件的不另写；画面进度全部由 beat 驱动（`useT()` 的 `p`、`span`）；视觉规则见 `docs/standards/visual.md`。代码写法照参照成片的 `scenes/Code.tsx`：一个属性一行，每个场景开头注释写它对应哪几个 beat，一行不超过 `limits.json` 的 `sceneLineChars`。
 - 预览：`npx remotion studio`。
-- 检查：`npm run typecheck` 零错误（Remotion 打包时不查类型，拼错的属性名只会在这里暴露）；`node tools/vt.mjs check <id>` 四项全过（脚本、画面代码、时序、课程登记），画面代码的提醒逐条处理。改过脚本、时间轴变了之后重跑。
+- 检查：`npm run typecheck` 零错误（Remotion 打包时不查类型，拼错的属性名只会在这里暴露）；`node tools/vt.mjs check <id>` 五项全过（脚本、画面代码、时序、课程登记、系列大纲对照），画面代码的提醒逐条处理。改过脚本、时间轴变了之后重跑。
 - 版面检查：`node tools/vt.mjs layout <id> [beat...]`。在浏览器里量出每个 beat 检查帧（语音刚结束、字幕仍在）的文字与图片外框，报越过左右边距、进入字幕区、文字互相重叠；只列有问题的帧和对应的 PNG（`out/<id>/layout/`），只看这几张。界限在 `limits.json` 的 `layout`。
 - 抽帧：写一个场景时用 `node tools/vt.mjs stills <id> 0.5 <beat>...` 抽这个场景的几帧看效果，按 `visual.md` 第六节里机器查不了的几条（对齐、疏密、推进、公式条）看一眼。不做整集逐张的审查。
 - 验收：类型检查、`check`、`layout` 零错误。回归基准在审片通过时由 `vt accept` 记录。
@@ -77,7 +80,7 @@
 - 命令：`node tools/vt.mjs make <id>`。依次跑配音（没改的句子走缓存）、类型检查、`check`、`layout`、渲染、母版、成片检查，任何一步失败就停下，只打印这一步的输出末尾，完整输出在 `out/<id>/make.log`。渲染之后的步骤失败时，改完用 `--from master` 接着跑，不重新渲染（步骤名：tts、typecheck、check、layout、render、master）。
 - 产出：`out/<id>/raw.mp4`（渲染原片）、`out/<id>/<id>.mp4`（成片）、`out/<id>/<id>.srt`（外挂字幕）、`out/<id>/probe.txt`（检查结果）。`master` 做两遍 loudnorm，把响度归一到 −14 LUFS，画面流原样拷贝。
 - 成片检查：画面帧数与时间轴一致（容器时长会因 AAC 尾部填充略长，不作判据）、响度在 −14 ± 1 LUFS、峰值不高于 −1 dBFS。
-- 全部通过后，`make` 自动写 `STATUS.md` 的「交片说明」（片长、偏离系列大纲的条目、没登记读音的多音字及页码）和一行验收记录，勾选 S3–S6，阶段改为「S7 待审片」。交付时给成片和这几行。
+- 全部通过后，`make` 自动写 `STATUS.md` 的「交片说明」（片长、配音音色与语速、偏离系列大纲的条目、没登记读音的多音字及页码）和一行验收记录，勾选 S3–S6，阶段改为「S7 待审片」。交付时给成片和这几行。
 
 ## S7 审片与反馈
 

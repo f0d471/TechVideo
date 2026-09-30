@@ -51,7 +51,7 @@
 | `videos/_template/` | 新建一集时复制的模板 | 源 | 模板本身需要改进时 |
 | `videos/<id>/script.json`、`outline.md`、`STATUS.md`、`Video.tsx`、`scenes/`、`evidence/` | 这一集的源文件 | 源 | 只在做这一集时 |
 | `videos/<id>/assets/` | 引用的图片与论文页面（公有领域或 CC BY），作者与许可登记在 `evidence/references.md` | 外部，入库 | 只在做这一集时，按 `docs/standards/principle.md` 第十三节 |
-| `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 由 `vt tts`、`vt code` 写；已有语音需要离线变速时，`retime_existing_audio.py` 可重算时间轴。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
+| `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 由 `vt tts`、`vt code` 写。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
 | `videos/<id>/audio/`、`build/` 里的其他文件 | 配音、字幕、校对结果、审阅表 | 生成 | 只由 `vt` 的命令写，不入库 |
 | `tools/` | 流程脚本，统一入口 `tools/vt.mjs`；`limits.json` 是各项数值界限；`lexicon.json` 是全局读法词典；`env.cjs` 读本机设置 | 源 | 流程变化或新增检查项时 |
 | `tools/env.local.json` | 本机路径：Chrome、Python 库、素材仓的本地克隆 | 本机 | 写法见 `docs/toolchain.md` |
@@ -100,7 +100,7 @@ node tools/vt.mjs table fp32-rne                生成脚本通读表（可选�
 node tools/vt.mjs code fp32-rne                 从素材仓的固定提交逐字抽代码
 node tools/vt.mjs evidence fp32-rne             在固定提交上跑出处实验，刷新原始日志
 node tools/vt.mjs tts fp32-rne                  分句配音与时间轴，检查语速与片长
-node tools/vt.mjs check fp32-rne                脚本、画面代码、时序、课程登记四项检查
+node tools/vt.mjs check fp32-rne                脚本、画面代码、时序、课程登记、系列大纲对照五项检查
 node tools/vt.mjs layout fp32-rne               版面检查：越界、进字幕区、文字重叠，只列有问题的帧
 node tools/vt.mjs stills fp32-rne 0.5 p07 p08   抽几帧（带字幕）看效果
 node tools/vt.mjs make fp32-rne                 出片一条龙：配音、检查、版面、渲染、母版、交片说明

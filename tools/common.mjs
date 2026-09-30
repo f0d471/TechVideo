@@ -73,6 +73,39 @@ export const scriptFingerprint = (script) => {
   return crypto.createHash('sha256').update(body).digest('hex').slice(0, 12);
 };
 
+// 系列顺序：curriculum/NN-*.md 的「## 总表」按文件名排序拼起来，集 id → 全局序号
+export const seriesOrder = () => {
+  const cur = path.join(ROOT, 'curriculum');
+  const order = new Map();
+  for (const f of fs.readdirSync(cur).filter((n) => /^\d+-.+\.md$/.test(n)).sort()) {
+    const table = fs.readFileSync(path.join(cur, f), 'utf8').split(/^## 总表\s*$/m)[1]?.split(/^## /m)[0] ?? '';
+    for (const row of table.split('\n').filter((l) => /^\|\s*\d+\s*\|/.test(l))) {
+      const id = row.split('|')[2]?.match(/`([a-z0-9-]+)`/)?.[1];
+      if (id && !order.has(id)) order.set(id, order.size);
+    }
+  }
+  return order;
+};
+
+// 一段文字里出现了哪些概念：长的叫法先认（「规格化数」里的「规格化」不算），
+// concepts.json 的 ignore 列出字面相同但不是这个概念的词语（「阶码和小数位」是阶码与小数位并列）
+export const conceptsIn = (text, concepts) => {
+  const taken = new Array(text.length).fill(false);
+  const mark = (phrase) => {
+    const hits = [];
+    for (let i = text.indexOf(phrase); i >= 0; i = text.indexOf(phrase, i + 1)) {
+      if (taken.slice(i, i + phrase.length).some(Boolean)) continue;
+      for (let k = 0; k < phrase.length; k++) taken[i + k] = true;
+      hits.push(i);
+    }
+    return hits.length > 0;
+  };
+  for (const c of concepts) for (const phrase of c.ignore ?? []) mark(phrase);
+  const found = [];
+  for (const c of [...concepts].sort((a, b) => b.name.length - a.name.length)) if (mark(c.name)) found.push(c);
+  return found;
+};
+
 // Chrome 会自动升级，升级后出图可能有像素级变化；版本号记进回归基准，对不上时提示重做基准。
 // Windows 上 chrome.exe --version 会启动浏览器，所以从文件属性读版本
 export const chromeVersion = () => {

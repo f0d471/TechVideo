@@ -2,7 +2,7 @@
   "id": "fp32-rne",
   "title": "舍入",
   "voice": "zh-CN-YunxiNeural",
-  "rate": "+0%",
+  "rate": "+4%",
   "fps": 30,
   "leadFrames": 4,
   "gapFrames": 10,

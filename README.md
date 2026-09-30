@@ -37,7 +37,7 @@ npm ci
 npx skills experimental_install
 node tools/link_skills.mjs
 bash tools/setup_env.sh              # bash 侧：配音与回听校对的 Python 库、语音识别模型
-node tools/vt.mjs check fp32-format  # 四项检查
+node tools/vt.mjs check fp32-format  # 五项检查
 node tools/vt.mjs code fp32-format   # 从素材仓抽代码
 node tools/vt.mjs tts fp32-format    # 分句配音与时间轴
 npx remotion studio                  # 预览

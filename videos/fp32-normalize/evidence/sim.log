@@ -1,0 +1,12 @@
+Icarus Verilog version 12.0 (stable) ()
+66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88  fp32_mul_pipe.v
+no_shift a=3f800001 b=3fc00000 product=600000c00000 bit47=0 old_bit0=0 normalized=600000c00000 exp=127->127 sticky=0 round_up=1
+  -> p=3fc00002 out_valid=1
+high_product a=3fc00000 b=3fc00000 product=900000000000 bit47=1 old_bit0=0 normalized=480000000000 exp=127->128 sticky=0 round_up=0
+  -> p=40100000 out_valid=1
+lost_bit a=3fc00001 b=3fc00001 product=900001800001 bit47=1 old_bit0=1 normalized=480000c00001 exp=127->128 sticky=1 round_up=1
+  -> p=40100002 out_valid=1
+lost_bit_changes_rounding a=3f801001 b=3ffff001 product=800800800001 bit47=1 old_bit0=1 normalized=400400400001 exp=127->128 sticky=1 round_up=1
+  -> p=40000801 out_valid=1
+all 4 normalization cases passed
+tb_normalize_cases.v:69: $finish called at 140000 (1ps)

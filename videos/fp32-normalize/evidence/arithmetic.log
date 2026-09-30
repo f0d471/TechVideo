@@ -1,0 +1,6 @@
+Node v24.16.0
+no_shift a=3F800001 b=3FC00000 product=600000C00000 bit47=0 old_bit0=0 pure_shift=600000C00000 normalized=600000C00000 exp=127->127 G=1 S=0 L=1 round_up=1 output=3FC00002
+high_product a=3FC00000 b=3FC00000 product=900000000000 bit47=1 old_bit0=0 pure_shift=480000000000 normalized=480000000000 exp=127->128 G=0 S=0 L=0 round_up=0 output=40100000
+lost_bit a=3FC00001 b=3FC00001 product=900001800001 bit47=1 old_bit0=1 pure_shift=480000C00000 normalized=480000C00001 exp=127->128 G=1 S=1 L=1 round_up=1 output=40100002
+lost_bit_changes_rounding a=3F801001 b=3FFFF001 product=800800800001 bit47=1 old_bit0=1 pure_shift=400400400000 normalized=400400400001 exp=127->128 G=1 S=1 L=0 round_up=1 output=40000801
+all 4 arithmetic cases passed
