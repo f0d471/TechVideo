@@ -15,7 +15,7 @@ export const Powers: React.FC<{
   if (opacity <= 0) return null;
   const up = size * 0.4;
   return (
-    <text x={x} y={y} textAnchor={anchor} fontFamily={F.text} fontSize={size} fill={color} opacity={opacity} xmlSpace="preserve">
+    <text data-shot="formula" x={x} y={y} textAnchor={anchor} fontFamily={F.text} fontSize={size} fill={color} opacity={opacity} xmlSpace="preserve">
       {parts.map(([base, exp], i) => (
         <React.Fragment key={i}>
           <tspan dy={i > 0 && parts[i - 1][1] ? up : 0}>{base}</tspan>

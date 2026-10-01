@@ -3,13 +3,15 @@
 // 有「错误」时退出码为 1，「提醒」需要逐条看过
 import fs from 'node:fs';
 import path from 'node:path';
-import {ROOT, loadScript, readJson, requireVideo, videoDir} from './common.mjs';
+import {ROOT, legacyVisual, loadScript, readJson, requireVideo, videoDir} from './common.mjs';
 
 const id = process.argv[2];
 requireVideo(id);
 const LIMITS = readJson(path.join(ROOT, 'tools/limits.json'));
 const SOURCES = readJson(path.join(ROOT, 'curriculum/sources.json'));
 const script = loadScript(id);
+// 画面元素表（visual.md 第七节）加上之前审片通过的集，不追查直接画框
+const boxRule = !legacyVisual(id);
 
 const projectNames = Object.keys(SOURCES);
 for (const c of [script.code ?? []].flat()) projectNames.push(path.basename(c.path).replace(/\.[^.]+$/, ''));
@@ -72,6 +74,9 @@ for (const file of files) {
       for (const m of line.matchAll(/\b(?:size|fontSize)=\{(\d+(?:\.\d+)?)\}/g)) {
         const v = +m[1];
         if ((v < FS.min || v > FS.max) && v !== FS.title) warns.push(`${at} 字号 ${v}，规定 ${FS.min}–${FS.max}（片头标题 ${FS.title}）`);
+      }
+      if (boxRule && /<RRect\b|<rect\b/.test(line)) {
+        errors.push(`${at} 场景里直接画框：框里放字用 Label（字居中、框按字算），其他框用元素表里的组件（visual.md 第七节）`);
       }
       if (/useCurrentFrame\(/.test(line)) warns.push(`${at} 场景直接读帧号：画面进度用 useT() 的 p、span，按 beat 驱动`);
       if (/第\s*\d+\s*行/.test(line)) warns.push(`${at} 画面文字里有「第 N 行」：确认是片段内的相对行，不是源文件行号`);

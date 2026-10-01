@@ -1,7 +1,7 @@
 {
  "id": "fp32-mul",
  "fps": 30,
- "totalFrames": 9664,
+ "totalFrames": 9836,
  "beats": [
   {
    "id": "t00",
@@ -278,20 +278,32 @@
   {
    "id": "p22",
    "start": 4668,
-   "frames": 243,
+   "frames": 201,
    "audio": "fp32-mul/audio/p22.wav",
    "audioFrom": 4,
-   "audioFrames": 229,
-   "audioSec": 7.605,
-   "sub": "800001 × C00000 = 600000C00000。",
-   "say": "把例子的两个尾数送进乘法器，四十八位的积写成十六进制，就是六开头的这一串，一位也不丢。",
-   "tts": "把例子的两个尾数送进乘法器，四十八位的积写成十六进制，就是六开头的这一串，一位也不丢。"
+   "audioFrames": 187,
+   "audioSec": 6.216,
+   "sub": "二进制也照竖式来乘：乘数里每有一个 1，\n就把被乘数挪到那一位，抄成一行。",
+   "say": "二进制也照竖式来乘：乘数里每有一个一，就把被乘数挪到那一位，抄成一行。",
+   "tts": "二进制也照竖式来乘：乘数里每有一个一，就把被乘数挪到那一位，抄成一杭。"
   },
   {
    "id": "p23",
-   "start": 4911,
-   "frames": 284,
+   "start": 4869,
+   "frames": 214,
    "audio": "fp32-mul/audio/p23.wav",
+   "audioFrom": 4,
+   "audioFrames": 200,
+   "audioSec": 6.65,
+   "sub": "1.5 的尾数只有两个 1，所以只有两行；\n两行相加：800001 × C00000 = 600000C00000。",
+   "say": "一点五的尾数只有两个一，所以只有两行；两行相加，就是四十八位的积，一位也不丢。",
+   "tts": "一点五的尾数只有两个一，所以只有两杭；两杭相加，就是四十八位的积，一位也不丢。"
+  },
+  {
+   "id": "p24",
+   "start": 5083,
+   "frames": 284,
+   "audio": "fp32-mul/audio/p24.wav",
    "audioFrom": 4,
    "audioFrames": 243,
    "audioSec": 8.088,
@@ -300,10 +312,10 @@
    "tts": "乘法器按整数去乘，可尾数本来是一点几：每个都不小于一、小于二，所以积不小于一、小于四。"
   },
   {
-   "id": "p24",
-   "start": 5195,
+   "id": "p25",
+   "start": 5367,
    "frames": 238,
-   "audio": "fp32-mul/audio/p24.wav",
+   "audio": "fp32-mul/audio/p25.wav",
    "audioFrom": 4,
    "audioFrames": 224,
    "audioSec": 7.438,
@@ -313,10 +325,10 @@
    "section": "为什么要看最高位"
   },
   {
-   "id": "p25",
-   "start": 5433,
+   "id": "p26",
+   "start": 5605,
    "frames": 197,
-   "audio": "fp32-mul/audio/p25.wav",
+   "audio": "fp32-mul/audio/p26.wav",
    "audioFrom": 4,
    "audioFrames": 183,
    "audioSec": 6.075,
@@ -325,10 +337,10 @@
    "tts": "所以只看积的最高位：是零，积在一到二；是一，积在二到四。"
   },
   {
-   "id": "p26",
-   "start": 5630,
+   "id": "p27",
+   "start": 5802,
    "frames": 189,
-   "audio": "fp32-mul/audio/p26.wav",
+   "audio": "fp32-mul/audio/p27.wav",
    "audioFrom": 4,
    "audioFrames": 175,
    "audioSec": 5.804,
@@ -337,10 +349,10 @@
    "tts": "例子的积开头是十六进制的六，也就是零一一零，最高位是零，积约一点五。"
   },
   {
-   "id": "p27",
-   "start": 5819,
+   "id": "p28",
+   "start": 5991,
    "frames": 194,
-   "audio": "fp32-mul/audio/p27.wav",
+   "audio": "fp32-mul/audio/p28.wav",
    "audioFrom": 4,
    "audioFrames": 180,
    "audioSec": 5.99,
@@ -349,10 +361,10 @@
    "tts": "换成一点五乘一点五，积是二点二五，开头的九是一零零一，最高位是一。"
   },
   {
-   "id": "p28",
-   "start": 6013,
+   "id": "p29",
+   "start": 6185,
    "frames": 181,
-   "audio": "fp32-mul/audio/p28.wav",
+   "audio": "fp32-mul/audio/p29.wav",
    "audioFrom": 4,
    "audioFrames": 140,
    "audioSec": 4.658,
@@ -361,10 +373,10 @@
    "tts": "下一集就根据这一位，把积调回一点几，再定下真正写回的阶码。"
   },
   {
-   "id": "p29",
-   "start": 6194,
+   "id": "p30",
+   "start": 6366,
    "frames": 184,
-   "audio": "fp32-mul/audio/p29.wav",
+   "audio": "fp32-mul/audio/p30.wav",
    "audioFrom": 4,
    "audioFrames": 170,
    "audioSec": 5.652,
@@ -374,10 +386,10 @@
    "section": "三路汇合"
   },
   {
-   "id": "p30",
-   "start": 6378,
+   "id": "p31",
+   "start": 6550,
    "frames": 224,
-   "audio": "fp32-mul/audio/p30.wav",
+   "audio": "fp32-mul/audio/p31.wav",
    "audioFrom": 4,
    "audioFrames": 210,
    "audioSec": 6.985,
@@ -386,27 +398,27 @@
    "tts": "这三个还只是中间结果：积还没规格化，也没舍入，阶码和越界的情况留到第五集。"
   },
   {
-   "id": "p31",
-   "start": 6602,
+   "id": "p32",
+   "start": 6774,
    "frames": 215,
-   "audio": "fp32-mul/audio/p31.wav",
+   "audio": "fp32-mul/audio/p32.wav",
    "audioFrom": 4,
    "audioFrames": 171,
-   "audioSec": 5.681,
+   "audioSec": 5.682,
    "sub": "这三路只管规格化数。碰到 0、无穷和 NaN，还要另走一条路。",
    "say": "这三路只管规格化数。碰到零、无穷和 N A N，还要另走一条路。",
    "tts": "这三路只管规格化数。碰到零、无穷和 N A N，还要另走一条路。"
   },
   {
    "id": "k03",
-   "start": 6817,
+   "start": 6989,
    "frames": 48
   },
   {
-   "id": "p32",
-   "start": 6865,
+   "id": "p33",
+   "start": 7037,
    "frames": 227,
-   "audio": "fp32-mul/audio/p32.wav",
+   "audio": "fp32-mul/audio/p33.wav",
    "audioFrom": 4,
    "audioFrames": 213,
    "audioSec": 7.096,
@@ -416,10 +428,10 @@
    "section": "特殊值走选择线"
   },
   {
-   "id": "p33",
-   "start": 7092,
+   "id": "p34",
+   "start": 7264,
    "frames": 132,
-   "audio": "fp32-mul/audio/p33.wav",
+   "audio": "fp32-mul/audio/p34.wav",
    "audioFrom": 4,
    "audioFrames": 118,
    "audioSec": 3.924,
@@ -428,10 +440,10 @@
    "tts": "比如无穷乘零，没有意义，结果规定是 N A N。"
   },
   {
-   "id": "p34",
-   "start": 7224,
+   "id": "p35",
+   "start": 7396,
    "frames": 238,
-   "audio": "fp32-mul/audio/p34.wav",
+   "audio": "fp32-mul/audio/p35.wav",
    "audioFrom": 4,
    "audioFrames": 224,
    "audioSec": 7.437,
@@ -440,10 +452,10 @@
    "tts": "输入里已经有 N A N，乘什么都还是 N A N。这两种情况，电路输出同一个编码。"
   },
   {
-   "id": "p35",
-   "start": 7462,
+   "id": "p36",
+   "start": 7634,
    "frames": 243,
-   "audio": "fp32-mul/audio/p35.wav",
+   "audio": "fp32-mul/audio/p36.wav",
    "audioFrom": 4,
    "audioFrames": 202,
    "audioSec": 6.712,
@@ -452,10 +464,10 @@
    "tts": "所以三路旁边还要并排放一个判断，看输入是不是特殊值，再挑出最后写回哪个结果。"
   },
   {
-   "id": "p36",
-   "start": 7705,
+   "id": "p37",
+   "start": 7877,
    "frames": 161,
-   "audio": "fp32-mul/audio/p36.wav",
+   "audio": "fp32-mul/audio/p37.wav",
    "audioFrom": 4,
    "audioFrames": 147,
    "audioSec": 4.888,
@@ -465,10 +477,10 @@
    "section": "把路线写进电路"
   },
   {
-   "id": "p37",
-   "start": 7866,
+   "id": "p38",
+   "start": 8038,
    "frames": 201,
-   "audio": "fp32-mul/audio/p37.wav",
+   "audio": "fp32-mul/audio/p38.wav",
    "audioFrom": 4,
    "audioFrames": 160,
    "audioSec": 5.313,
@@ -478,7 +490,7 @@
   },
   {
    "id": "c01",
-   "start": 8067,
+   "start": 8239,
    "frames": 155,
    "audio": "fp32-mul/audio/c01.wav",
    "audioFrom": 4,
@@ -491,7 +503,7 @@
   },
   {
    "id": "c02",
-   "start": 8222,
+   "start": 8394,
    "frames": 174,
    "audio": "fp32-mul/audio/c02.wav",
    "audioFrom": 4,
@@ -503,7 +515,7 @@
   },
   {
    "id": "c03",
-   "start": 8396,
+   "start": 8568,
    "frames": 184,
    "audio": "fp32-mul/audio/c03.wav",
    "audioFrom": 4,
@@ -515,7 +527,7 @@
   },
   {
    "id": "c04",
-   "start": 8580,
+   "start": 8752,
    "frames": 189,
    "audio": "fp32-mul/audio/c04.wav",
    "audioFrom": 4,
@@ -527,7 +539,7 @@
   },
   {
    "id": "c05",
-   "start": 8769,
+   "start": 8941,
    "frames": 208,
    "audio": "fp32-mul/audio/c05.wav",
    "audioFrom": 4,
@@ -539,7 +551,7 @@
   },
   {
    "id": "c06",
-   "start": 8977,
+   "start": 9149,
    "frames": 195,
    "audio": "fp32-mul/audio/c06.wav",
    "audioFrom": 4,
@@ -552,7 +564,7 @@
   },
   {
    "id": "c07",
-   "start": 9172,
+   "start": 9344,
    "frames": 247,
    "audio": "fp32-mul/audio/c07.wav",
    "audioFrom": 4,
@@ -564,7 +576,7 @@
   },
   {
    "id": "c08",
-   "start": 9419,
+   "start": 9591,
    "frames": 245,
    "audio": "fp32-mul/audio/c08.wav",
    "audioFrom": 4,

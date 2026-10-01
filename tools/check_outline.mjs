@@ -2,7 +2,7 @@
 // 用法：node tools/check_outline.mjs <视频 id> [--items]；有错误时退出码为 1；--items 打印对照表的第一列
 import fs from 'node:fs';
 import path from 'node:path';
-import {ROOT, loadScript, requireVideo, videoDir} from './common.mjs';
+import {ROOT, legacyVisual, loadScript, readJson, requireVideo, videoDir} from './common.mjs';
 
 const id = process.argv[2];
 requireVideo(id);
@@ -79,6 +79,22 @@ for (const [item = '', where = ''] of rows) {
   for (const b of ids) if (!beats.has(b)) errors.push(`「${item}」写的 beat ${b} 在 script.json 里不存在或没有旁白`);
 }
 if (table !== undefined) for (const x of items) if (!listed.has(squash(x))) errors.push(`系列大纲的「${x}」不在对照表里`);
+
+// 概念依赖链的「画法」一列：每个概念写明用元素表里的哪种元素画（visual.md 第七节、principle.md 第四节之二）
+if (!legacyVisual(id)) {
+  const names = Object.keys(readJson(path.join(ROOT, 'tools/limits.json')).shots.names);
+  const chain = (section('概念依赖链') ?? '').split('\n').filter((l) => l.startsWith('|') && !/^\|\s*-/.test(l));
+  const head = chain[0]?.split('|').slice(1, -1).map((c) => c.trim()) ?? [];
+  const col = head.findIndex((h) => h.startsWith('画法'));
+  if (col < 0) errors.push('outline.md「概念依赖链」表缺「画法」一列：每个概念写明用元素表里的哪种元素画，运算写出过程怎样一步步画出来');
+  else
+    for (const row of chain.slice(1)) {
+      const cells = row.split('|').slice(1, -1).map((c) => c.trim());
+      if (!names.some((n) => cells[col]?.includes(n))) {
+        errors.push(`概念依赖链「${cells[1] ?? cells[0]}」的画法没有写元素表里的元素（${names.join('、')}）`);
+      }
+    }
+}
 
 for (const e of errors) console.log(`错误 ${e}`);
 console.log(`大纲对照：系列大纲 ${items.length} 环，${errors.length} 个错误`);

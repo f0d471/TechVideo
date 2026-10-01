@@ -85,20 +85,45 @@ const LayoutProbe: React.FC = () => {
       requestAnimationFrame(() => {
         const root = document.querySelector('svg[data-canvas]');
         const items: {kind: string; text: string; x: number; y: number; w: number; h: number; opacity: number}[] = [];
-        root?.querySelectorAll('text, foreignObject').forEach((el) => {
-          if (el.closest('[data-shell]')) return;
-          // 不透明度沿祖先相乘，淡出到几乎看不见的不算
+        // 不透明度沿祖先相乘，淡出到几乎看不见的不算
+        const opacityOf = (el: Element) => {
           let opacity = 1;
           for (let e: Element | null = el; e && e !== root; e = e.parentElement) {
             const cs = getComputedStyle(e);
             opacity = cs.display === 'none' || cs.visibility === 'hidden' ? 0 : opacity * parseFloat(cs.opacity);
           }
+          return opacity;
+        };
+        root?.querySelectorAll('text, foreignObject').forEach((el) => {
+          if (el.closest('[data-shell]')) return;
+          const opacity = opacityOf(el);
           const r = el.getBoundingClientRect();
           if (opacity < 0.05 || r.width < 1 || r.height < 1) return;
           const text = (el.textContent ?? '').trim().slice(0, 40);
           items.push({kind: el.tagName === 'text' ? 'text' : 'image', text, x: r.x, y: r.y, w: r.width, h: r.height, opacity});
         });
-        console.log(`[layout] ${JSON.stringify({frame: f, items})}`);
+        // 画面元素（位串、数轴、电路……）：组件根节点上的 data-shot
+        const shots: {shot: string; opacity: number}[] = [];
+        root?.querySelectorAll('[data-shot]').forEach((el) => {
+          const opacity = opacityOf(el);
+          const r = el.getBoundingClientRect();
+          // 顶部公式条（y < 140）每页都在，不算这一页讲解用的元素
+          if (r.bottom < 140) return;
+          if (opacity >= 0.05 && r.width >= 1 && r.height >= 1) shots.push({shot: el.getAttribute('data-shot') ?? '', opacity});
+        });
+        // 标签框：框与字的外框，判断字是否居中、框字比例是否一致
+        const labels: {text: string; box: number[]; txt: number[]; size: number; opacity: number}[] = [];
+        root?.querySelectorAll('[data-label]').forEach((el) => {
+          const opacity = opacityOf(el);
+          const frame = el.firstElementChild;
+          const t = el.querySelector('text');
+          if (!frame || !t || opacity < 0.3) return;
+          const b = frame.getBoundingClientRect();
+          const r = t.getBoundingClientRect();
+          const size = parseFloat(t.getAttribute('font-size') ?? '0');
+          labels.push({text: (t.textContent ?? '').slice(0, 40), box: [b.x, b.y, b.width, b.height], txt: [r.x, r.y, r.width, r.height], size, opacity});
+        });
+        console.log(`[layout] ${JSON.stringify({frame: f, items, shots, labels})}`);
         continueRender(handle);
       }),
     );

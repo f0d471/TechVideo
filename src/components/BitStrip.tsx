@@ -20,7 +20,7 @@ export const BitStrip: React.FC<{
 }> = ({bits, draw, look, indices = [], indexOpacity = 1, opacity = 1, y = STRIP.y}) => {
   const {cw, ch, n} = STRIP;
   return (
-    <g opacity={opacity}>
+    <g opacity={opacity} data-shot="bits">
       {Array.from({length: n}, (_, col) => {
         const bit = n - 1 - col;
         const lk = look?.(bit) ?? {};

@@ -9,7 +9,7 @@ export type TransSet = {o: number; rows: TransRow[]};
 export const TransTable: React.FC<{vis: number; title: string; sets: TransSet[]}> = ({vis, title, sets}) => {
   if (vis <= 0) return null;
   return (
-    <g opacity={vis}>
+    <g opacity={vis} data-shot="table">
       <Txt x={112} y={540} size={24} color={C.muted}>
         {title}
       </Txt>

@@ -73,7 +73,7 @@ export const CodePanel: React.FC<{
   const band = (b: Band, key: number) =>
     b.o > 0 ? <rect key={key} x={112} y={rowY(b.no) - 28} width={w - 32} height={CODE.lh} rx={6} fill={C.band} opacity={b.o} /> : null;
   return (
-    <g opacity={vis}>
+    <g opacity={vis} data-shot="code">
       <RRect x={96} y={CODE.top} w={w} h={panelHeight(code.lines.length)} stroke={C.ink2} fill={C.paper} sw={2} draw={frameDraw} />
       <Txt x={96 + w - 24} y={156} anchor="end" size={20} mono color={C.muted}>
         {code.lang}

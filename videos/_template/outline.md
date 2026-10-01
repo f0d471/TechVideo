@@ -12,9 +12,9 @@
 
 ## 概念依赖链
 
-前置集讲过的概念标「回顾」，只用一句话带过。新概念登记进 `curriculum/concepts.json`，id 写在第二列。
+前置集讲过的概念标「回顾」，只用一句话带过。新概念登记进 `curriculum/concepts.json`，id 写在第二列。「画法」写用 `docs/standards/visual.md` 第七节元素表里的哪种元素画；运算写出过程怎样在例子的数字或位上一步步画出来（`docs/standards/principle.md` 第四节之二），`vt check` 查这一列。
 
-| 顺序 | 概念（concepts.json 的 id） | 新讲或回顾 | 依赖 | 画面对应物 |
+| 顺序 | 概念（concepts.json 的 id） | 新讲或回顾 | 依赖 | 画法 |
 |---|---|---|---|---|
 | 1 |  |  |  |  |
 

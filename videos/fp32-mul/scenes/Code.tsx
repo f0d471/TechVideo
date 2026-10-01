@@ -1,37 +1,34 @@
 import React from 'react';
 import {C} from '../../../src/core/theme';
 import {useT} from '../../../src/core/timeline';
-import {RArrow, RLine, RRect} from '../../../src/core/rough';
 import {CodePanel, codeSnippet} from '../../../src/components/CodePanel';
 import {Txt} from '../../../src/components/Prims';
+import {BusMark, Circuit, Gate, Unit, Val, Wire, gate, unitPorts, wire} from '../../../src/components/Gates';
+import {Tag} from './Kit';
 import codeJson from '../build/code.json';
 
 const sign = codeSnippet(codeJson, 'sign');
 const special = codeSnippet(codeJson, 'special');
 const productExp = codeSnippet(codeJson, 'product-exp');
 
-const Box: React.FC<{
-  x: number;
-  y: number;
-  w: number;
-  h?: number;
-  label: string;
-  value?: string;
-  color?: string;
-  fill?: string;
-  o?: number;
-}> = ({x, y, w, h = 96, label, value, color = C.ink2, fill = C.paper, o = 1}) => (
-  <g opacity={o}>
-    <RRect x={x} y={y} w={w} h={h} stroke={color} fill={fill} sw={2.2} roughness={0.6} />
-    <Txt x={x + w / 2} y={y + (value ? 37 : h / 2 + 11)} anchor="middle" mono size={value ? 27 : 31} color={color}>
-      {label}
-    </Txt>
-    {value && <Txt x={x + w / 2} y={y + h - 19} anchor="middle" mono size={30}>{value}</Txt>}
-  </g>
+const Name: React.FC<{x: number; y: number; t: string; color?: string; o: number; anchor?: 'start' | 'end' | 'middle'}> = ({
+  x,
+  y,
+  t,
+  color = C.ink2,
+  o,
+  anchor = 'end',
+}) => (
+  <Txt x={x} y={y + 8} anchor={anchor} mono size={24} color={color} opacity={o}>
+    {t}
+  </Txt>
 );
 
+// c01–c02：一行代码就是一扇异或门，两个符号位进，积的符号出
+const xg = gate('xor', 880, 440);
 const SignCode: React.FC = () => {
   const {p} = useT();
+  const o = p('c01', 10, 14);
   return (
     <g>
       <CodePanel
@@ -40,29 +37,43 @@ const SignCode: React.FC = () => {
         frameDraw={p('c01', 0, 22)}
         lineIn={() => p('c01', 8, 14)}
         bands={[{no: 48, o: p('c01', 12, 12)}]}
-        underlines={[
-          {no: 48, tok: '^', color: C.green, draw: p('c02', 0, 18)},
-        ]}
+        underlines={[{no: 48, tok: '^', color: C.green, draw: p('c02', 0, 18)}]}
       />
-      <Txt x={960} y={354} anchor="middle" size={30} color={C.ink2} opacity={p('c01', 0, 14)}>
-        一行代码，对应一扇异或门和三根信号线
-      </Txt>
-      <Box x={170} y={462} w={350} label="a_sign" value="0" color={C.green} fill={C.greenTint} o={p('c01', 16, 14)} />
-      <Box x={170} y={675} w={350} label="b_sign" value="0" color={C.green} fill={C.greenTint} o={p('c01', 24, 14)} />
-      <RArrow x1={520} y1={510} x2={815} y2={615} stroke={C.green} sw={3} draw={p('c01', 28, 18)} />
-      <RArrow x1={520} y1={723} x2={815} y2={645} stroke={C.green} sw={3} draw={p('c01', 34, 18)} />
-      <Box x={820} y={556} w={280} h={148} label="^" value="异或" color={C.green} fill={C.greenTint} o={p('c02', 0, 14)} />
-      <RArrow x1={1100} y1={630} x2={1350} y2={630} stroke={C.green} sw={3} draw={p('c02', 10, 20)} />
-      <Box x={1350} y={568} w={400} h={124} label="result_sign" value="0" color={C.green} fill={C.paper} o={p('c02', 20, 16)} />
-      <Txt x={960} y={845} anchor="middle" size={31} color={C.greenInk} opacity={p('c02', 28, 14)}>
-        例子：0 ^ 0 = 0
-      </Txt>
+      <Circuit opacity={o}>
+        <Name x={600} y={xg.in1.y} t="a_sign" color={C.greenInk} o={o} />
+        <Name x={600} y={xg.in2.y} t="b_sign" color={C.greenInk} o={o} />
+        <Wire d={wire([{x: 620, y: xg.in1.y}, xg.in1])} stroke={C.green} draw={p('c01', 16, 16)} />
+        <Wire d={wire([{x: 620, y: xg.in2.y}, xg.in2])} stroke={C.green} draw={p('c01', 16, 16)} />
+        <Gate kind="xor" x={880} y={440} label="异或" stroke={C.green} draw={p('c01', 26, 18)} />
+        <Wire d={wire([xg.out, {x: 1300, y: xg.out.y}])} stroke={C.green} draw={p('c01', 40, 16)} />
+        <Name x={1320} y={xg.out.y} t="result_sign" color={C.greenInk} anchor="start" o={p('c01', 46, 12)} />
+        <Val x={740} y={xg.in1.y} v={0} o={p('c02', 20, 10)} />
+        <Val x={740} y={xg.in2.y} v={0} o={p('c02', 20, 10)} />
+        <Val x={1140} y={xg.out.y} v={0} o={p('c02', 34, 10)} />
+      </Circuit>
     </g>
   );
 };
 
+// c03–c05：有无穷、有零各是一扇或门，两者再进与门得到冲突标志；最后和「输入是 NaN」相或
+const and1 = gate('and', 1060, 470);
+const or1 = gate('or', 760, 340);
+const or2 = gate('or', 760, 600);
+const or3 = gate('or', 1300, 560);
+const IN = 540;
 const SpecialCode: React.FC = () => {
   const {p} = useT();
+  const o = p('c03', 10, 14);
+  const ors = p('c04', 0, 18);
+  const last = p('c05', 0, 18);
+  const v = p('c05', 40, 12);
+  const vIn = [1, 0, 0, 1];
+  const inputs: [string, {x: number; y: number}][] = [
+    ['a_is_inf', or1.in1],
+    ['b_is_inf', or1.in2],
+    ['a_is_zero', or2.in1],
+    ['b_is_zero', or2.in2],
+  ];
   return (
     <g>
       <CodePanel
@@ -75,24 +86,71 @@ const SpecialCode: React.FC = () => {
           {no: 60, o: p('c05', 0, 12)},
         ]}
         underlines={[
-          {no: 59, tok: 'a_is_inf | b_is_inf', color: C.clay, draw: p('c04', 0, 18)},
-          {no: 59, tok: 'a_is_zero | b_is_zero', color: C.blue, draw: p('c04', 12, 18)},
+          {no: 59, tok: '&&', color: C.ink, draw: p('c03', 20, 16)},
+          {no: 59, tok: 'a_is_inf | b_is_inf', color: C.ink2, draw: p('c04', 0, 18)},
+          {no: 59, tok: 'a_is_zero | b_is_zero', color: C.ink2, draw: p('c04', 12, 18)},
           {no: 60, tok: 'is_nan | inf_zero_conflict', color: C.ink2, draw: p('c05', 0, 18)},
         ]}
       />
-      <Box x={130} y={395} w={720} h={124} label="a_is_inf | b_is_inf" value="任一输入是无穷" color={C.clay} fill={C.clayTint} o={p('c04', 0, 14)} />
-      <Box x={1070} y={395} w={720} h={124} label="a_is_zero | b_is_zero" value="任一输入是零" color={C.blue} fill={C.blueTint} o={p('c04', 12, 14)} />
-      <RArrow x1={490} y1={522} x2={850} y2={610} stroke={C.clay} sw={3} draw={p('c03', 24, 18)} />
-      <RArrow x1={1430} y1={522} x2={1070} y2={610} stroke={C.blue} sw={3} draw={p('c03', 32, 18)} />
-      <Box x={785} y={600} w={350} h={110} label="&&" value="无穷乘零" color={C.ink2} o={p('c03', 40, 16)} />
-      <RArrow x1={960} y1={715} x2={960} y2={755} stroke={C.ink2} sw={3} draw={p('c05', 0, 16)} />
-      <Box x={520} y={770} w={880} h={114} label="is_nan | inf_zero_conflict" value="特殊值选择标志" color={C.ink2} fill={C.paper} o={p('c05', 12, 16)} />
+      <Circuit opacity={o}>
+        <Gate kind="and" x={1060} y={470} label="与" draw={p('c03', 16, 18)} />
+        <Name x={1040} y={and1.in1.y - 22} t="有无穷" o={p('c03', 24, 12) * (1 - ors)} />
+        <Name x={1040} y={and1.in2.y + 26} t="有零" o={p('c03', 24, 12) * (1 - ors)} />
+        <Wire d={wire([{x: 960, y: and1.in1.y}, and1.in1])} stroke={C.ink2} draw={p('c03', 20, 12)} />
+        <Wire d={wire([{x: 960, y: and1.in2.y}, and1.in2])} stroke={C.ink2} draw={p('c03', 20, 12)} />
+        <Wire d={wire([and1.out, {x: 1200, y: and1.out.y}])} stroke={C.ink2} draw={p('c03', 30, 16)} />
+        <Name x={1100} y={606} t="inf_zero_conflict" anchor="middle" o={p('c03', 36, 12)} />
+
+        <g opacity={ors}>
+          {inputs.map(([t, port]) => (
+            <g key={t}>
+              <Name x={IN - 16} y={port.y} t={t} o={1} />
+              <Wire d={wire([{x: IN, y: port.y}, port])} stroke={C.ink2} draw={ors} />
+            </g>
+          ))}
+          <Gate kind="or" x={760} y={340} label="或" draw={ors} />
+          <Gate kind="or" x={760} y={600} label="或" draw={ors} />
+          <Wire d={wire([or1.out, {x: 960, y: or1.out.y}, {x: 960, y: and1.in1.y}])} stroke={C.ink2} draw={ors} />
+          <Wire d={wire([or2.out, {x: 960, y: or2.out.y}, {x: 960, y: and1.in2.y}])} stroke={C.ink2} draw={ors} />
+        </g>
+
+        <g opacity={last}>
+          <Name x={IN - 16} y={800} t="is_nan" o={1} />
+          <Wire d={wire([{x: IN, y: 800}, {x: 1260, y: 800}, {x: 1260, y: or3.in2.y}, or3.in2])} stroke={C.ink2} draw={last} />
+          <Wire d={wire([{x: 1200, y: and1.out.y}, {x: 1220, y: and1.out.y}, {x: 1220, y: or3.in1.y}, or3.in1])} stroke={C.ink2} draw={last} />
+          <Gate kind="or" x={1300} y={560} label="或" draw={last} />
+          <Wire d={wire([or3.out, {x: 1700, y: or3.out.y}])} stroke={C.ink2} draw={last} />
+          <Name x={1420} y={or3.out.y - 26} t="is_nan_full" anchor="start" o={1} />
+        </g>
+
+        {inputs.map(([t, port], i) => (
+          <Val key={t} x={640} y={port.y} v={vIn[i] as 0 | 1} o={v} />
+        ))}
+        <Val x={640} y={800} v={0} o={v} />
+        <Val x={905} y={or1.out.y} v={1} o={p('c05', 50, 10)} />
+        <Val x={905} y={or2.out.y} v={1} o={p('c05', 50, 10)} />
+        <Val x={1180} y={and1.out.y} v={1} o={p('c05', 58, 10)} />
+        <Val x={1560} y={or3.out.y} v={1} o={p('c05', 66, 10)} />
+        <Txt x={1560} y={720} anchor="middle" size={28} color={C.ink2} opacity={p('c05', 72, 12)}>
+          +∞ × +0：结果选 NaN
+        </Txt>
+      </Circuit>
     </g>
   );
 };
 
+// c06–c08：尾数进乘法器；阶码补两个 0 成 10 位，相加再减 127
+const mul = unitPorts(820, 450);
+const EY = 680;
+const add = unitPorts(820, EY);
+const sub = unitPorts(1040, EY);
+const X0 = 460;
 const ProductCode: React.FC = () => {
   const {p} = useT();
+  const m = p('c06', 10, 20);
+  const e = p('c07', 0, 20);
+  const vm = p('c06', 50, 14);
+  const ve = p('c07', 60, 14);
   return (
     <g>
       <CodePanel
@@ -106,20 +164,49 @@ const ProductCode: React.FC = () => {
           {no: 67, o: p('c07', 10, 12)},
         ]}
         underlines={[
-          {no: 65, tok: 'a_mant * b_mant', color: C.blue, draw: p('c06', 14, 18)},
-          {no: 66, tok: '$signed({2\'b0, a_exp})', color: C.clay, draw: p('c07', 0, 18)},
-          {no: 67, tok: "10'sd127", color: C.clay, draw: p('c07', 16, 18)},
+          {no: 65, tok: '*', color: C.blue, draw: p('c06', 14, 18)},
+          {no: 66, tok: "{2'b0, a_exp}", color: C.clay, draw: p('c07', 0, 18)},
+          {no: 66, tok: '$signed', color: C.clay, draw: p('c07', 12, 18)},
+          {no: 67, tok: "10'sd127", color: C.clay, draw: p('c07', 24, 18)},
         ]}
       />
-      <Box x={150} y={410} w={650} h={120} label="a_mant * b_mant" value="24 位 × 24 位" color={C.blue} fill={C.blueTint} o={p('c06', 18, 14)} />
-      <RArrow x1={800} y1={470} x2={1100} y2={470} stroke={C.blue} sw={3} draw={p('c06', 24, 18)} />
-      <Box x={1100} y={410} w={670} h={120} label="product_s0" value="600000C00000" color={C.blue} fill={C.paper} o={p('c06', 32, 14)} />
-      <Box x={150} y={615} w={650} h={132} label="a_exp + b_exp − 127" value="零扩展 → 带符号运算" color={C.clay} fill={C.clayTint} o={p('c07', 12, 14)} />
-      <RArrow x1={800} y1={680} x2={1100} y2={680} stroke={C.clay} sw={3} draw={p('c07', 20, 18)} />
-      <Box x={1100} y={615} w={670} h={132} label="exp_sum_s0" value="127 · 暂存 10 位" color={C.clay} fill={C.paper} o={p('c07', 28, 14)} />
-      <RLine x1={330} y1={795} x2={1590} y2={795} stroke={C.rule} sw={2} draw={p('c08', 0, 16)} />
-      <Txt x={960} y={861} anchor="middle" size={30} color={C.ink2} opacity={p('c08', 12, 14)}>
-        符号 0 · 阶码和 127 · 尾数积 600000C00000 → 下一集规格化
+      <Circuit opacity={m}>
+        <Name x={X0 - 16} y={mul.in1.y} t="a_mant" color={C.blueInk} o={1} />
+        <Name x={X0 - 16} y={mul.in2.y} t="b_mant" color={C.blueInk} o={1} />
+        <Wire d={wire([{x: X0, y: mul.in1.y}, mul.in1])} stroke={C.blue} draw={m} />
+        <Wire d={wire([{x: X0, y: mul.in2.y}, mul.in2])} stroke={C.blue} draw={m} />
+        <BusMark x={700} y={mul.in1.y} n={24} color={C.blue} o={m} />
+        <BusMark x={700} y={mul.in2.y} n={24} color={C.blue} o={m} />
+        <Unit cx={820} cy={450} sym="×" stroke={C.blue} draw={m} />
+        <Wire d={wire([mul.right, {x: 1500, y: 450}])} stroke={C.blue} draw={m} />
+        <BusMark x={940} y={450} n={48} color={C.blue} o={m} />
+        <Name x={1516} y={450} t="product_s0" color={C.blueInk} anchor="start" o={m} />
+        <Tag x={560} y={mul.in1.y} text="800001" color={C.blue} o={vm} />
+        <Tag x={560} y={mul.in2.y} text="C00000" color={C.blue} o={vm} />
+        <Tag x={1220} y={450} text="600000C00000" color={C.blue} o={p('c06', 64, 14)} />
+      </Circuit>
+      <Circuit opacity={e}>
+        <Name x={X0 - 16} y={add.in1.y} t="a_exp" color={C.clayInk} o={1} />
+        <Name x={X0 - 16} y={add.in2.y} t="b_exp" color={C.clayInk} o={1} />
+        <Wire d={wire([{x: X0, y: add.in1.y}, add.in1])} stroke={C.clay} draw={e} />
+        <Wire d={wire([{x: X0, y: add.in2.y}, add.in2])} stroke={C.clay} draw={e} />
+        <BusMark x={680} y={add.in1.y} n="8→10" color={C.clay} o={e} />
+        <BusMark x={680} y={add.in2.y} n="8→10" color={C.clay} o={e} />
+        <Unit cx={820} cy={EY} sym="+" stroke={C.clay} draw={e} />
+        <Wire d={wire([add.right, sub.left])} stroke={C.clay} draw={e} />
+        <Unit cx={1040} cy={EY} sym="−" stroke={C.clay} draw={e} />
+        <Wire d={wire([{x: 1040, y: EY + 110}, sub.bottom])} stroke={C.clay} draw={e} />
+        <Name x={1040} y={EY + 136} t="10'sd127" color={C.clayInk} anchor="middle" o={e} />
+        <Wire d={wire([sub.right, {x: 1500, y: EY}])} stroke={C.clay} draw={e} />
+        <BusMark x={1140} y={EY} n={10} color={C.clay} o={e} />
+        <Name x={1516} y={EY} t="exp_sum_s0" color={C.clayInk} anchor="start" o={e} />
+        <Tag x={560} y={add.in1.y} text="127" color={C.clay} o={ve} />
+        <Tag x={560} y={add.in2.y} text="127" color={C.clay} o={ve} />
+        <Tag x={930} y={EY} text="254" color={C.clay} o={p('c07', 70, 12)} />
+        <Tag x={1300} y={EY} text="127" color={C.clay} o={p('c07', 80, 12)} />
+      </Circuit>
+      <Txt x={960} y={880} anchor="middle" size={28} color={C.ink2} opacity={p('c08', 20, 14)}>
+        符号 0、阶码和 127、尾数积 600000C00000 → 下一集规格化
       </Txt>
     </g>
   );

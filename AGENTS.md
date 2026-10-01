@@ -26,7 +26,7 @@
 | 每次接手 | 本文件、`docs/sop.md`、这一集的 `videos/<id>/STATUS.md` |
 | S1–S2 大纲与取数 | `docs/standards/principle.md`、`curriculum/README.md`、系列大纲（`curriculum/NN-<系列>.md`）里这一集的条目 |
 | S3 脚本 | `docs/standards/narration.md`；有代码段时加 `docs/standards/code.md`；参照成片的 `script.json` |
-| S5 画面 | `docs/standards/visual.md`、`docs/architecture.md`、参照成片的 `scenes/Code.tsx`；Remotion 的 API 不熟时查 `.agents/skills/remotion-best-practices/SKILL.md`（克隆后按 `docs/toolchain.md` 恢复） |
+| S5 画面 | `docs/standards/visual.md`（第七节元素表）、`docs/architecture.md`、参照成片的 `scenes/`（原理段与代码段都读，看元素怎样拼成过程）；Remotion 的 API 不熟时查 `.agents/skills/remotion-best-practices/SKILL.md`（克隆后按 `docs/toolchain.md` 恢复） |
 | S7 处理反馈 | `docs/decisions.md` 里相关的那一节 |
 
 现行参照成片是已发布的 `videos/fp32-format`：情景开场、小节、核心公式条、原理推导和代码结构图都以它的第三稿为例。动手前按当前阶段读它的 `script.json`、`Video.tsx` 和对应的 `scenes/`，写完逐项对照。`videos/fp32-rne` 已按现行规范重做并审片通过，待上传；旧版的制作记录保存在本集 `STATUS.md`。规范中「反例（fp32-format 首稿／第二稿）」记录的是改版前的偏差，按条文里的改法处理。
@@ -67,7 +67,7 @@
 新增文件时：
 
 1. 先在上表里找到它的归属。属于某一集的文件，一律放进 `videos/<id>/`。
-2. 新组件先写在这一集的 `scenes/` 里。等第二集也要用，再提到 `src/components/`，提完对所有视频跑 `regress`。
+2. 画面只用 `docs/standards/visual.md` 第七节元素表里的元素拼。需要新的元素种类时，先在表里加一行，组件写进 `src/components/`，再用；场景文件里只做组合与计时，不另起一种框或卡片的样式。改了已有组件，对所有视频跑 `regress`。
 3. 生成物只进 `audio/`、`build/`、`out/`、`.cache/`。其他位置出现生成物，说明工具写错了地方。
 4. 放不进表里任何一格的文件，先改这张表，再加文件。
 5. 仓库里不写本机的绝对路径。本机相关的设置只进 `tools/env.local.json`。

@@ -4,7 +4,7 @@
 
 | id | 标题 | 阶段 | 状态 |
 |---|---|---|---|
-| fp32-rne | 舍入（第 4 集，原生重配后待复听） | S7 待审片 | [STATUS](fp32-rne/STATUS.md) |
+| fp32-rne | 舍入（第 4 集） | S8 发布（待上传） | [STATUS](fp32-rne/STATUS.md) |
 | fp32-format | IEEE 754 与 FTZ（现行样片） | 已发布 | [STATUS](fp32-format/STATUS.md) |
-| fp32-mul | 两个浮点数相乘 | S7 待审片 | [STATUS](fp32-mul/STATUS.md) |
-| fp32-normalize | 规格化 | S7 待审片 | [STATUS](fp32-normalize/STATUS.md) |
+| fp32-mul | 两个浮点数相乘 | S8 发布（待上传） | [STATUS](fp32-mul/STATUS.md) |
+| fp32-normalize | 规格化 | S8 发布（待上传） | [STATUS](fp32-normalize/STATUS.md) |

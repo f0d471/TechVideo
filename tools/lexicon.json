@@ -112,6 +112,20 @@
     {"phrase":"先调整","basis":"fp32-rne 审片通过，2026-09-30"},
     {"phrase":"从调整","basis":"fp32-rne 审片通过，2026-09-30"},
     {"phrase":"偏差可","basis":"fp32-rne 审片通过，2026-09-30"},
-    {"phrase":"三种情","basis":"fp32-rne 审片通过，2026-09-30"}
+    {"phrase":"三种情","basis":"fp32-rne 审片通过，2026-09-30"},
+    {"phrase":"串数两","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"乘数里","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"乘数挪","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"号数相","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"这种运","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"回省掉","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"积调回","basis":"fp32-mul 审片通过，2026-10-01"},
+    {"phrase":"这种情","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"数值","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"底数是","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"倒数第","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"置调好","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"也调好","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"调整","basis":"fp32-normalize 审片通过，2026-10-01"}
   ]
 }

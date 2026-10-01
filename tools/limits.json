@@ -10,5 +10,6 @@
  "codeBeatsPerLine": {"max": 1.5, "why": "代码段平均每行代码的 beat 数。fp32-format 第二稿 15 行 39 个 beat（2.6）在审片中判为太慢；简单的行合成一两句；docs/standards/code.md 第二节"},
  "sectionHold": {"min": 0.8, "why": "秒。小节第一句的前一句至少停这么久，观众才听得出换了一段；docs/standards/principle.md 第三节之二"},
  "layout": {"side": 96, "captionTop": 920, "tolerancePx": 2, "overlap": 0.3, "minOpacity": 0.3, "why": "vt layout 的界限：左右边距 96 像素、y > 920 是字幕区（visual.md 第四节）；两段文字的外框相交面积超过较小者的 overlap 算重叠；不透明度低于 minOpacity 的暗色背景层不参加重叠判断"},
- "sceneLineChars":{"max": 180, "why": "画面代码一行的字符数。已验收场景最长 177；压成一行的 JSX 没法审，也没法逐 beat 对照；docs/architecture.md 第五节"}
+ "sceneLineChars":{"max": 180, "why": "画面代码一行的字符数。已验收场景最长 177；压成一行的 JSX 没法审，也没法逐 beat 对照；docs/architecture.md 第五节"},
+ "shots": {"since": "2026-10-01", "structural": ["bits", "axis", "column", "table", "formula", "circuit", "code", "tree", "cite", "photo"], "names": {"位串": "bits", "数轴": "axis", "竖式": "column", "表格": "table", "公式": "formula", "电路": "circuit", "代码面板": "code", "判定树": "tree", "引用卡": "cite", "图片": "photo"}, "textOnlyMax": 0.15, "labelCenterEm": 0.2, "why": "画面元素表（visual.md 第七节）：每个有旁白的页至少有一种结构元素，只有散字和标签框的页不超过 textOnlyMax；代码段出现代码面板的页要同时有电路；标签框里的字偏离框中心不超过 labelCenterEm 个字号。since 之前审片通过的集按旧规则放行"}
 }

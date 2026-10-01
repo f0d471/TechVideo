@@ -3,12 +3,16 @@
 // 用法：node tools/layout.mjs <视频 id> [beat...]；有问题时退出码为 1
 import fs from 'node:fs';
 import path from 'node:path';
-import {ROOT, checkFrame, loadManifest, outDir, pageOf, readJson, requireVideo} from './common.mjs';
+import {ROOT, checkFrame, legacyVisual, loadManifest, outDir, pageOf, readJson, requireVideo} from './common.mjs';
 import {renderStills} from './stills.mjs';
 
 const [id, ...only] = process.argv.slice(2);
 requireVideo(id);
-const L = readJson(path.join(ROOT, 'tools/limits.json')).layout;
+const LIMITS = readJson(path.join(ROOT, 'tools/limits.json'));
+const L = LIMITS.layout;
+const S = LIMITS.shots;
+// 画面元素的三条规则只对 shots.since 之后审片的集生效
+const shotRules = !legacyVisual(id);
 const m = loadManifest(id);
 const pages = pageOf(m.beats);
 const beats = only.length ? only : m.beats.map((b) => b.id);
@@ -19,7 +23,7 @@ const measured = new Map();
 const onLog = (frame, text) => {
   if (!text.startsWith('[layout] ')) return;
   const r = JSON.parse(text.slice(9));
-  if (r.frame === frame) measured.set(frame, r.items);
+  if (r.frame === frame) measured.set(frame, r);
 };
 const dir = path.join(outDir(id), 'layout');
 // Remotion 会把页面日志原样转打到终端，一帧一大段 JSON；渲染期间滤掉
@@ -35,8 +39,11 @@ const inter = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.
 const q = (a) => `「${a.text || '图片'}」`;
 
 const report = [];
+const textOnly = [];
+const spoken = new Set(m.beats.filter((b) => b.audio).map((b) => b.id));
 for (const {frame, name} of frames) {
-  const items = measured.get(frame);
+  const got = measured.get(frame);
+  const items = got?.items;
   if (!items) {
     report.push({beat: name, issue: '没有收到版面数据（探针没有运行）'});
     continue;
@@ -58,6 +65,25 @@ for (const {frame, name} of frames) {
       if (r > L.overlap) report.push({beat: name, issue: `${q(a)}与${q(b)}重叠 ${Math.round(r * 100)}%`});
     }
   }
+  if (!shotRules) continue;
+  // 标签框：字在框里上下左右居中（visual.md 第七节）
+  for (const lb of got.labels ?? []) {
+    const [bx, by, bw, bh] = lb.box;
+    const [tx, ty, tw, th] = lb.txt;
+    const tol = S.labelCenterEm * lb.size;
+    if (Math.abs(tx + tw / 2 - (bx + bw / 2)) > tol) report.push({beat: name, issue: `标签框「${lb.text}」的字左右不居中`});
+    if (tx < bx || tx + tw > bx + bw) report.push({beat: name, issue: `标签框「${lb.text}」的字超出了框`});
+  }
+  // 画面元素：有旁白的页至少有一种结构元素；代码面板旁边要有电路
+  const kinds = new Set((got.shots ?? []).filter((x) => x.opacity >= L.minOpacity).map((x) => x.shot));
+  if (spoken.has(name) && !S.structural.some((k) => kinds.has(k))) textOnly.push(name);
+  if (kinds.has('code') && !kinds.has('circuit')) report.push({beat: name, issue: '代码面板旁边没有电路：代码段每一页都要画出这段代码对应的电路（code.md 第六节）'});
+}
+const nSpoken = frames.filter((x) => spoken.has(x.name)).length;
+if (shotRules && nSpoken && textOnly.length / nSpoken > S.textOnlyMax) {
+  for (const b of textOnly) report.push({beat: b, issue: `只有散字和标签框，没有位串、数轴、竖式、表格、公式、电路这类结构元素（这类页 ${textOnly.length}/${nSpoken}，上限 ${Math.round(S.textOnlyMax * 100)}%）`});
+} else if (textOnly.length) {
+  console.log(`提醒 只有散字和标签框的页：${textOnly.map((b) => 'p' + (pages[b] ?? '-')).join('、')}（${textOnly.length}/${nSpoken}，上限 ${Math.round(S.textOnlyMax * 100)}%）`);
 }
 
 fs.writeFileSync(path.join(dir, 'report.json'), JSON.stringify(report, null, 1) + '\n');

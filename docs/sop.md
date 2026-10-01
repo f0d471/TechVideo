@@ -25,7 +25,7 @@
 - 从系列大纲里这一集的条目出发，编写 `videos/<id>/outline.md`，按模板填写：
   - 观众起点：默认起点（见 `docs/standards/principle.md` 第一节）加上前置集讲过的概念。
   - 这一集要回答的一个问题。
-  - 概念依赖链：按出现顺序列出每个概念，写明它依赖哪些前面的概念。前置集已经讲过的概念标「回顾」，只用一句话带过；新概念登记进 `curriculum/concepts.json`，叫法与已有概念统一。规则见 `docs/standards/principle.md`。
+  - 概念依赖链：按出现顺序列出每个概念，写明它依赖哪些前面的概念，以及「画法」：用元素表（`docs/standards/visual.md` 第七节）里的哪种元素画，运算写出过程怎样一步步画出来（`docs/standards/principle.md` 第四节之二）。前置集已经讲过的概念标「回顾」，只用一句话带过；新概念登记进 `curriculum/concepts.json`，叫法与已有概念统一。规则见 `docs/standards/principle.md`。
   - 类比：每个类比都写明它和原概念在哪一点上严格等价。
   - 数字清单：画面上会出现的每一个数字、位串、结果，各写出处类型（仿真、实测、文档、算术）和具体来源。
   - 代码范围：素材仓名、文件路径与行号区间，原理段怎样过渡到代码段；要翻译的代码词，按 `curriculum/terms.json` 标出完整翻译还是只高亮。没有对应代码的集写「无」。
@@ -68,10 +68,10 @@
 
 ## S5 画面
 
-- 编写 `videos/<id>/Video.tsx` 与 `scenes/*.tsx`。先查 `docs/architecture.md` 的组件表，能用现成组件的不另写；画面进度全部由 beat 驱动（`useT()` 的 `p`、`span`）；视觉规则见 `docs/standards/visual.md`。代码写法照参照成片的 `scenes/Code.tsx`：一个属性一行，每个场景开头注释写它对应哪几个 beat，一行不超过 `limits.json` 的 `sceneLineChars`。
+- 编写 `videos/<id>/Video.tsx` 与 `scenes/*.tsx`。画面只用 `docs/standards/visual.md` 第七节元素表里的元素拼，照大纲「画法」一列画，场景里不直接画框；画面进度全部由 beat 驱动（`useT()` 的 `p`、`span`）；视觉规则见 `docs/standards/visual.md`。代码写法照参照成片的 `scenes/Code.tsx`：一个属性一行，每个场景开头注释写它对应哪几个 beat，一行不超过 `limits.json` 的 `sceneLineChars`。
 - 预览：`npx remotion studio`。
 - 检查：`npm run typecheck` 零错误（Remotion 打包时不查类型，拼错的属性名只会在这里暴露）；`node tools/vt.mjs check <id>` 五项全过（脚本、画面代码、时序、课程登记、系列大纲对照），画面代码的提醒逐条处理。改过脚本、时间轴变了之后重跑。
-- 版面检查：`node tools/vt.mjs layout <id> [beat...]`。在浏览器里量出每个 beat 检查帧（语音刚结束、字幕仍在）的文字与图片外框，报越过左右边距、进入字幕区、文字互相重叠；只列有问题的帧和对应的 PNG（`out/<id>/layout/`），只看这几张。界限在 `limits.json` 的 `layout`。
+- 版面检查：`node tools/vt.mjs layout <id> [beat...]`。在浏览器里量出每个 beat 检查帧（语音刚结束、字幕仍在）的文字与图片外框，报越过左右边距、进入字幕区、文字互相重叠，以及只有散字和标签框的页过多、代码页没有电路、标签框的字不居中；只列有问题的帧和对应的 PNG（`out/<id>/layout/`），只看这几张。界限在 `limits.json` 的 `layout`。
 - 抽帧：写一个场景时用 `node tools/vt.mjs stills <id> 0.5 <beat>...` 抽这个场景的几帧看效果，按 `visual.md` 第六节里机器查不了的几条（对齐、疏密、推进、公式条）看一眼。不做整集逐张的审查。
 - 验收：类型检查、`check`、`layout` 零错误。回归基准在审片通过时由 `vt accept` 记录。
 

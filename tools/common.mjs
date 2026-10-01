@@ -113,3 +113,13 @@ export const chromeVersion = () => {
   if (IS_WIN) return execSync(`powershell -NoProfile -Command "(Get-Item '${CHROME}').VersionInfo.ProductVersion"`).toString().trim();
   return execSync(`"${CHROME}" --version`).toString().trim();
 };
+
+// 画面元素规则（docs/standards/visual.md 第七节）加上之前就审片通过的集，按旧规则放行：
+// STATUS.md「审片通过」表里最早的日期早于 limits.json 的 shots.since
+export const legacyVisual = (id) => {
+  const since = readJson(path.join(ROOT, 'tools/limits.json')).shots.since;
+  const status = fs.readFileSync(path.join(videoDir(id), 'STATUS.md'), 'utf8');
+  const table = status.split(/^## 审片通过/m)[1]?.split(/^## /m)[0] ?? '';
+  const dates = [...table.matchAll(/^\|\s*(\d{4}-\d{2}-\d{2})\s*\|/gm)].map((m) => m[1]).sort();
+  return dates.length > 0 && dates[0] < since;
+};
