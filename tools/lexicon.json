@@ -126,6 +126,12 @@
     {"phrase":"倒数第","basis":"fp32-normalize 审片通过，2026-10-01"},
     {"phrase":"置调好","basis":"fp32-normalize 审片通过，2026-10-01"},
     {"phrase":"也调好","basis":"fp32-normalize 审片通过，2026-10-01"},
-    {"phrase":"调整","basis":"fp32-normalize 审片通过，2026-10-01"}
+    {"phrase":"调整","basis":"fp32-normalize 审片通过，2026-10-01"},
+    {"phrase":"负数是","basis":"fp32-boundary 审片通过，2026-10-01"},
+    {"phrase":"入冲成","basis":"fp32-boundary 审片通过，2026-10-01"},
+    {"phrase":"也冲成","basis":"fp32-boundary 审片通过，2026-10-01"},
+    {"phrase":"积冲成","basis":"fp32-boundary 审片通过，2026-10-01"},
+    {"phrase":"三种写","basis":"fp32-boundary 审片通过，2026-10-01"},
+    {"phrase":"条长路","basis":"fp32-boundary 审片通过，2026-10-01"}
   ]
 }

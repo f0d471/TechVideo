@@ -8,3 +8,4 @@
 | fp32-format | IEEE 754 与 FTZ（现行样片） | 已发布 | [STATUS](fp32-format/STATUS.md) |
 | fp32-mul | 两个浮点数相乘 | S8 发布（待上传） | [STATUS](fp32-mul/STATUS.md) |
 | fp32-normalize | 规格化 | S8 发布（待上传） | [STATUS](fp32-normalize/STATUS.md) |
+| fp32-boundary | 舍入之后 | S8 发布（待上传） | [STATUS](fp32-boundary/STATUS.md) |

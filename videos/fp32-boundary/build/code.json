@@ -1,0 +1,90 @@
+{
+ "snippets": {
+  "rnd": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 137,
+     "text": "    wire [24:0] mant_rnd = {1'b0, prod_n[46:23]} + {24'd0, round_up}; // 舍入后尾数"
+    },
+    {
+     "no": 138,
+     "text": "    wire        mant_ovf = mant_rnd[24];                               // 尾数进位"
+    },
+    {
+     "no": 139,
+     "text": "    wire signed [9:0] exp_final_s = exp_n_s"
+    },
+    {
+     "no": 140,
+     "text": "                                      + (mant_ovf ? 10'sd1 : 10'sd0); // 最终阶码"
+    },
+    {
+     "no": 141,
+     "text": "    wire ftz_out  = (exp_final_s <= 10'sd0);                           // 下溢 FTZ"
+    },
+    {
+     "no": 142,
+     "text": "    wire overflow = (exp_final_s >= 10'sd255);                         // 上溢"
+    },
+    {
+     "no": 143,
+     "text": "    wire [22:0] frac_final = mant_ovf ? 23'd0 : mant_rnd[22:0];        // 最终小数位"
+    }
+   ]
+  },
+  "select": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 148,
+     "text": "    assign normal_val = ftz_out  ? {sign_r, 31'd0}"
+    },
+    {
+     "no": 149,
+     "text": "                      : overflow ? {sign_r, 8'hFF, 23'd0}"
+    },
+    {
+     "no": 150,
+     "text": "                      :            {sign_r, exp_final_s[7:0], frac_final};"
+    }
+   ]
+  },
+  "special": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 152,
+     "text": "    assign spec_res = spec_nan_r  ? 32'h7FC00000"
+    },
+    {
+     "no": 153,
+     "text": "                    : spec_inf_r  ? {spec_sgn_r, 8'hFF, 23'd0}"
+    },
+    {
+     "no": 154,
+     "text": "                    : spec_zero_r ? {spec_sgn_r, 31'd0}"
+    },
+    {
+     "no": 155,
+     "text": "                    :               32'd0;"
+    }
+   ]
+  }
+ }
+}

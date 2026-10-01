@@ -40,5 +40,18 @@
  {"code":"sticky_bit","en":"sticky bit","zh":"粘滞位","episode":"fp32-rne"},
  {"code":"prod_n","en":"product, normalized","zh":"规格化后的积","episode":"fp32-normalize"},
  {"code":"lsb","en":"least significant bit","zh":"最低位（末位）","episode":"fp32-rne"},
- {"code":"round_up","en":"round up","zh":"向上舍：末位加一","episode":"fp32-rne"}
+ {"code":"round_up","en":"round up","zh":"向上舍：末位加一","episode":"fp32-rne"},
+ {"code":"? :","en":"ternary select","zh":"二选一：条件成立取前一路，否则取后一路","episode":"fp32-boundary"},
+ {"code":"assign","en":"continuous assignment","zh":"连线：右边一变，左边立刻跟着变","episode":"fp32-boundary"},
+ {"code":"<= （表达式里）","en":"less than or equal","zh":"小于等于，比较器","episode":"fp32-boundary"},
+ {"code":">= （表达式里）","en":"greater than or equal","zh":"大于等于，比较器","episode":"fp32-boundary"},
+ {"code":"32'h7FC00000","en":"32-bit hex constant","zh":"用 32 位写下的十六进制常数","episode":"fp32-boundary"},
+ {"code":"mant_rnd","en":"rounded mantissa","zh":"舍入后的尾数","episode":"fp32-boundary"},
+ {"code":"mant_ovf","en":"mantissa overflow","zh":"尾数进位","episode":"fp32-boundary"},
+ {"code":"exp_final_s","en":"final exponent","zh":"最终阶码","episode":"fp32-boundary"},
+ {"code":"ftz_out","en":"flush to zero out","zh":"结果冲零","episode":"fp32-boundary"},
+ {"code":"overflow","en":"overflow","zh":"上溢","episode":"fp32-boundary"},
+ {"code":"frac_final","en":"final fraction","zh":"最终小数位","episode":"fp32-boundary"},
+ {"code":"normal_val","en":"normal result","zh":"常规结果","episode":"fp32-boundary"},
+ {"code":"spec_res","en":"special result","zh":"特殊值结果","episode":"fp32-boundary"}
 ]

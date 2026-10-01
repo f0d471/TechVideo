@@ -1,0 +1,19 @@
+Icarus Verilog version 12.0 (stable) ()
+66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88  fp32_mul_pipe.v
+a=3ffffffe b=3f800001 prod_n=7ffffffffffe
+  G=1 S=1 L=1 round_up=1
+  mant_rnd=1000000 mant_ovf=1 exp_n=127
+  exp_final=128 ftz_out=0 overflow=0
+  -> p=40000000 out_valid=1
+a=7f7ffffe b=3f800001 prod_n=7ffffffffffe
+  G=1 S=1 L=1 round_up=1
+  mant_rnd=1000000 mant_ovf=1 exp_n=254
+  exp_final=255 ftz_out=0 overflow=1
+  -> p=7f800000 out_valid=1
+a=00800000 b=3f000000 prod_n=400000000000
+  G=0 S=0 L=0 round_up=0
+  mant_rnd=0800000 mant_ovf=0 exp_n=0
+  exp_final=0 ftz_out=1 overflow=0
+  -> p=00000000 out_valid=1
+standard (IEEE, no FTZ): 00400000
+tb_boundary_cases.v:38: $finish called at 110000 (1ps)
