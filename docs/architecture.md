@@ -62,7 +62,9 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `Powers.tsx` | `Powers` | 带指数的一行式子（`−3 × 10²`），指数小一号写在右上，不用 Unicode 上标 |
 | `CodePanel.tsx` | `CodePanel`、`codeSnippet`、`panelHeight`、`CODE`、`tokenize`、`codeCol`、`tokX`，类型 `CodeFile`、`CodeSource` | 代码面板：显示 `code.json` 里的一个代码段（`codeSnippet(codeJson, 名字)` 取段），右上角只标语言名，面板高度随行数变化，宽度可由 `w` 指定（默认占满左右留白之间，结构图放右侧时给窄）；行按源文件行号对位但不画行号；行底色与记号下划线由调用方给出 |
 | `TransTable.tsx` | `TransTable` | 逐词翻译表：代码 → 英文 → 中文 |
-| `Gates.tsx` | `andPath`、`orPath`、`xorPath`、`muxPath`、`gate`、`Gate`、`Unit`、`unitPorts`、`wire`、`Wire`、`Val`、`BusMark`、`Src`、`Circuit` | 电路：与门、或门、异或门、二选一选择器（`gate` 给出端口坐标），加法器乘法器这类运算单元，导线、信号值圆标、总线位数、信号源格子；一张结构图外面套 `Circuit` |
+| `Gates.tsx` | `andPath`、`orPath`、`xorPath`、`muxPath`、`gate`、`Gate`、`Unit`、`unitPorts`、`Reg`、`regPorts`、`Logic`、`logicPorts`、`ModuleBox`、`wire`、`Wire`、`Val`、`BusMark`、`Src`、`Circuit` | 电路：与门、或门、异或门、二选一选择器（`gate` 给出端口坐标），加法器乘法器这类运算单元，寄存器（D 进 Q 出、底边接时钟，`regPorts` 给出端口）、组合逻辑块（`logicPorts`）、模块边界虚线框，导线、信号值圆标（`color` 换角色色）、总线位数、信号源格子；一张结构图外面套 `Circuit` |
+| `Wave.tsx` | `Wave`、`WaveWindow`、`waveGeom`、`waveX`、`waveTop`、`waveMid`、`waveBot`，类型 `WaveGeom`、`WaveRow` | 时序图：时钟、一位信号、多位信号（段里写值，`'?'` 段是还在变的灰段），`upTo` 控制描到哪个时刻；`WaveWindow` 在一段时间上铺淡色窗并写名字 |
+| `CiteCard.tsx` | `CiteCard`，类型 `CiteBox` | 引用卡：年份、作者、出处、标题，加一句原文与中文结论 |
 | `Label.tsx` | `Label`、`labelBox`、`labelEdges`、`textWidth` | 标签框：一行字（可加一行小字）居中，框按字算，留白按字号固定；`labelEdges` 给出四边中点 |
 | `Bits.tsx` | `Bits`、`bitsGeom`、`bitX`、`bitCX`、`hexBits` | 任意位宽的位串，按位设置外观，`shift` 让数字整体移动（移位动画）；新集用它，`BitStrip` 留给已审片的集 |
 | `Axis.tsx` | `Axis`、`axisX`、`Span`、`Mark`、`Hop` | 数轴、区间、值、跳转箭头 |
@@ -111,7 +113,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 
 - 状态变化处的轻提示音。
 - 公式逐项变形的组件（一个式子逐项变成另一个式子）。
-- 通用公式排版、核心公式条、引用卡、照片框、按坐标算端点的箭头。初版在 `videos/fp32-format/scenes/Kit.tsx`（`MathText` 逐字符定位，指数用小号 `tspan`；`FormulaBar`、`CiteCard`、`Photo`、`Arrow`、`Bars`）；小节标签与部件卡已提取到 `src/components/Frame.tsx`。其他组件跨集复用时再提取，提完对所有视频跑 `regress`。
+- 通用公式排版、核心公式条、照片框、按坐标算端点的箭头。初版在 `videos/fp32-format/scenes/Kit.tsx`（`MathText` 逐字符定位，指数用小号 `tspan`；`FormulaBar`、`CiteCard`、`Photo`、`Arrow`、`Bars`）；小节标签与部件卡已提取到 `src/components/Frame.tsx`，引用卡已提取到 `src/components/CiteCard.tsx`（第 1 集仍用自己 `Kit.tsx` 里的初版）。其他组件跨集复用时再提取，提完对所有视频跑 `regress`。
 - 已审片的集仍用各自的位串：`BitStrip`（48 位）与 `videos/fp32-format/scenes/Kit.tsx` 的 `Bits32`。新集用按位宽参数化的 `Bits`；两集回头改画面时再换成 `Bits`，换完跑 `regress`。
 
 `videos/fp32-rne/scenes/` 里的抽象数轴与真值点（`Principle.tsx` 的 `AbstractLine`、`Dot`）、十进制对照数轴（`DecLine`）、判定树（`Node`、`Edge`、`Tree`）目前只由这一集使用。跨集复用时按第四节的规则提取到 `src/components/`，随后对已有视频运行 `vt regress`。

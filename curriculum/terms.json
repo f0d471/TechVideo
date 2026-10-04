@@ -53,5 +53,20 @@
  {"code":"overflow","en":"overflow","zh":"上溢","episode":"fp32-boundary"},
  {"code":"frac_final","en":"final fraction","zh":"最终小数位","episode":"fp32-boundary"},
  {"code":"normal_val","en":"normal result","zh":"常规结果","episode":"fp32-boundary"},
- {"code":"spec_res","en":"special result","zh":"特殊值结果","episode":"fp32-boundary"}
+ {"code":"spec_res","en":"special result","zh":"特殊值结果","episode":"fp32-boundary"},
+ {"code":"always @(posedge clk)","en":"clocked always block","zh":"时钟块：时钟上升沿到来时更新块里的寄存器","episode":"fp32-pipeline"},
+ {"code":"posedge","en":"positive edge","zh":"上升沿","episode":"fp32-pipeline"},
+ {"code":"<= （时钟块里）","en":"nonblocking assignment","zh":"上升沿到来时存进寄存器","episode":"fp32-pipeline"},
+ {"code":"!","en":"logical NOT","zh":"取反：0 变 1，1 变 0","episode":"fp32-pipeline"},
+ {"code":"||","en":"logical OR","zh":"或：任意一边成立就成立","episode":"fp32-pipeline"},
+ {"code":"~","en":"bitwise NOT","zh":"按位取反","episode":"fp32-pipeline"},
+ {"code":"1'b0","en":"one-bit binary zero","zh":"一位的 0","episode":"fp32-pipeline"},
+ {"code":"rst_n","en":"reset, active low","zh":"复位：为 0 时把寄存器置回起始值","episode":"fp32-pipeline"},
+ {"code":"flush","en":"flush","zh":"作废：清掉流水线里的有效位","episode":"fp32-pipeline"},
+ {"code":"in_valid","en":"input valid","zh":"输入的有效信号","episode":"fp32-pipeline"},
+ {"code":"v_s1","en":"valid of stage 1","zh":"第一级的有效信号","episode":"fp32-pipeline"},
+ {"code":"out_valid","en":"output valid","zh":"输出的有效信号","episode":"fp32-pipeline"},
+ {"code":"p","en":"product","zh":"乘积输出","episode":"fp32-pipeline"},
+ {"code":"sign_r","en":"registered sign","zh":"存下的符号","episode":"fp32-pipeline"},
+ {"code":"spec_sel_r","en":"registered special select","zh":"存下的特殊值选择","episode":"fp32-pipeline"}
 ]

@@ -178,6 +178,22 @@ if (codeLines && codeBeats / codeLines > LIMITS.codeBeatsPerLine.max) {
   warns.push(`代码段 ${codeBeats} 个 beat 讲 ${codeLines} 行代码，每行 ${(codeBeats / codeLines).toFixed(2)} 个，超过 ${LIMITS.codeBeatsPerLine.max}：简单的行合成一两句（code.md 第一、二节）`);
 }
 
+// 叙述者在场（narration.md 第八节）：连续 8 句旁白没有一次人称，读出来就是说明书
+const PERSON = /我们|你|大家|咱们/;
+{
+  const spoken = script.beats.filter((b) => b.say);
+  let run = [];
+  for (const b of spoken) {
+    run.push(b);
+    if (PERSON.test(b.say)) {
+      run = [];
+    } else if (run.length >= 8) {
+      warns.push(`${run[0].id} 起 ${run.length} 句没有我们、你、大家，叙述者缺席（narration.md 第八节）：${run[0].say.slice(0, 24)}…`);
+      run = [];
+    }
+  }
+}
+
 if (polyJson) {
   console.log(JSON.stringify(Object.fromEntries([...poly].map(([ch, byCtx]) => [ch, Object.fromEntries(byCtx)]))));
   process.exit(0);

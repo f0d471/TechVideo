@@ -17,11 +17,11 @@ export const Wire: React.FC<{d: string; stroke: string; draw: number; sw?: numbe
   <RPath d={d} stroke={stroke} sw={sw} roughness={0.5} draw={draw} />
 );
 
-// 信号值：导线上的 0/1 圆标，1 用强调色
-export const Val: React.FC<{x: number; y: number; v: 0 | 1; o: number}> = ({x, y, v, o}) =>
+// 信号值：导线上的 0/1 圆标，1 用强调色；color 换角色色（数据蓝、有效信号绿），缺省保持陶土
+export const Val: React.FC<{x: number; y: number; v: 0 | 1; o: number; color?: string}> = ({x, y, v, o, color = C.clay}) =>
   o > 0 ? (
     <g opacity={o}>
-      <circle cx={x} cy={y} r={17} fill={v ? C.clay : C.paper} stroke={v ? C.clay : C.muted} strokeWidth={2} />
+      <circle cx={x} cy={y} r={17} fill={v ? color : C.paper} stroke={v ? color : C.muted} strokeWidth={2} />
       <text x={x} y={y + 8} textAnchor="middle" fontFamily={F.mono} fontSize={22} fontWeight={700} fill={v ? C.paper : C.muted}>
         {v}
       </text>
@@ -132,6 +132,111 @@ export const unitPorts = (cx: number, cy: number, r = 46) => ({
 
 // 折线导线的路径：wire([p1, p2, …])
 export const wire = (pts: {x: number; y: number}[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${p.x} ${p.y}`).join(' ');
+
+// 寄存器：电路图里的存数部件。一个竖长的框，左边 D 进、右边 Q 出，底边中间的小三角接时钟，
+// 时钟线从三角往下引。name 写在框上方（「寄存器」或信号名），n 位并成一排时仍画一个框，导线上加 BusMark
+export const regPorts = (cx: number, cy: number, w = 64, h = 96) => ({
+  d: {x: cx - w / 2, y: cy},
+  q: {x: cx + w / 2, y: cy},
+  clk: {x: cx, y: cy + h / 2},
+  top: {x: cx, y: cy - h / 2},
+  w,
+  h,
+});
+export const Reg: React.FC<{
+  cx: number;
+  cy: number;
+  w?: number;
+  h?: number;
+  name?: string;
+  clockTo?: number; // 时钟线往下引到的 y；不给就不画
+  stroke?: string;
+  fill?: string;
+  draw: number;
+}> = ({cx, cy, w = 64, h = 96, name, clockTo, stroke = C.clay, fill = C.paper, draw}) => {
+  const p = regPorts(cx, cy, w, h);
+  const t = Math.max(0, draw * 2 - 1);
+  const tri = `M${cx - 11} ${cy + h / 2} L${cx} ${cy + h / 2 - 15} L${cx + 11} ${cy + h / 2}`;
+  return (
+    <g>
+      <RRect x={cx - w / 2} y={cy - h / 2} w={w} h={h} stroke={stroke} fill={fill} sw={2.4} roughness={0.6} draw={draw} />
+      <RPath d={tri} stroke={stroke} sw={2.2} roughness={0.4} draw={t} />
+      {clockTo !== undefined && <RPath d={`M${cx} ${cy + h / 2} L${cx} ${clockTo}`} stroke={C.clay} sw={2.2} roughness={0.4} draw={t} />}
+      <g opacity={t}>
+        <Txt x={p.d.x + 8} y={cy + 7} size={18} mono color={C.muted}>
+          D
+        </Txt>
+        <Txt x={p.q.x - 8} y={cy + 7} anchor="end" size={18} mono color={C.muted}>
+          Q
+        </Txt>
+      </g>
+      {name && (
+        <Txt x={cx} y={cy - h / 2 - 14} anchor="middle" size={22} color={C.clayInk} opacity={t}>
+          {name}
+        </Txt>
+      )}
+    </g>
+  );
+};
+
+// 组合逻辑块：一团云，表示两排寄存器之间不存数的那一堆门。原理段讲结构时用，代码段仍按门与运算单元画
+export const logicPorts = (cx: number, cy: number, w: number, h = 120) => ({left: {x: cx - w / 2, y: cy}, right: {x: cx + w / 2, y: cy}, top: {x: cx, y: cy - h / 2}, bottom: {x: cx, y: cy + h / 2}});
+export const Logic: React.FC<{
+  cx: number;
+  cy: number;
+  w: number;
+  h?: number;
+  text?: string;
+  sub?: string;
+  size?: number;
+  stroke?: string;
+  ink?: string;
+  draw: number;
+}> = ({cx, cy, w, h = 120, text = '组合逻辑', sub, size = 28, stroke = C.blue, ink = C.blueInk, draw}) => {
+  const x1 = cx - w / 2;
+  const x2 = cx + w / 2;
+  const y1 = cy - h / 2;
+  const y2 = cy + h / 2;
+  const bumps = Math.max(2, Math.round(w / 110));
+  const step = (x2 - x1 - 40) / bumps;
+  let d = `M${x1 + 20} ${y1 + 14}`;
+  for (let k = 0; k < bumps; k++) d += ` Q${x1 + 20 + step * (k + 0.5)} ${y1 - 18} ${x1 + 20 + step * (k + 1)} ${y1 + 14}`;
+  d += ` Q${x2 + 22} ${cy} ${x2 - 20} ${y2 - 14}`;
+  for (let k = bumps; k > 0; k--) d += ` Q${x1 + 20 + step * (k - 0.5)} ${y2 + 18} ${x1 + 20 + step * (k - 1)} ${y2 - 14}`;
+  d += ` Q${x1 - 22} ${cy} ${x1 + 20} ${y1 + 14} Z`;
+  const t = Math.max(0, draw * 2 - 1);
+  return (
+    <g>
+      <RPath d={d} stroke={stroke} fill={C.paper} sw={2.4} roughness={0.6} draw={draw} />
+      <Txt x={cx} y={sub ? cy - 4 : cy + size * 0.36} anchor="middle" size={size} color={ink} opacity={t}>
+        {text}
+      </Txt>
+      {sub && (
+        <Txt x={cx} y={cy + 30} anchor="middle" size={20} color={C.muted} opacity={t}>
+          {sub}
+        </Txt>
+      )}
+    </g>
+  );
+};
+
+// 模块边界：虚线框，左上角写模块名。框内画这个模块的电路，跨过虚线的导线就是模块之间的连线
+export const ModuleBox: React.FC<{x: number; y: number; w: number; h: number; name: string; draw: number; stroke?: string}> = ({
+  x,
+  y,
+  w,
+  h,
+  name,
+  draw,
+  stroke = C.muted,
+}) => (
+  <g>
+    <RRect x={x} y={y} w={w} h={h} stroke={stroke} sw={2} roughness={0.5} dash draw={draw} />
+    <Txt x={x + 18} y={y + 34} size={24} color={C.ink2} opacity={Math.max(0, draw * 2 - 1)}>
+      {name}
+    </Txt>
+  </g>
+);
 
 // 总线标记：导线上一道斜杠，旁边写位数
 export const BusMark: React.FC<{x: number; y: number; n: number | string; color?: string; o: number}> = ({x, y, n, color = C.ink2, o}) =>

@@ -1,0 +1,146 @@
+{
+ "snippets": {
+  "valid1": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 34,
+     "text": "    always @(posedge clk) begin"
+    },
+    {
+     "no": 35,
+     "text": "        if (!rst_n || flush) v_s1 <= 1'b0;"
+    },
+    {
+     "no": 36,
+     "text": "        else                 v_s1 <= in_valid;"
+    },
+    {
+     "no": 37,
+     "text": "    end"
+    }
+   ]
+  },
+  "stage1": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 65,
+     "text": "    wire [47:0] product_s0 = a_mant * b_mant;   // 尾数积"
+    },
+    {
+     "no": 66,
+     "text": "    wire signed [9:0] exp_sum_s0 = $signed({2'b0, a_exp})"
+    },
+    {
+     "no": 67,
+     "text": "                                    + $signed({2'b0, b_exp}) - 10'sd127; // 带符号阶码和"
+    }
+   ]
+  },
+  "regs": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 80,
+     "text": "            product_r   <= product_s0;"
+    },
+    {
+     "no": 81,
+     "text": "            exp_r       <= exp_sum_s0;"
+    },
+    {
+     "no": 82,
+     "text": "            sign_r      <= result_sign;"
+    },
+    {
+     "no": 83,
+     "text": "            spec_nan_r  <= is_nan_full;"
+    },
+    {
+     "no": 84,
+     "text": "            spec_inf_r  <= is_inf & ~is_nan_full;"
+    },
+    {
+     "no": 85,
+     "text": "            spec_zero_r <= is_zero & ~is_nan_full & ~is_inf;"
+    },
+    {
+     "no": 86,
+     "text": "            spec_sel_r  <= spec_sel;"
+    },
+    {
+     "no": 87,
+     "text": "            spec_sgn_r  <= result_sign;"
+    }
+   ]
+  },
+  "outreg": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 157,
+     "text": "    always @(posedge clk) begin"
+    },
+    {
+     "no": 158,
+     "text": "        if (!rst_n) p <= 32'd0;"
+    },
+    {
+     "no": 159,
+     "text": "        else        p <= spec_sel_r ? spec_res : normal_val;"
+    },
+    {
+     "no": 160,
+     "text": "    end"
+    }
+   ]
+  },
+  "valid2": {
+   "source": "anchorfp",
+   "repo": "https://github.com/f0d471/Anchorfp.git",
+   "commit": "39944a926d908bf3cb760f2e4ecd4d33a65d4cab",
+   "path": "fp/rtl/fp32_mul_pipe.v",
+   "sha256": "66cdb40707cd8148b89b934bad679ef55ff09d9db90dddd494d3ab9c4032af88",
+   "lang": "Verilog",
+   "lines": [
+    {
+     "no": 111,
+     "text": "    always @(posedge clk) begin"
+    },
+    {
+     "no": 112,
+     "text": "        if (!rst_n || flush) out_valid <= 1'b0;"
+    },
+    {
+     "no": 113,
+     "text": "        else                 out_valid <= v_s1;"
+    },
+    {
+     "no": 114,
+     "text": "    end"
+    }
+   ]
+  }
+ }
+}

@@ -24,7 +24,9 @@ const FontGate: React.FC<{children: React.ReactNode}> = ({children}) => {
 };
 
 // 字幕：只在该句语音播放期间出现，文本取 manifest 里的 sub。换行位置由脚本用 \n 写明，
-// 浏览器不自动折行，避免把一个词断在两行（宽度由 vt lint 按 tools/limits.json 检查）
+// 浏览器不自动折行，避免把一个词断在两行（宽度由 vt lint 按 tools/limits.json 检查）。
+// 字幕一次只展示一行：按各行的显示宽度把整句语音等比切分，第 i 行随它对应的那段语音出现，
+// 后一行出现时前一行退场（narration.md 第二节）
 const Captions: React.FC = () => {
   const M = useContext(ManifestCtx)!;
   const f = useCurrentFrame();
@@ -32,6 +34,18 @@ const Captions: React.FC = () => {
   if (!b) return null;
   const a0 = b.start + (b.audioFrom ?? 0);
   const o = Math.min(1, (f - a0 + 3) / 4, (a0 + (b.audioFrames ?? 0) + 6 - f) / 4);
+  const lines = (b.sub ?? '').split('\n');
+  const width = (line: string) => [...line].reduce((n, ch) => n + (/[ -~]/.test(ch) ? 0.6 : 1), 0);
+  const total = lines.reduce((n, l) => n + width(l), 0) || 1;
+  let acc = 0;
+  let idx = lines.length - 1;
+  for (let i = 0; i < lines.length; i++) {
+    if (f < a0 + ((b.audioFrames ?? 0) * (acc + width(lines[i]))) / total) {
+      idx = i;
+      break;
+    }
+    acc += width(lines[i]);
+  }
   return (
     <div
       style={{
@@ -47,11 +61,7 @@ const Captions: React.FC = () => {
         opacity: Math.max(0, o),
       }}
     >
-      {(b.sub ?? '').split('\n').map((line, i) => (
-        <div key={i} style={{whiteSpace: 'nowrap'}}>
-          {line}
-        </div>
-      ))}
+      <div style={{whiteSpace: 'nowrap'}}>{lines[idx]}</div>
     </div>
   );
 };
