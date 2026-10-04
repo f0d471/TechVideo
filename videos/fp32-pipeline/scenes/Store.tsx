@@ -62,7 +62,7 @@ const CombWave: React.FC = () => {
   const {p} = useT();
   const o = p('p05', 0, 14) * (1 - p('p06', 0, 12));
   if (o <= 0) return null;
-  const g = waveGeom({x0: 440, t1: 4, unit: 300, y0: 330, rowH: 150, amp: 54});
+  const g = waveGeom({x0: 410, t1: 4, unit: 300, y0: 330, rowH: 150, amp: 54});
   return (
     <g opacity={o}>
       <Wave
@@ -224,7 +224,7 @@ const ClockWave: React.FC = () => {
   const {p} = useT();
   const o = p('p10', 0, 14) * (1 - p('p12', 0, 12));
   if (o <= 0) return null;
-  const g = waveGeom({x0: 380, t1: 4, unit: 360, y0: 400, rowH: 200, amp: 90});
+  const g = waveGeom({x0: 277, t1: 4, unit: 360, y0: 400, rowH: 200, amp: 90});
   const e1 = waveX(g, 1);
   const e2 = waveX(g, 2);
   const up = p('p10', 0, 200);
@@ -334,27 +334,29 @@ const RegIntro: React.FC = () => {
   const {p} = useT();
   const o = p('p16', 0, 14) * (1 - p('p19', 0, 12));
   if (o <= 0) return null;
-  const rp = regPorts(980, 560, 110, 150);
+  const reg = {cx: 960, cy: 560, w: 110, h: 150};
+  const rp = regPorts(reg.cx, reg.cy, reg.w, reg.h);
   const store = p('p16', 60, 24);
   const circ = 1 - p('p17', 0, 14);
-  const g = waveGeom({x0: 480, t1: 4, unit: 290, y0: 400, rowH: 140, amp: 48});
+  const g = waveGeom({x0: 416, t1: 4, unit: 290, y0: 400, rowH: 140, amp: 48});
   return (
     <g opacity={o}>
       <Circuit opacity={circ}>
         <Wire d={wire([{x: 400, y: 560}, rp.d])} stroke={C.blue} draw={p('p16', 10, 14)} />
         <Val x={440} y={560} v={1} o={p('p16', 8, 12)} color={C.blue} />
-        <Reg cx={1060} cy={560} w={110} h={150} draw={p('p16', 4, 22)} clockTo={720} />
-        <Wire d={wire([rp.q, {x: 1380, y: 560}])} stroke={C.clay} draw={store} />
-        <Val x={1420} y={560} v={1} o={store} color={C.clay} />
-        <Txt x={770} y={560 + 9} anchor="end" size={26} color={C.blueInk}>
+        <Reg {...reg} draw={p('p16', 4, 22)} clockTo={720} />
+        <Wire d={wire([rp.q, {x: 1480, y: 560}])} stroke={C.clay} draw={store} />
+        <Val x={1480} y={560} v={1} o={store} color={C.clay} />
+        <Txt x={440} y={525} anchor="middle" size={26} color={C.blueInk}>
           输入
         </Txt>
-        <Txt x={1400} y={525} anchor="middle" size={26} color={C.clayInk} opacity={store}>
+        <Txt x={1480} y={525} anchor="middle" size={26} color={C.clayInk} opacity={store}>
           记下的值
         </Txt>
-        <Txt x={1060} y={240} anchor="middle" size={26} color={C.clayInk} opacity={p('p16', 30, 12)}>
+        <Txt x={960} y={240} anchor="middle" size={26} color={C.clayInk} opacity={p('p16', 30, 12)}>
           只在上升沿看一眼输入
-        </Txt>      </Circuit>
+        </Txt>
+      </Circuit>
       <g opacity={p('p17', 0, 14)}>
         <Wave
           g={g}
@@ -371,10 +373,10 @@ const RegIntro: React.FC = () => {
       </g>
       <g opacity={p('p18', 0, 14)}>
         <Label cx={500} cy={240} text="寄存器" sub="存数的部件" size={48} stroke={C.clay} color={C.clayInk} draw={p('p18', 4, 20)} />
-        <Txt x={1360} y={235} size={28} color={C.blueInk} opacity={p('p18', 30, 14)}>
+        <Txt x={1120} y={235} size={28} color={C.blueInk} opacity={p('p18', 30, 14)}>
           组合逻辑：输出随时跟着变
         </Txt>
-        <Txt x={1360} y={300} size={28} color={C.clayInk} opacity={p('p18', 48, 14)}>
+        <Txt x={1120} y={300} size={28} color={C.clayInk} opacity={p('p18', 48, 14)}>
           寄存器：输出只在上升沿变
         </Txt>
       </g>

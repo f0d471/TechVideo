@@ -14,17 +14,17 @@ import {Val} from '../../../src/components/Gates';
 
 // 逐拍表格：列 = 第 1–6 拍，行 = 送进 / 第一级 / 第二级 / 出口。
 // Table 只画框架与行名，组字母由这里逐拍叠加，才能一格一格出现
-const COLW = [200, 160, 160, 160, 160, 160, 160];
-const X0 = 300;
+const COLW = [240, 220, 220, 220, 220, 220, 220];
+const X0 = 960 - COLW.reduce((a, b) => a + b, 0) / 2;
 const T_Y = 280;
-const ROW_H = 64;
+const ROW_H = 80;
 const colCX = (i: number) => X0 + COLW.slice(0, i).reduce((a, b) => a + b, 0) + COLW[i] / 2;
-const rowTxt = (k: number) => T_Y + 22 + k * ROW_H + 32 + 10.8;
-const rowMid = (k: number) => rowTxt(k) - 10;
+const rowMid = (k: number) => T_Y + 22 + (k + 0.5) * ROW_H;
+const rowTxt = (k: number) => rowMid(k) + 30 * 0.36;
 
 const Frame: React.FC<{draw: number}> = ({draw}) => (
   <Table
-    cx={880}
+    cx={960}
     y={T_Y}
     colW={COLW}
     size={26}
@@ -72,7 +72,7 @@ const Ledger: React.FC = () => {
         dash
         draw={p('p61', 90, 22)}
       />
-      <Label cx={620} cy={548} text="延迟 2 拍" size={28} stroke={C.clay} color={C.clayInk} draw={p('p61', 130, 16)} />
+      <Label cx={650} cy={rowMid(3)} text="延迟 2 拍" size={28} stroke={C.clay} color={C.clayInk} draw={p('p61', 130, 16)} />
       {/* p62：第二级处理前一组数的时候，第一级已经在算下一组 */}
       <g opacity={p('p62', 0, 14)}>
         <Cell x={colCX(3)} k={1} t="B" o={p('p62', 10, 12)} />
@@ -99,19 +99,19 @@ const Ledger: React.FC = () => {
           sw={2.4}
           draw={p('p65', 20, 18)}
         />
-        <Txt x={(colCX(3) + colCX(6)) / 2} y={200} anchor="middle" size={28} color={C.greenInk} opacity={p('p65', 40, 14)}>
+        <Txt x={960} y={200} anchor="middle" size={28} color={C.greenInk} opacity={p('p65', 40, 14)}>
           从第三拍起，每一拍都有一个结果，这就是吞吐
         </Txt>
       </g>
       {/* p66：相邻两组之间隔 1 拍 */}
       <g opacity={p('p66', 0, 14)}>
         <RArrow x1={a.x + 22} y1={a.y - 18} x2={b.x - 22} y2={b.y - 18} lift={-14} stroke={C.green} sw={2.6} draw={p('p66', 10, 18)} />
-        <Txt x={(a.x + b.x) / 2} y={258} anchor="middle" size={26} color={C.greenInk} opacity={p('p66', 30, 14)}>
+        <Txt x={(a.x + b.x) / 2} y={240} anchor="middle" size={26} color={C.greenInk} opacity={p('p66', 30, 14)}>
           间隔 1 拍
         </Txt>
         <Formula
-          x={1460}
-          y={690}
+          x={960}
+          y={740}
           size={40}
           terms={[
             {t: '启动间隔 II = 1', color: C.greenInk, o: p('p66', 60, 30)},
@@ -137,21 +137,21 @@ const Legend: React.FC = () => {
     <g opacity={o}>
       {rows.map(([n, in2, out], i) => (
         <g key={n} opacity={p('p64', 10 + i * 24, 14)}>
-          <Txt x={330} y={660 + i * 56} mono size={28} color={C.blueInk}>
+          <Txt x={620} y={730 + i * 48} mono size={28} color={C.blueInk}>
             {n}
           </Txt>
-          <Txt x={390} y={660 + i * 56} mono size={28}>
+          <Txt x={680} y={730 + i * 48} mono size={28}>
             {in2}
           </Txt>
-          <Txt x={1030} y={660 + i * 56} mono size={28} color={C.ink2}>
+          <Txt x={1100} y={730 + i * 48} mono size={28} color={C.ink2}>
             →
           </Txt>
-          <Txt x={1090} y={660 + i * 56} mono size={28} color={C.clayInk}>
+          <Txt x={1170} y={730 + i * 48} mono size={28} color={C.clayInk}>
             {out}
           </Txt>
         </g>
       ))}
-      <Txt x={330} y={610} size={26} color={C.ink2} opacity={p('p64', 0, 12)}>
+      <Txt x={960} y={680} anchor="middle" size={26} color={C.ink2} opacity={p('p64', 0, 12)}>
         四组数都是前几集的例子，出口是那几集算出的结果
       </Txt>
     </g>
@@ -182,7 +182,7 @@ const Ledger2: React.FC = () => {
         <Txt x={(colCX(1) + colCX(3)) / 2} y={240} anchor="middle" size={26} color={C.greenInk} opacity={p('p67', 110, 14)}>
           隔 1 拍才收下一组
         </Txt>
-        <Txt x={960} y={T_Y + 22 + 4 * ROW_H + 80} anchor="middle" size={28} color={C.ink2} opacity={p('p67', 130, 14)}>
+        <Txt x={960} y={680} anchor="middle" size={28} color={C.ink2} opacity={p('p67', 130, 14)}>
           一组数分两拍用同一套电路
         </Txt>
       </g>
@@ -224,7 +224,7 @@ const Recap: React.FC = () => {
 };
 
 // p70–p73：有效信号跟着数据一级一级往下走；出口的有效信号是一，结果才算数
-const VALID_G = {x0: 430, unit: 165, y0: 250, rowH: 128, amp: 44};
+const VALID_G = {x0: 359, unit: 165, y0: 330, rowH: 132, amp: 44};
 const ValidWave: React.FC = () => {
   const {p} = useT();
   const o = p('p70', 0, 14);

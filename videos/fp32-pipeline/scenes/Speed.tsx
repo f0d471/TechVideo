@@ -18,7 +18,7 @@ const SetupHold: React.FC = () => {
   const {p} = useT();
   const o = p('p22', 0, 14) * (1 - p('p25', 0, 12));
   if (o <= 0) return null;
-  const g = waveGeom({x0: 440, t1: 3.4, unit: 360, y0: 280, rowH: 150, amp: 52});
+  const g = waveGeom({x0: 385, t1: 3.4, unit: 360, y0: 280, rowH: 150, amp: 52});
   const good = p('p24', 0, 12) < 1;
   return (
     <g opacity={o}>
@@ -62,7 +62,7 @@ const ClkToQ: React.FC = () => {
   const {p} = useT();
   const o = p('p25', 0, 14) * (1 - p('p26', 0, 12));
   if (o <= 0) return null;
-  const g = waveGeom({x0: 460, t1: 3, unit: 400, y0: 380, rowH: 170, amp: 60});
+  const g = waveGeom({x0: 397, t1: 3, unit: 400, y0: 380, rowH: 170, amp: 60});
   return (
     <g opacity={o}>
       <Wave
@@ -154,7 +154,7 @@ const HoldCheck: React.FC = () => {
   const {p} = useT();
   const o = p('p31', 0, 14) * (1 - p('p33', 0, 12));
   if (o <= 0) return null;
-  const g = waveGeom({x0: 460, t1: 2.6, unit: 460, y0: 390, rowH: 140, amp: 50});
+  const g = waveGeom({x0: 425, t1: 2.6, unit: 460, y0: 390, rowH: 140, amp: 50});
   const table = p('p32', 0, 14);
   return (
     <g opacity={o}>

@@ -23,13 +23,13 @@
 
 | 什么时候 | 读 |
 |---|---|
-| 每次接手 | 本文件、`docs/sop.md`、这一集的 `videos/<id>/STATUS.md` |
+| 每次接手 | 本文件、`docs/sop.md`、`docs/standards/reference.md`、这一集的 `videos/<id>/STATUS.md` |
 | S1–S2 大纲与取数 | `docs/standards/principle.md`、`curriculum/README.md`、系列大纲（`curriculum/NN-<系列>.md`）里这一集的条目 |
 | S3 脚本 | `docs/standards/narration.md`；有代码段时加 `docs/standards/code.md`；参照成片的 `script.json` |
 | S5 画面 | `docs/standards/visual.md`（第七节元素表）、`docs/architecture.md`、参照成片的 `scenes/`（原理段与代码段都读，看元素怎样拼成过程）；Remotion 的 API 不熟时查 `.agents/skills/remotion-best-practices/SKILL.md`（克隆后按 `docs/toolchain.md` 恢复） |
 | S7 处理反馈 | `docs/decisions.md` 里相关的那一节 |
 
-现行参照成片是已发布的 `videos/fp32-format`：情景开场、小节、核心公式条、原理推导和代码结构图都以它的第三稿为例。动手前按当前阶段读它的 `script.json`、`Video.tsx` 和对应的 `scenes/`，写完逐项对照。`videos/fp32-rne` 已按现行规范重做并审片通过，待上传；旧版的制作记录保存在本集 `STATUS.md`。规范中「反例（fp32-format 首稿／第二稿）」记录的是改版前的偏差，按条文里的改法处理。
+现行参照成片是第 6 集 `videos/fp32-pipeline`（2026-10-05 审片通过，待上传）。它汇合了前五集的制作经验，是当前语言与美术风格的最佳范例；后续各集的平实讲述、概念递进、角色色、时序图、逐拍过程和代码版式都以这一版为模板。具体场景与阅读顺序见 `docs/standards/reference.md`。动手前按当前阶段读它的 `script.json`、`Video.tsx` 和对应的 `scenes/`，写完逐项对照。`videos/_template` 是新建立项的文件骨架，整集风格以第 6 集为准。第 1 集 `videos/fp32-format` 保留为已发布作品与位域讲解的局部例子；规范中「反例（fp32-format 首稿／第二稿）」记录的是改版前的偏差，按条文里的改法处理。
 
 ## 目录与归属
 
@@ -91,24 +91,24 @@
 
 ## 常用命令
 
-所有命令在仓库根目录执行，入口是 `node tools/vt.mjs <命令> <视频 id>`。下面以第 4 集 `fp32-rne` 为命令参数；现行样片仍是 `fp32-format`：
+所有命令在仓库根目录执行，入口是 `node tools/vt.mjs <命令> <视频 id>`。下面以第 6 集 `fp32-pipeline` 为命令参数；新建命令里的 id 与标题照系列总表填写：
 
 ```
 node tools/vt.mjs new fp32-normalize 规格化     新建一集（id 与标题照抄系列总表）
-node tools/vt.mjs lint fp32-rne                 检查脚本
-node tools/vt.mjs table fp32-rne                生成脚本通读表（可选），打印脚本指纹
-node tools/vt.mjs code fp32-rne                 从素材仓的固定提交逐字抽代码
-node tools/vt.mjs evidence fp32-rne             在固定提交上跑出处实验，刷新原始日志
-node tools/vt.mjs tts fp32-rne                  分句配音与时间轴，检查语速与片长
-node tools/vt.mjs check fp32-rne                脚本、画面代码、时序、课程登记、系列大纲对照五项检查
-node tools/vt.mjs layout fp32-rne               版面检查：越界、进字幕区、文字重叠，只列有问题的帧
-node tools/vt.mjs stills fp32-rne 0.5 p07 p08   抽几帧（带字幕）看效果
-node tools/vt.mjs make fp32-rne                 出片一条龙：配音、检查、版面、渲染、母版、交片说明
-node tools/vt.mjs make fp32-rne --from master   渲染之后的步骤失败时接着跑
-node tools/vt.mjs accept fp32-rne               审片通过：记指纹、登记多音字、记回归基准
-node tools/vt.mjs page fp32-rne 23              页码对应的 beat 与时间
-node tools/vt.mjs regress fp32-rne              回归比对（改了共享层时）
-node tools/vt.mjs asr fp32-rne                  回听校对（可选）
+node tools/vt.mjs lint fp32-pipeline                 检查脚本
+node tools/vt.mjs table fp32-pipeline                生成脚本通读表（可选），打印脚本指纹
+node tools/vt.mjs code fp32-pipeline                 从素材仓的固定提交逐字抽代码
+node tools/vt.mjs evidence fp32-pipeline             在素材仓的固定提交上跑出处实验，刷新原始日志
+node tools/vt.mjs tts fp32-pipeline                  分句配音与时间轴，检查语速与片长
+node tools/vt.mjs check fp32-pipeline                脚本、画面代码、时序、课程登记、系列大纲对照五项检查
+node tools/vt.mjs layout fp32-pipeline               版面检查：越界、进字幕区、文字重叠，只列有问题的帧
+node tools/vt.mjs stills fp32-pipeline 0.5 p22 c11   抽几帧（带字幕）看效果
+node tools/vt.mjs make fp32-pipeline                 出片一条龙：配音、检查、版面、渲染、母版、交片说明
+node tools/vt.mjs make fp32-pipeline --from master   渲染之后的步骤失败时接着跑
+node tools/vt.mjs accept fp32-pipeline               审片通过：记指纹、登记多音字、记回归基准
+node tools/vt.mjs page fp32-pipeline 23              页码对应的 beat 与时间
+node tools/vt.mjs regress fp32-pipeline              回归比对（改了共享层时）
+node tools/vt.mjs asr fp32-pipeline                  回听校对（可选）
 node tools/vt.mjs curriculum                    课程登记检查
 npx remotion studio                             打开 Remotion 预览界面
 npm run typecheck                               类型检查

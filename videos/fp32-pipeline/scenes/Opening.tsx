@@ -16,7 +16,7 @@ const Many: React.FC = () => {
   if (o <= 0) return null;
   const ys = [560, 730];
   const xs = [600, 960, 1320];
-  const g = waveGeom({x0: 360, t1: 6, unit: 250, y0: 250});
+  const g = waveGeom({x0: 250, t1: 6, unit: 250, y0: 250});
   return (
     <g opacity={o}>
       <Wave g={g} rows={[{kind: 'clock', name: '时钟'}]} upTo={1.2 + p('p01', 6, 200) * 4.8} />

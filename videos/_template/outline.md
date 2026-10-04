@@ -1,6 +1,6 @@
 # __ID__ 大纲：__TITLE__
 
-写脚本之前填完。从 `curriculum/` 系列大纲里这一集的条目出发，规则见 `docs/standards/principle.md` 与 `docs/sop.md` 的 S1。
+写脚本之前填完。从 `curriculum/` 系列大纲里这一集的条目出发，规则见 `docs/standards/principle.md` 与 `docs/sop.md` 的 S1。语言与美术以第 6 集 `fp32-pipeline` 的验收通过版本为模板，阅读索引见 `docs/standards/reference.md`；按当前主题重排概念链与角色色。
 
 ## 观众起点与问题
 
@@ -31,7 +31,7 @@
 
 ## 类比
 
-- 每个类比写明它与原概念在哪一点上严格等价。
+- 旁白按动作、原因、结果讲清过程，形象表达交给图与动画。确有帮助的类比写明它与原概念在哪一点上严格等价；没有类比写「无」。
 
 ## 数字清单
 

@@ -65,12 +65,12 @@ const ClockBlock: React.FC = () => {
         </Txt>
       </Circuit>
       <g opacity={span('c04', 'c05', 12)}>
-        <Label cx={1520} cy={600} text="写在语句开头：存进寄存器" size={26} stroke={C.clay} color={C.clayInk} draw={p('c04', 10, 16)} />
-        <Label cx={1520} cy={700} text="写在表达式里：比较大小" size={26} stroke={C.blue} color={C.blueInk} draw={p('c04', 30, 16)} />
+        <Label cx={1320} cy={600} text="写在语句开头：存进寄存器" size={26} stroke={C.clay} color={C.clayInk} draw={p('c04', 10, 16)} />
+        <Label cx={1320} cy={700} text="写在表达式里：比较大小" size={26} stroke={C.blue} color={C.blueInk} draw={p('c04', 30, 16)} />
       </g>
       <g opacity={span('c05', 'c06', 12)}>
         <Table
-          cx={1520}
+          cx={1320}
           y={580}
           colW={[180, 200, 200]}
           size={24}
@@ -138,14 +138,14 @@ const Valid1: React.FC = () => {
         </Txt>
       </Circuit>
       <g opacity={p('c07', 60, 14)}>
-        <Txt x={1400} y={560} size={26} color={C.clayInk}>
+        <Txt x={1260} y={560} size={26} color={C.clayInk}>
           复位或作废：存 0；
         </Txt>
-        <Txt x={1400} y={598} size={26} color={C.clayInk}>
+        <Txt x={1260} y={598} size={26} color={C.clayInk}>
           否则存进来的有效信号
         </Txt>
       </g>
-      <Txt x={1400} y={660} size={26} color={C.greenInk} opacity={p('c07', 110, 14)}>
+      <Txt x={1260} y={680} size={26} color={C.greenInk} opacity={p('c07', 110, 14)}>
         晚一拍交给第一级
       </Txt>
     </g>
@@ -192,41 +192,43 @@ const Regs1: React.FC = () => {
       </g>
       <g opacity={span('c09', 'c12', 14)}>
         <Panel code={regs} at="c09" until="c12" lineEvery={10} />
-        <Circuit opacity={1}>
-          <Wire d={wire([{x: 1150, y: 640}, {x: 1300, y: 640}])} stroke={C.blue} sw={5} draw={p('c09', 20, 16)} />
-          <BusMark x={1230} y={640} n={48} o={p('c09', 30, 12)} />
-          <Txt x={1140} y={649} anchor="end" size={22} mono color={C.blueInk} opacity={p('c09', 30, 12)}>
-            积
-          </Txt>
-          <Wire d={wire([{x: 1150, y: 700}, {x: 1300, y: 700}])} stroke={C.clay} sw={5} draw={p('c09', 50, 16)} />
-          <BusMark x={1230} y={700} n={10} o={p('c09', 60, 12)} />
-          <Txt x={1140} y={709} anchor="end" size={22} mono color={C.clayInk} opacity={p('c09', 60, 12)}>
-            阶码和
-          </Txt>
-          <Wire d={wire([{x: 1150, y: 760}, {x: 1300, y: 760}])} stroke={C.blue} draw={p('c09', 80, 16)} />
-          <BusMark x={1230} y={760} n={1} o={p('c09', 90, 12)} />
-          <Txt x={1140} y={769} anchor="end" size={22} mono color={C.blueInk} opacity={p('c09', 90, 12)}>
-            符号
-          </Txt>
-          <Wire d={wire([{x: 1300, y: 640}, {x: 1300, y: 760}])} stroke={C.ink2} draw={p('c09', 90, 14)} />
-          <Wire d={wire([{x: 1300, y: 700}, rp.d])} stroke={C.ink2} draw={p('c09', 96, 12)} />
-          <Reg cx={1400} cy={700} w={100} h={160} draw={p('c09', 10, 20)} clockTo={850} />
-          <Wire d={wire([rp.q, {x: 1560, y: 700}])} stroke={C.ink2} draw={p('c11', 20, 14)} />
-        </Circuit>
-        <Label cx={1600} cy={600} text="两级之间的寄存器" size={28} stroke={C.clay} color={C.clayInk} draw={p('c11', 0, 16)} />
+        <g transform="translate(-320, 110)">
+          <Circuit opacity={1}>
+            <Wire d={wire([{x: 1150, y: 640}, {x: 1300, y: 640}])} stroke={C.blue} sw={5} draw={p('c09', 20, 16)} />
+            <BusMark x={1230} y={640} n={48} o={p('c09', 30, 12)} />
+            <Txt x={1140} y={649} anchor="end" size={22} mono color={C.blueInk} opacity={p('c09', 30, 12)}>
+              积
+            </Txt>
+            <Wire d={wire([{x: 1150, y: 700}, {x: 1300, y: 700}])} stroke={C.clay} sw={5} draw={p('c09', 50, 16)} />
+            <BusMark x={1230} y={700} n={10} o={p('c09', 60, 12)} />
+            <Txt x={1140} y={709} anchor="end" size={22} mono color={C.clayInk} opacity={p('c09', 60, 12)}>
+              阶码和
+            </Txt>
+            <Wire d={wire([{x: 1150, y: 760}, {x: 1300, y: 760}])} stroke={C.blue} draw={p('c09', 80, 16)} />
+            <BusMark x={1230} y={760} n={1} o={p('c09', 90, 12)} />
+            <Txt x={1140} y={769} anchor="end" size={22} mono color={C.blueInk} opacity={p('c09', 90, 12)}>
+              符号
+            </Txt>
+            <Wire d={wire([{x: 1300, y: 640}, {x: 1300, y: 760}])} stroke={C.ink2} draw={p('c09', 90, 14)} />
+            <Wire d={wire([{x: 1300, y: 700}, rp.d])} stroke={C.ink2} draw={p('c09', 96, 12)} />
+            <Reg cx={1400} cy={700} w={100} h={160} draw={p('c09', 10, 20)} clockTo={800} />
+            <Wire d={wire([rp.q, {x: 1560, y: 700}])} stroke={C.ink2} draw={p('c11', 20, 14)} />
+          </Circuit>
+        </g>
+        <Label cx={960} cy={595} text="两级之间的寄存器" size={24} stroke={C.clay} color={C.clayInk} draw={p('c11', 0, 16)} />
         <g opacity={p('c10', 20, 12) * (1 - p('c11', 0, 12))}>
-          <Txt x={1470} y={720} size={24} color={C.ink2}>
+          <Txt x={960} y={610} anchor="middle" size={24} color={C.ink2}>
             波浪号按位取反，三种特殊情况
           </Txt>
-          <Txt x={1470} y={758} size={24} color={C.ink2}>
+          <Txt x={960} y={650} anchor="middle" size={24} color={C.ink2}>
             相互排斥，只让一种成立
           </Txt>
         </g>
         <g opacity={p('c11', 40, 14)}>
-          <Txt x={1470} y={720} size={24} color={C.clayInk}>
+          <Txt x={960} y={650} anchor="middle" size={24} color={C.clayInk}>
             八行在同一个时钟块里，
           </Txt>
-          <Txt x={1470} y={758} size={24} color={C.clayInk}>
+          <Txt x={960} y={680} anchor="middle" size={24} color={C.clayInk}>
             同一个上升沿一起存下
           </Txt>
         </g>
@@ -266,12 +268,12 @@ const OutReg: React.FC = () => {
           p
         </Txt>
       </Circuit>
-      <Label cx={1600} cy={560} text="输出寄存器" size={30} stroke={C.clay} color={C.clayInk} draw={p('c13', 0, 16)} />
+      <Label cx={1440} cy={560} text="输出寄存器" size={30} stroke={C.clay} color={C.clayInk} draw={p('c13', 0, 16)} />
       <g opacity={p('c13', 30, 14)}>
-        <Txt x={1400} y={640} size={24} color={C.ink2}>
+        <Txt x={1240} y={640} size={24} color={C.ink2}>
           结果出模块之前先存一拍，
         </Txt>
-        <Txt x={1400} y={678} size={24} color={C.ink2}>
+        <Txt x={1240} y={678} size={24} color={C.ink2}>
           组合逻辑留在了乘法器里面
         </Txt>
       </g>
@@ -299,10 +301,10 @@ const Valid2: React.FC = () => {
           out_valid
         </Txt>
       </Circuit>
-      <Txt x={1400} y={560} size={26} color={C.greenInk} opacity={p('c14', 60, 14)}>
+      <Txt x={1140} y={560} size={26} color={C.greenInk} opacity={p('c14', 60, 14)}>
         第一级的有效信号再存一拍
       </Txt>
-      <Txt x={1400} y={630} size={26} color={C.ink2} opacity={p('c14', 100, 14)}>
+      <Txt x={1140} y={630} size={26} color={C.ink2} opacity={p('c14', 100, 14)}>
         四组数出来的那四拍，它都是一
       </Txt>
     </g>

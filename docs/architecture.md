@@ -42,7 +42,7 @@ frames = leadFrames + ceil(语音秒数 × 30) + gapFrames + round(hold × 30)
 | `theme.ts` | `C`、`F`、`W`、`H` | 配色、字体、画面尺寸 |
 | `timeline.ts` | `useT()`、`ManifestCtx`、类型 `Beat`、`Manifest` | 按 beat 计时 |
 | `rough.tsx` | `RRect`、`RLine`、`RPath`、`REllipse`、`RArrow` | 手绘图元，`draw` 控制描线进度 |
-| `VideoShell.tsx` | `defineVideo`、`VideoShell`、类型 `VideoDef` | 一集的外壳：计时上下文、字体预载、底色、画布、左下角页码、字幕（按 `sub` 里的 `\n` 换行，不自动折行）、分句配音；`inputProps.layoutProbe` 为真时挂载版面探针（只给 `vt layout` 用，正常渲染不挂载） |
+| `VideoShell.tsx` | `defineVideo`、`VideoShell`、类型 `VideoDef` | 一集的外壳：计时上下文、字体预载、底色、画布、左下角页码、单行字幕（按 `sub` 里的 `\n` 分段，按显示宽度切分语音时段并依次展示，不自动折行）、分句配音；`inputProps.layoutProbe` 为真时挂载版面探针（只给 `vt layout` 用，正常渲染不挂载） |
 
 `useT()` 返回：
 
