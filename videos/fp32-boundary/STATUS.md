@@ -43,7 +43,7 @@ S0–S2 手动勾选；S3–S6 由 `vt make` 勾选，S7 由 `vt accept` 勾选�
 
 ## 待办
 
-- [ ] S7 审片：看成片，反馈按页码记入「反馈记录」；通过后 `vt accept fp32-boundary`。
+- [x] S7 审片：看成片，反馈按页码记入「反馈记录」；通过后 `vt accept fp32-boundary`。
 - [ ] S8 上传后登记平台链接、日期与成片 sha256。
 
 ## 发布记录
