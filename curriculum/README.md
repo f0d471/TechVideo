@@ -16,6 +16,7 @@
 - **叫法**：旁白、字幕和画面文字用 `concepts.json` 的 `name`。`avoid` 里的别名会被 `vt lint` 提醒。
 - **代码词的翻译级别**：按系列总表的顺序判断。一个词在前面的集已经完整翻译过，这一集只高亮；否则完整翻译，并把 `terms.json` 里它的 `episode` 改成这一集（总表顺序更靠前的集优先）。制作顺序不影响级别。
 - **素材代码**：`script.json` 的 `code` 数组里每段的 `source` 写 `sources.json` 里的名字，文件取自固定提交。
+- **分系列的界限**：音色、语速、片长的全仓默认在 `tools/limits.json`；某个系列要不同的值，写进它的 `seriesOverrides`（键是本目录下系列文件名去掉 `.md`），`vt curriculum` 校验系列名。
 
 ## 格式
 

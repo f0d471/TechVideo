@@ -53,7 +53,7 @@
 | `videos/<id>/assets/` | 引用的图片与论文页面（公有领域或 CC BY），作者与许可登记在 `evidence/references.md` | 外部，入库 | 只在做这一集时，按 `docs/standards/principle.md` 第十三节 |
 | `videos/<id>/build/manifest.json`、`build/code.json` | 时间轴、抽出的代码 | 生成，入库 | 由 `vt tts`、`vt code` 写。画面代码直接引用它们，入库后克隆下来就能类型检查和预览，改动也能在 diff 里看到 |
 | `videos/<id>/audio/`、`build/` 里的其他文件 | 配音、字幕、校对结果、审阅表 | 生成 | 只由 `vt` 的命令写，不入库 |
-| `tools/` | 流程脚本，统一入口 `tools/vt.mjs`；`limits.json` 是各项数值界限；`lexicon.json` 是全局读法词典；`env.cjs` 读本机设置 | 源 | 流程变化或新增检查项时 |
+| `tools/` | 流程脚本，统一入口 `tools/vt.mjs`；`limits.json` 是各项数值界限（音色、语速、片长可按系列在 `seriesOverrides` 覆盖）；`lexicon.json` 是全局读法词典；`env.cjs` 读本机设置 | 源 | 流程变化或新增检查项时 |
 | `tools/env.local.json` | 本机路径：Chrome、Python 库、素材仓的本地克隆 | 本机 | 写法见 `docs/toolchain.md` |
 | `.agents/skills/` | Remotion 官方 skill | 外部，不入库 | `npx skills experimental_install` 按 `skills-lock.json` 恢复 |
 | `.claude/skills/` | 指向 `.agents/skills/` 的目录链接，供 Claude Code 自动发现 | 生成，不入库 | `node tools/link_skills.mjs` 重建 |

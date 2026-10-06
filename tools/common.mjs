@@ -73,18 +73,36 @@ export const scriptFingerprint = (script) => {
   return crypto.createHash('sha256').update(body).digest('hex').slice(0, 12);
 };
 
-// 系列顺序：curriculum/NN-*.md 的「## 总表」按文件名排序拼起来，集 id → 全局序号
-export const seriesOrder = () => {
+// 系列：curriculum/NN-*.md 的「## 总表」按文件名排序拼起来，集 id → 全局序号与所属系列
+const seriesTables = () => {
   const cur = path.join(ROOT, 'curriculum');
   const order = new Map();
+  const seriesById = new Map();
   for (const f of fs.readdirSync(cur).filter((n) => /^\d+-.+\.md$/.test(n)).sort()) {
     const table = fs.readFileSync(path.join(cur, f), 'utf8').split(/^## 总表\s*$/m)[1]?.split(/^## /m)[0] ?? '';
     for (const row of table.split('\n').filter((l) => /^\|\s*\d+\s*\|/.test(l))) {
       const id = row.split('|')[2]?.match(/`([a-z0-9-]+)`/)?.[1];
-      if (id && !order.has(id)) order.set(id, order.size);
+      if (id && !order.has(id)) {
+        order.set(id, order.size);
+        seriesById.set(id, f.replace(/\.md$/, ''));
+      }
     }
   }
-  return order;
+  return {order, seriesById};
+};
+
+// 系列顺序：集 id → 全局序号（跨系列的前置关系也按这个顺序算）
+export const seriesOrder = () => seriesTables().order;
+
+// 集属于哪个系列：系列文件名去掉 .md（如 01-fp32-mul）；不在任何总表里时返回 undefined
+export const seriesOf = (id) => seriesTables().seriesById.get(id);
+
+// 数值界限按系列取：limits.json 顶层的键是全仓默认，seriesOverrides 按系列文件名（去掉 .md）
+// 整键覆盖。音色、语速、片长是系列的决定，某个系列不同时在那里覆盖；lint 与 vt tts 按集所属系列解析
+export const limitsFor = (id) => {
+  const limits = readJson(path.join(ROOT, 'tools/limits.json'));
+  const over = limits.seriesOverrides?.[seriesOf(id)];
+  return over ? {...limits, ...over} : limits;
 };
 
 // 一段文字里出现了哪些概念：长的叫法先认（「规格化数」里的「规格化」不算），

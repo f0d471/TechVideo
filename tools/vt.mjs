@@ -10,6 +10,7 @@ import {
   buildDir,
   checkFrame,
   chromeVersion,
+  limitsFor,
   loadManifest,
   loadScript,
   outDir,
@@ -25,7 +26,6 @@ import {
 } from './common.mjs';
 
 const [cmd, id, ...rest] = process.argv.slice(2);
-const LIMITS = readJson(path.join(ROOT, 'tools/limits.json'));
 
 const HELP = `node tools/vt.mjs <命令> <视频 id> [参数]
 
@@ -219,7 +219,7 @@ const commands = {
     const spoken = m.beats.filter((b) => b.audioSec);
     const rate = spoken.reduce((a, b) => a + b.say.replace(/[，。：；、？！“”\s]/g, '').length / b.audioSec, 0) / spoken.length;
     const sec = m.totalFrames / m.fps;
-    const {speechRate: r, duration: d} = LIMITS;
+    const {speechRate: r, duration: d} = limitsFor(id);
     const bad = [];
     if (rate < r.min || rate > r.max) bad.push(`语速 ${rate.toFixed(2)} 字/秒，规定 ${r.min}–${r.max}，调整 script.json 的 rate`);
     if (sec < d.min || sec > d.max) bad.push(`片长 ${sec.toFixed(1)} 秒，规定 ${d.min}–${d.max} 秒，考虑拆集或并集`);

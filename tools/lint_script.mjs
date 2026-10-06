@@ -2,14 +2,14 @@
 // 用法：node tools/lint_script.mjs <视频 id> [--poly-json]；有「错误」时退出码为 1，「提醒」需要逐条看过。
 // --poly-json 只输出未登记的多音字 {字: {上下文: [beat]}}，供 vt make 写交片说明、vt accept 登记读音
 import path from 'node:path';
-import {ROOT, conceptsIn, loadScript, readJson, requireVideo, seriesOrder} from './common.mjs';
+import {ROOT, conceptsIn, limitsFor, loadScript, readJson, requireVideo, seriesOrder} from './common.mjs';
 
 const id = process.argv[2];
 const polyJson = process.argv.includes('--poly-json');
 requireVideo(id);
 const script = loadScript(id);
 const lex = readJson(path.join(ROOT, 'tools/lexicon.json'));
-const LIMITS = readJson(path.join(ROOT, 'tools/limits.json'));
+const LIMITS = limitsFor(id);
 const SOURCES = readJson(path.join(ROOT, 'curriculum/sources.json'));
 
 // 视频讲通用知识，不讲某个项目：素材仓名与源文件名不进旁白和字幕
@@ -72,9 +72,10 @@ const errors = [];
 const warns = [];
 const seen = new Set();
 
-// 同一个系列用同一个音色；换音色是整个系列的决定，改 limits.json，不在某一集里悄悄换
+// 同一个系列用同一个音色；换音色是整个系列的决定，改 limits.json 的 voice 或该系列在
+// seriesOverrides 里的覆盖，不在某一集里悄悄换
 if (script.voice !== LIMITS.voice.name) {
-  errors.push(`script.json 的 voice 是 ${script.voice}，系列统一用 ${LIMITS.voice.name}（tools/limits.json 的 voice）`);
+  errors.push(`script.json 的 voice 是 ${script.voice}，系列统一用 ${LIMITS.voice.name}（tools/limits.json 的 voice 或该系列的 seriesOverrides）`);
 }
 const poly = new Map(); // 多音字所在的词 → 出现的 beat
 

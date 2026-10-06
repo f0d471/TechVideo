@@ -85,6 +85,13 @@ for (const [name, s] of Object.entries(readJson(path.join(CUR, 'sources.json')))
   if (!s.license) errors.push(`sources.json：${name} 缺 license`);
 }
 
+// limits.json 的 seriesOverrides 按系列覆盖界限；键必须是本目录下真实存在的系列文件名（去掉 .md），
+// why 是这条覆盖规则的说明，不算系列名
+const overrides = readJson(path.join(ROOT, 'tools/limits.json')).seriesOverrides ?? {};
+for (const k of Object.keys(overrides)) {
+  if (k !== 'why' && !series.includes(`${k}.md`)) errors.push(`limits.json：seriesOverrides 的 ${k} 不是 curriculum/ 下的系列文件名`);
+}
+
 for (const e of errors) console.log(`错误 ${e}`);
 console.log(`课程登记：${series.length} 个系列，${order.size} 集，${concepts.length} 个概念，${terms.length} 个代码词：${errors.length} 个错误`);
 process.exit(errors.length ? 1 : 0);

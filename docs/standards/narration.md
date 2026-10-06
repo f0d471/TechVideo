@@ -79,10 +79,10 @@
 
 ## 五、配音参数
 
-- 音色：`zh-CN-YunxiNeural`（edge-tts），写在 `tools/limits.json` 的 `voice`，`script.json` 的 `voice` 与它不同时 `lint` 报错，交片说明写明音色与语速。一个系列用同一个音色；想要更有辨识度的声音，可换本地 IndexTTS2 克隆固定的参考音色，这是整个系列的决定，改 `limits.json` 并记进 `decisions.md`。
+- 音色：`zh-CN-YunxiNeural`（edge-tts），全仓默认写在 `tools/limits.json` 的 `voice`，`script.json` 的 `voice` 与它不同时 `lint` 报错，交片说明写明音色与语速。一个系列用同一个音色；某个系列要用别的音色，在 `limits.json` 的 `seriesOverrides` 里按系列覆盖（键是系列文件名去掉 `.md`），并记进 `decisions.md`；想要更有辨识度的声音，可换本地 IndexTTS2 克隆固定的参考音色。
 - edge-tts 在线合成，整集旁白文本会发给在线服务。旁白本来随成片公开发布，仓库也是公开的，这一步是既定做法，不另设离线配音路径。
 - 速率：`script.json` 的 `rate`，现行各集用 `+4%`（第 1–3 集实测 4.93–5.14 字/秒）；句间停顿 10 帧（`gapFrames`），每句前导 4 帧（`leadFrames`）。
-- 语速要落在 4.8–5.3 字/秒（不计标点）。`vt tts` 完成后计算全片平均语速，超出区间时退出码为 1，调整 `script.json` 的 `rate` 后重跑。4.59 字/秒在审片中判为偏慢，4.94 字/秒通过。
+- 语速要落在 4.8–5.3 字/秒（不计标点；区间在 `limits.json` 的 `speechRate`，与片长区间 `duration` 一样可按系列在 `seriesOverrides` 覆盖）。`vt tts` 完成后计算全片平均语速，超出区间时退出码为 1，调整 `script.json` 的 `rate` 后重跑。4.59 字/秒在审片中判为偏慢，4.94 字/秒通过。
 - 一句一个音频文件，首尾静音自动去掉；句间停顿由时间轴控制，不在文本里加停顿标记。
 
 ## 六、内容写法
